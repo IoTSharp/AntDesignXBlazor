@@ -8,6 +8,9 @@ DotEnvLoader.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 让 _content/<package>/... 这类 RCL static web assets 在所有环境（含 Production）都可被解析
+builder.WebHost.UseStaticWebAssets();
+
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddRazorComponents()
