@@ -1,0 +1,99 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="antdx-folder-title">@Title</div>
+    }
+    <ul class="antdx-folder-list">
+        @foreach (var item in Items)
+        {
+            @RenderItem(item, 0)
+        }
+    </ul>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XFolderItem> Items { get; set; } = Array.Empty<XFolderItem>();
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public XFolderVariant Variant { get; set; }
+    [Parameter] public string? ActiveKey { get; set; }
+    [Parameter] public EventCallback<string> ActiveKeyChanged { get; set; }
+    [Parameter] public EventCallback<XFolderItem> OnSelect { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-folder", $"antdx-folder-{Variant.ToString().ToLowerInvariant()}", Class);
+
+    private RenderFragment RenderItem(XFolderItem item, int level) => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "li");
+        builder.AddAttribute(seq++, "class", XCss.Combine("antdx-folder-item-wrap", item.Children.Count > 0 ? "antdx-folder-item-wrap-parent" : null));
+
+        builder.OpenElement(seq++, "button");
+        builder.AddAttribute(seq++, "type", "button");
+        builder.AddAttribute(seq++, "class", ItemClass(item));
+        builder.AddAttribute(seq++, "style", $"--antdx-folder-indent:{level * 12}px");
+        builder.AddAttribute(seq++, "disabled", item.Disabled);
+        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => Select(item)));
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-folder-icon");
+        builder.OpenComponent<XIcon>(seq++);
+        builder.AddAttribute(seq++, "Type", string.IsNullOrWhiteSpace(item.Icon) ? item.Children.Count > 0 ? "folder" : "file" : item.Icon);
+        builder.CloseComponent();
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-folder-main");
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-folder-name");
+        builder.AddContent(seq++, item.Name);
+        builder.CloseElement();
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-folder-description");
+            builder.AddContent(seq++, item.Description);
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+        builder.CloseElement();
+
+        if (item.Children.Count > 0)
+        {
+            builder.OpenElement(seq++, "ul");
+            builder.AddAttribute(seq++, "class", "antdx-folder-list antdx-folder-list-child");
+            foreach (var child in item.Children)
+            {
+                builder.AddContent(seq++, RenderItem(child, level + 1));
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
+    private string ItemClass(XFolderItem item)
+    {
+        return XCss.Combine(
+            "antdx-folder-item",
+            item.Key == ActiveKey ? "antdx-folder-item-active" : null,
+            item.Disabled ? "antdx-folder-item-disabled" : null);
+    }
+
+    private async Task Select(XFolderItem item)
+    {
+        if (item.Disabled)
+        {
+            return;
+        }
+
+        ActiveKey = item.Key;
+        await ActiveKeyChanged.InvokeAsync(item.Key);
+        await OnSelect.InvokeAsync(item);
+    }
+}

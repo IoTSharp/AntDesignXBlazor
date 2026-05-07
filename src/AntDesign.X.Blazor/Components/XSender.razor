@@ -1,0 +1,173 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="antdx-sender-header">@HeaderTemplate</div>
+    }
+
+    <div class="antdx-sender-editor">
+        @if (Attachments.Count > 0 || AttachmentsEnabled)
+        {
+            <XAttachments Items="@Attachments"
+                          UploadEnabled="@AttachmentsEnabled"
+                          Multiple="@Multiple"
+                          Compact="true"
+                          Placeholder="@AttachmentsPlaceholder"
+                          UploadText="@UploadText"
+                          OnFilesSelected="@OnFilesSelected"
+                          OnRemove="@OnAttachmentRemove" />
+        }
+
+        @if (PrefixTemplate is not null)
+        {
+            <div class="antdx-sender-prefix">@PrefixTemplate</div>
+        }
+
+        <textarea class="antdx-sender-textarea"
+                  value="@Value"
+                  placeholder="@Placeholder"
+                  disabled="@Disabled"
+                  rows="@Rows"
+                  @oninput="HandleInput"
+                  @onkeydown="HandleKeyDown"></textarea>
+
+        @if (FooterTemplate is not null)
+        {
+            <div class="antdx-sender-custom-footer">@FooterTemplate</div>
+        }
+        else
+        {
+            <div class="antdx-sender-footer">
+                <div class="antdx-sender-tools">
+                    @if (AttachmentsEnabled)
+                    {
+                        <label class="antdx-action">
+                            <InputFile class="antdx-sender-file-input" multiple="@Multiple" OnChange="@HandleFiles" />
+                            <XIcon Type="paper-clip" />
+                            <span>@UploadText</span>
+                        </label>
+                    }
+                    @foreach (var action in Actions)
+                    {
+                        <button type="button"
+                                class="@SenderActionClass(action)"
+                                title="@action.Tooltip"
+                                disabled="@action.Disabled"
+                                @onclick="() => OnAction.InvokeAsync(action.Key)">
+                            <XIcon Type="@action.Icon" />
+                            @if (!string.IsNullOrWhiteSpace(action.Label))
+                            {
+                                <span>@action.Label</span>
+                            }
+                        </button>
+                    }
+                </div>
+                <div class="antdx-sender-submit">
+                    @if (Loading)
+                    {
+                        <button type="button"
+                                class="antdx-sender-stop"
+                                @onclick="Cancel">
+                            <XIcon Type="pause-circle" />
+                            <span>@CancelText</span>
+                        </button>
+                    }
+                    <button type="button"
+                            class="antdx-sender-send"
+                            disabled="@SubmitDisabled"
+                            @onclick="Submit">
+                        <XIcon Type="@SubmitIcon" />
+                        <span>@SubmitText</span>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Ask or input / use skills";
+    [Parameter] public int Rows { get; set; } = 3;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool SubmitWhenEmpty { get; set; }
+    [Parameter] public XSenderSubmitMode SubmitMode { get; set; }
+    [Parameter] public string SubmitText { get; set; } = "Send";
+    [Parameter] public string SubmitIcon { get; set; } = "send";
+    [Parameter] public string CancelText { get; set; } = "Stop";
+    [Parameter] public IReadOnlyList<XAttachmentItem> Attachments { get; set; } = Array.Empty<XAttachmentItem>();
+    [Parameter] public bool AttachmentsEnabled { get; set; } = true;
+    [Parameter] public bool Multiple { get; set; } = true;
+    [Parameter] public string AttachmentsPlaceholder { get; set; } = "Drop files here or click to upload";
+    [Parameter] public string UploadText { get; set; } = "Attach";
+    [Parameter] public IReadOnlyList<XActionItem> Actions { get; set; } = Array.Empty<XActionItem>();
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public RenderFragment? PrefixTemplate { get; set; }
+    [Parameter] public RenderFragment? FooterTemplate { get; set; }
+    [Parameter] public EventCallback<XSenderRequest> OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<string> OnAction { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> OnFilesSelected { get; set; }
+    [Parameter] public EventCallback<string> OnAttachmentRemove { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-sender", Loading ? "antdx-sender-loading" : null, Class);
+    private bool SubmitDisabled => Disabled || Loading || (!SubmitWhenEmpty && string.IsNullOrWhiteSpace(Value) && Attachments.Count == 0);
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        Value = args.Value?.ToString();
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private Task HandleFiles(InputFileChangeEventArgs args)
+    {
+        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles();
+        return OnFilesSelected.InvokeAsync(files);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (Disabled || Loading)
+        {
+            return;
+        }
+
+        var shouldSubmit = SubmitMode == XSenderSubmitMode.Enter
+            ? args.Key == "Enter" && !args.ShiftKey
+            : args.Key == "Enter" && (args.CtrlKey || args.MetaKey);
+
+        if (shouldSubmit && !SubmitDisabled)
+        {
+            await Submit();
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (SubmitDisabled)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(new XSenderRequest
+        {
+            Text = Value ?? string.Empty,
+            Attachments = Attachments,
+        });
+    }
+
+    private Task Cancel()
+    {
+        return OnCancel.InvokeAsync();
+    }
+
+    private static string SenderActionClass(XActionItem item)
+    {
+        return XCss.Combine("antdx-action", item.Danger ? "antdx-action-danger" : null);
+    }
+}

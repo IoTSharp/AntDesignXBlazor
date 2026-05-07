@@ -1,0 +1,63 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style" aria-live="polite">
+    @foreach (var item in Items)
+    {
+        <article class="@ItemClass(item)">
+            <span class="antdx-notification-icon">
+                <XIcon Type="@ResolveIcon(item)" />
+            </span>
+            <span class="antdx-notification-main">
+                <span class="antdx-notification-title">@item.Title</span>
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <span class="antdx-notification-description">@item.Description</span>
+                }
+            </span>
+            @if (item.Closable)
+            {
+                <button type="button"
+                        class="antdx-notification-close"
+                        title="Close"
+                        @onclick="() => OnClose.InvokeAsync(item.Key)">
+                    <XIcon Type="close" />
+                </button>
+            }
+        </article>
+    }
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XNotificationItem> Items { get; set; } = Array.Empty<XNotificationItem>();
+    [Parameter] public XNotificationPlacement Placement { get; set; }
+    [Parameter] public EventCallback<string> OnClose { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-notification",
+        $"antdx-notification-{Placement.ToString().ToLowerInvariant()}",
+        Class);
+
+    private static string ItemClass(XNotificationItem item)
+    {
+        return XCss.Combine("antdx-notification-item", $"antdx-notification-item-{XCss.Status(item.Status)}");
+    }
+
+    private static string ResolveIcon(XNotificationItem item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.Icon))
+        {
+            return item.Icon;
+        }
+
+        return item.Status switch
+        {
+            XSemanticStatus.Success => "check-circle",
+            XSemanticStatus.Warning => "exclamation-circle",
+            XSemanticStatus.Error => "close-circle",
+            XSemanticStatus.Processing => "loading",
+            _ => "info-circle"
+        };
+    }
+}

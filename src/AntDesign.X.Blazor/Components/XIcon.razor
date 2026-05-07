@@ -1,0 +1,22 @@
+@namespace AntDesign.X.Components
+
+@if (ChildContent is not null)
+{
+    @ChildContent
+}
+else if (!string.IsNullOrWhiteSpace(Src))
+{
+    <img class="@ImageClass" src="@Src" alt="@Alt" />
+}
+else if (!string.IsNullOrWhiteSpace(Type))
+{
+    <Icon Type="@Type" Theme="IconThemeType.Outline" />
+}
+
+@code {
+    [Parameter] public string? Type { get; set; }
+    [Parameter] public string? Src { get; set; }
+    [Parameter] public string? Alt { get; set; }
+    [Parameter] public string? ImageClass { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

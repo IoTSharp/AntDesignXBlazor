@@ -1,0 +1,47 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (IconTemplate is not null)
+    {
+        <div class="antdx-welcome-icon">@IconTemplate</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <div class="antdx-welcome-icon">
+            <XIcon Type="@Icon" />
+        </div>
+    }
+
+    <div class="antdx-welcome-content">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+            <h2 class="antdx-welcome-title">@Title</h2>
+        }
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p class="antdx-welcome-description">@Description</p>
+        }
+        @if (ExtraTemplate is not null)
+        {
+            <div class="antdx-welcome-extra">@ExtraTemplate</div>
+        }
+        @ChildContent
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Icon { get; set; } = "ant-design";
+    [Parameter] public RenderFragment? IconTemplate { get; set; }
+    [Parameter] public RenderFragment? ExtraTemplate { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-welcome",
+        Compact ? "antdx-welcome-compact" : null,
+        Class);
+}

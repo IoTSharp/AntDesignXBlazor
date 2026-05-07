@@ -1,0 +1,47 @@
+@inherits LayoutComponentBase
+
+<XProvider Theme="@Theme" Class="demo-root">
+    <div class="demo-layout">
+        <aside class="demo-sider">
+            <a class="demo-brand" href="/">
+                <span class="demo-brand-mark">X</span>
+                <span>
+                    <strong>Ant Design X Blazor</strong>
+                    <small>AI components for Blazor</small>
+                </span>
+            </a>
+            <nav class="demo-nav">
+                @foreach (var item in Links)
+                {
+                    <a href="@item.Href">@item.Text</a>
+                }
+            </nav>
+            <button type="button" class="demo-theme" @onclick="ToggleTheme">
+                <Icon Type="bulb" Theme="IconThemeType.Outline" />
+                <span>@(Theme == "dark" ? "Light" : "Dark")</span>
+            </button>
+        </aside>
+        <main class="demo-main">
+            @Body
+        </main>
+    </div>
+</XProvider>
+
+@code {
+    private string Theme { get; set; } = "light";
+
+    private static readonly (string Href, string Text)[] Links =
+    [
+        ("#experience", "Experience"),
+        ("#display", "Display"),
+        ("#input", "Input"),
+        ("#feedback", "Feedback"),
+        ("#markdown", "Markdown"),
+        ("#code", "Usage")
+    ];
+
+    private void ToggleTheme()
+    {
+        Theme = Theme == "dark" ? "light" : "dark";
+    }
+}

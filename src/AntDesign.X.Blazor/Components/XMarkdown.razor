@@ -1,0 +1,13 @@
+@namespace AntDesign.X.Components
+
+<div class="@ClassName" style="@Style">
+    @XCss.Markdown(Content)
+</div>
+
+@code {
+    [Parameter] public string? Content { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-markdown", Class);
+}

@@ -1,0 +1,57 @@
+@namespace AntDesign.X.Components
+@inject IJSRuntime JsRuntime
+
+<figure class="@ClassName" style="@Style">
+    @if (ShowHeader)
+    {
+        <figcaption class="antdx-code-header">
+            <span>@Language</span>
+            @if (Copyable)
+            {
+                <button type="button" class="antdx-code-copy" @onclick="Copy">
+                    <XIcon Type="copy" />
+                    <span>@(Copied ? "Copied" : "Copy")</span>
+                </button>
+            }
+        </figcaption>
+    }
+    <pre><code>@Code</code></pre>
+</figure>
+
+@code {
+    [Parameter] public string? Code { get; set; }
+    [Parameter] public string Language { get; set; } = "text";
+    [Parameter] public bool Copyable { get; set; } = true;
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private bool Copied { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-code", $"language-{Language}", Class);
+
+    private async Task Copy()
+    {
+        if (string.IsNullOrEmpty(Code))
+        {
+            return;
+        }
+
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            Copied = true;
+        }
+        catch (JSException)
+        {
+            Copied = false;
+            return;
+        }
+
+        _ = Task.Delay(1400).ContinueWith(_ =>
+        {
+            Copied = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+}

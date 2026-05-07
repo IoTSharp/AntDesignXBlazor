@@ -1,0 +1,71 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    <button type="button"
+            class="antdx-think-header"
+            @onclick="Toggle"
+            aria-expanded="@Open">
+        <span class="antdx-think-icon">
+            <XIcon Type="@ResolveIcon()" />
+        </span>
+        <span class="antdx-think-title">@Title</span>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <span class="antdx-think-description">@Description</span>
+        }
+        <span class="antdx-think-arrow">
+            <XIcon Type="down" />
+        </span>
+    </button>
+
+    @if (Open)
+    {
+        <div class="antdx-think-content">
+            @if (ChildContent is not null)
+            {
+                @ChildContent
+            }
+            else if (Markdown)
+            {
+                <XMarkdown Content="@Content" />
+            }
+            else
+            {
+                @Content
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Thought";
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Content { get; set; }
+    [Parameter] public XSemanticStatus Status { get; set; } = XSemanticStatus.Processing;
+    [Parameter] public bool Open { get; set; } = true;
+    [Parameter] public bool Markdown { get; set; } = true;
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-think", $"antdx-think-{XCss.Status(Status)}", Open ? "antdx-think-open" : null, Class);
+
+    private async Task Toggle()
+    {
+        Open = !Open;
+        await OpenChanged.InvokeAsync(Open);
+    }
+
+    private string ResolveIcon()
+    {
+        return Status switch
+        {
+            XSemanticStatus.Processing => "loading",
+            XSemanticStatus.Success => "check-circle",
+            XSemanticStatus.Warning => "exclamation-circle",
+            XSemanticStatus.Error => "close-circle",
+            _ => "bulb"
+        };
+    }
+}

@@ -1,0 +1,54 @@
+@namespace AntDesign.X.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
+
+<figure class="@ClassName" style="@Style">
+    @if (ShowHeader)
+    {
+        <figcaption class="antdx-mermaid-header">
+            <span>@Title</span>
+        </figcaption>
+    }
+    <div class="antdx-mermaid-canvas" @ref="Canvas">@Definition</div>
+</figure>
+
+@code {
+    private IJSObjectReference? _module;
+
+    [Parameter] public string? Definition { get; set; }
+    [Parameter] public string Title { get; set; } = "Mermaid";
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private ElementReference Canvas { get; set; }
+    private string ClassName => XCss.Combine("antdx-mermaid", Class);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AntDesign.X.Blazor/js/antdesign-x-module.js");
+            }
+
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("renderMermaid", Canvas, Definition);
+            }
+        }
+        catch (JSException)
+        {
+            // Static SSR and disconnected circuits keep the source text fallback.
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

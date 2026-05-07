@@ -1,0 +1,75 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title) || ExtraTemplate is not null)
+    {
+        <div class="antdx-prompts-header">
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <h3>@Title</h3>
+            }
+            @ExtraTemplate
+        </div>
+    }
+
+    <div class="antdx-prompts-list">
+        @foreach (var item in Items)
+        {
+            <button type="button"
+                    class="@PromptClass(item)"
+                    disabled="@item.Disabled"
+                    @onclick="() => Select(item)">
+                <span class="antdx-prompt-icon">
+                    <XIcon Type="@item.Icon" />
+                </span>
+                <span class="antdx-prompt-main">
+                    <span class="antdx-prompt-title">@item.Title</span>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <span class="antdx-prompt-description">@item.Description</span>
+                    }
+                    @if (item.Children.Count > 0)
+                    {
+                        <span class="antdx-prompt-children">
+                            @foreach (var child in item.Children)
+                            {
+                                <span>@child.Title</span>
+                            }
+                        </span>
+                    }
+                </span>
+                @if (!string.IsNullOrWhiteSpace(item.Tag))
+                {
+                    <span class="antdx-prompt-tag">@item.Tag</span>
+                }
+            </button>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XPromptItem> Items { get; set; } = Array.Empty<XPromptItem>();
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool Wrap { get; set; } = true;
+    [Parameter] public bool Vertical { get; set; }
+    [Parameter] public RenderFragment? ExtraTemplate { get; set; }
+    [Parameter] public EventCallback<XPromptItem> OnSelect { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-prompts",
+        Wrap ? "antdx-prompts-wrap" : null,
+        Vertical ? "antdx-prompts-vertical" : null,
+        Class);
+
+    private static string PromptClass(XPromptItem item)
+    {
+        return XCss.Combine("antdx-prompt", item.Disabled ? "antdx-prompt-disabled" : null);
+    }
+
+    private Task Select(XPromptItem item)
+    {
+        return OnSelect.InvokeAsync(item);
+    }
+}

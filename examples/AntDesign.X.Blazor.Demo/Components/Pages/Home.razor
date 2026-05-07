@@ -1,0 +1,355 @@
+@page "/"
+
+<section class="demo-hero">
+    <div class="demo-kicker">Ant Design X 2.x for Blazor</div>
+    <h1>面向 AI 对话产品的 Blazor 组件门面</h1>
+    <p>这个示例应用覆盖 Bubble、Conversations、Sender、Attachments、Prompts、ThoughtChain、Think、Suggestion、Sources、FileCard、Folder、Notification、Markdown、CodeHighlighter 与 Mermaid。每块都展示真实交互和可复制的写法。</p>
+</section>
+
+<section id="experience" class="demo-section">
+    <h2>完整工作台体验</h2>
+    <div class="demo-chat">
+        <XConversations Items="@Conversations"
+                        ActiveKey="@ActiveConversation"
+                        ActiveKeyChanged="@SetActiveConversation"
+                        Title="Conversations"
+                        Extra="Blazor" />
+        <div class="demo-chat-main">
+            <XWelcome Title="Ant Design X Blazor"
+                      Description="保持 Ant Design X 的对话产品语义，用纯 Blazor 和 AntDesign.Blazor 交付。"
+                      Icon="robot">
+                <XPrompts Items="@Prompts"
+                          Wrap="true"
+                          OnSelect="@UsePrompt" />
+            </XWelcome>
+            <div class="demo-chat-scroll">
+                <XBubbleList Items="@Messages"
+                             Loading="@Loading"
+                             OnAction="@HandleMessageAction" />
+            </div>
+            <XSender @bind-Value="@Draft"
+                     Attachments="@DraftAttachments"
+                     Actions="@SenderActions"
+                     Loading="@Loading"
+                     OnSubmit="@Submit"
+                     OnCancel="@Stop"
+                     OnAction="@HandleSenderAction"
+                     OnFilesSelected="@AddFiles"
+                     OnAttachmentRemove="@RemoveAttachment" />
+        </div>
+    </div>
+</section>
+
+<section id="display" class="demo-section">
+    <h2>展示组件</h2>
+    <div class="demo-grid">
+        <XThoughtChain Title="ThoughtChain"
+                       Items="@Thoughts" />
+        <div>
+            <XThink Title="Think"
+                    Description="可折叠推理过程"
+                    Status="XSemanticStatus.Processing"
+                    Content="@ThinkContent" />
+        </div>
+        <XSources Items="@Sources" />
+        <XFolder Title="Folder"
+                 Variant="XFolderVariant.Card"
+                 Items="@Folders"
+                 ActiveKey="@ActiveFolder"
+                 ActiveKeyChanged="@SetActiveFolder" />
+    </div>
+</section>
+
+<section id="input" class="demo-section">
+    <h2>输入与建议</h2>
+    <div class="demo-grid">
+        <XAttachments Title="Attachments"
+                      Items="@DraftAttachments"
+                      UploadEnabled="true"
+                      OnFilesSelected="@AddFiles"
+                      OnRemove="@RemoveAttachment" />
+        <XSuggestion Query="@Draft"
+                     Items="@Prompts"
+                     OnSelect="@UsePrompt" />
+    </div>
+</section>
+
+<section id="feedback" class="demo-section">
+    <h2>反馈与状态</h2>
+    <div class="demo-grid">
+        <XFileCard Item="@UploadingFile" />
+        <XFileCard Item="@DoneFile" />
+        <XActions Items="@MessageActions"
+                  OnAction="@HandleMessageAction" />
+    </div>
+    <XNotification Items="@Notifications"
+                   OnClose="@CloseNotification" />
+</section>
+
+<section id="markdown" class="demo-section">
+    <h2>Markdown、代码与图</h2>
+    <div class="demo-code-grid">
+        <XMarkdown Content="@MarkdownSample" />
+        <XCodeHighlighter Language="razor"
+                          Code="@BubbleCode" />
+        <XMermaid Definition="@MermaidDefinition" />
+    </div>
+</section>
+
+<section id="code" class="demo-section">
+    <h2>最小使用代码</h2>
+    <XCodeHighlighter Language="razor"
+                      Code="@SenderCode" />
+</section>
+
+@code {
+    private string ActiveConversation { get; set; } = "intro";
+    private string ActiveFolder { get; set; } = "components";
+    private string? Draft { get; set; }
+    private bool Loading { get; set; }
+
+    private readonly List<XAttachmentItem> DraftAttachments = [];
+    private readonly List<XNotificationItem> Notifications =
+    [
+        new() { Key = "hello", Title = "Ready", Description = "Demo application is interactive.", Status = XSemanticStatus.Success }
+    ];
+
+    private IReadOnlyList<XConversationItem> Conversations =>
+    [
+        new() { Key = "intro", Group = "Today", Title = "Ant Design X Blazor", Description = "组件总览", Icon = "message", Count = 3 },
+        new() { Key = "sender", Group = "Today", Title = "Sender patterns", Description = "附件、停止、快捷发送", Icon = "edit" },
+        new() { Key = "display", Group = "Earlier", Title = "Display primitives", Description = "来源、思考链、文件卡片", Icon = "appstore" }
+    ];
+
+    private IReadOnlyList<XPromptItem> Prompts =>
+    [
+        new() { Key = "build", Title = "生成工作台", Description = "组合 Conversations + BubbleList + Sender", Icon = "thunderbolt", Tag = "Chat" },
+        new() { Key = "rag", Title = "解释 RAG", Description = "展示 Sources、Think 与 ThoughtChain", Icon = "experiment", Tag = "RAG" },
+        new() { Key = "files", Title = "处理附件", Description = "使用 Attachments 和 FileCard", Icon = "paper-clip", Tag = "Files" }
+    ];
+
+    private IReadOnlyList<XActionItem> SenderActions =>
+    [
+        new() { Key = "voice", Label = "Voice", Icon = "audio", Tooltip = "Voice input" },
+        new() { Key = "image", Label = "Image", Icon = "picture", Tooltip = "Image generation" }
+    ];
+
+    private IReadOnlyList<XActionItem> MessageActions =>
+    [
+        new() { Key = "copy", Label = "Copy", Icon = "copy" },
+        new() { Key = "reload", Label = "Retry", Icon = "reload" },
+        new() { Key = "like", Label = "Like", Icon = "like" }
+    ];
+
+    private IReadOnlyList<XBubbleItem> Messages =>
+    [
+        new()
+        {
+            Key = "m1",
+            Role = "Assistant",
+            Header = "Ant Design X",
+            AvatarIcon = "robot",
+            Placement = XBubblePlacement.Start,
+            Content = "你好，我是 **Ant Design X Blazor** 示例。下面这些组件可以直接组合成 AI 工作台。",
+            Actions = MessageActions
+        },
+        new()
+        {
+            Key = "m2",
+            Role = "You",
+            AvatarIcon = "user",
+            Placement = XBubblePlacement.End,
+            Content = "请演示附件、来源和思考链。"
+        },
+        new()
+        {
+            Key = "m3",
+            Role = "Assistant",
+            Header = "Composer",
+            AvatarIcon = "robot",
+            Placement = XBubblePlacement.Start,
+            Variant = XBubbleVariant.Shadow,
+            Content = "可以。`XSender` 负责输入，`XAttachments` 展示草稿文件，`XThoughtChain` 呈现推理步骤，`XSources` 呈现引用来源。",
+            Attachments = new[] { DoneFile },
+            Actions = MessageActions
+        }
+    ];
+
+    private IReadOnlyList<XThoughtItem> Thoughts =>
+    [
+        new() { Key = "1", Title = "识别意图", Description = "用户想看组件闭环", Status = XSemanticStatus.Success },
+        new() { Key = "2", Title = "收集上下文", Description = "读取提示词、附件与会话状态", Status = XSemanticStatus.Processing },
+        new() { Key = "3", Title = "生成回答", Description = "组合 Markdown、Sources 与 Actions", Status = XSemanticStatus.Default }
+    ];
+
+    private IReadOnlyList<XSourceItem> Sources =>
+    [
+        new() { Key = "x", Title = "Ant Design X", Description = "官方 React 设计与组件语义", Url = "https://x.ant.design/", Icon = "ant-design" },
+        new() { Key = "b", Title = "AntDesign.Blazor", Description = "Blazor 基础组件生态", Url = "https://antblazor.com/", Icon = "dot-chart" }
+    ];
+
+    private IReadOnlyList<XFolderItem> Folders =>
+    [
+        new()
+        {
+            Key = "components",
+            Name = "Components",
+            Icon = "folder",
+            Children =
+            [
+                new() { Key = "bubble", Name = "Bubble", Description = "消息气泡" },
+                new() { Key = "sender", Name = "Sender", Description = "输入框" },
+                new() { Key = "sources", Name = "Sources", Description = "引用来源" }
+            ]
+        },
+        new() { Key = "sdk", Name = "SDK", Description = "XRequest / XStream / useXChat 映射" }
+    ];
+
+    private XAttachmentItem UploadingFile => new()
+    {
+        Id = "uploading",
+        Name = "analysis.csv",
+        Description = "Uploading",
+        Size = 184320,
+        Status = XFileCardStatus.Uploading,
+        Percent = 68,
+        ContentType = "text/csv"
+    };
+
+    private XAttachmentItem DoneFile => new()
+    {
+        Id = "done",
+        Name = "architecture.png",
+        Description = "Generated preview",
+        ImageUrl = "sample-architecture.svg",
+        Size = 923400,
+        Status = XFileCardStatus.Done,
+        ContentType = "image/png"
+    };
+
+    private string ThinkContent => "1. 解析用户问题\n2. 选择合适组件\n3. 流式输出并附带可追溯来源";
+
+    private string MarkdownSample => """
+        ### XMarkdown
+
+        - 支持常规 Markdown
+        - 可嵌入在 `XBubble` 内
+        - 适合作为 AI 输出渲染层
+        """;
+
+    private string MermaidDefinition => """
+        flowchart LR
+            Sender --> Request
+            Request --> BubbleList
+            BubbleList --> Actions
+            BubbleList --> Sources
+        """;
+
+    private string BubbleCode => """
+        <XBubble Placement="XBubblePlacement.Start"
+                 AvatarIcon="robot"
+                 Header="Assistant"
+                 Content="Hello from Ant Design X Blazor"
+                 Markdown="true" />
+        """;
+
+    private string SenderCode => """
+        <XSender @bind-Value="draft"
+                 Attachments="files"
+                 OnSubmit="HandleSubmit"
+                 OnFilesSelected="HandleFiles" />
+        """;
+
+    private Task UsePrompt(XPromptItem prompt)
+    {
+        Draft = prompt.Title;
+        return Task.CompletedTask;
+    }
+
+    private Task SetActiveConversation(string key)
+    {
+        ActiveConversation = key;
+        return Task.CompletedTask;
+    }
+
+    private Task SetActiveFolder(string key)
+    {
+        ActiveFolder = key;
+        return Task.CompletedTask;
+    }
+
+    private async Task Submit(XSenderRequest request)
+    {
+        Loading = true;
+        Notifications.Insert(0, new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = "Submitted",
+            Description = request.Text,
+            Status = XSemanticStatus.Processing
+        });
+        Draft = string.Empty;
+        await Task.Delay(650);
+        Loading = false;
+    }
+
+    private Task Stop()
+    {
+        Loading = false;
+        return Task.CompletedTask;
+    }
+
+    private Task AddFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            DraftAttachments.Add(new XAttachmentItem
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Name = file.Name,
+                Description = file.ContentType,
+                Size = file.Size,
+                Status = XFileCardStatus.Done,
+                ContentType = file.ContentType
+            });
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task RemoveAttachment(string id)
+    {
+        DraftAttachments.RemoveAll(item => item.Id == id);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSenderAction(string key)
+    {
+        Notifications.Insert(0, new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Action: {key}",
+            Description = "Sender action invoked.",
+            Status = XSemanticStatus.Default
+        });
+        return Task.CompletedTask;
+    }
+
+    private Task HandleMessageAction(string key)
+    {
+        Notifications.Insert(0, new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Message action: {key}",
+            Description = "Bubble action invoked.",
+            Status = XSemanticStatus.Success
+        });
+        return Task.CompletedTask;
+    }
+
+    private Task CloseNotification(string key)
+    {
+        Notifications.RemoveAll(item => item.Key == key);
+        return Task.CompletedTask;
+    }
+}

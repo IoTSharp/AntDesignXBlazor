@@ -1,0 +1,21 @@
+@namespace AntDesign.X.Components
+
+<CascadingValue Value="@this">
+    <div class="@ClassName" style="@ResolvedStyle" data-theme="@Theme">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public string Theme { get; set; } = "light";
+    [Parameter] public string? Locale { get; set; }
+    [Parameter] public XThemeTokens? Tokens { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    public bool IsDark => string.Equals(Theme, "dark", StringComparison.OrdinalIgnoreCase);
+
+    private string ClassName => XCss.Combine("antdx-provider", IsDark ? "antdx-provider-dark" : "antdx-provider-light", Class);
+    private string ResolvedStyle => string.Concat(XCss.ToCssVariables(Tokens), Style);
+}

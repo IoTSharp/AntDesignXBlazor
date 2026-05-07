@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Architecture preview">
+  <rect width="640" height="400" fill="#f5f8ff"/>
+  <rect x="64" y="72" width="160" height="84" rx="18" fill="#1677ff"/>
+  <rect x="64" y="244" width="160" height="84" rx="18" fill="#13c2c2"/>
+  <rect x="416" y="72" width="160" height="84" rx="18" fill="#722ed1"/>
+  <rect x="416" y="244" width="160" height="84" rx="18" fill="#52c41a"/>
+  <rect x="272" y="158" width="96" height="84" rx="18" fill="#ffffff" stroke="#1677ff" stroke-width="4"/>
+  <path d="M224 114h96v44M224 286h96v-44M368 200h48M320 158V114h96M320 242v44h96" fill="none" stroke="#315a86" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700">
+    <text x="112" y="122">Sender</text>
+    <text x="108" y="294">Files</text>
+    <text x="456" y="122">Chat</text>
+    <text x="456" y="294">Tools</text>
+  </g>
+  <text x="310" y="208" fill="#1677ff" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="800">X</text>
+</svg>

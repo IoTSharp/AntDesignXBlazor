@@ -1,0 +1,62 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style" aria-live="@AriaLive">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="antdx-bubble-list-header">@HeaderTemplate</div>
+    }
+
+    @foreach (var item in Items)
+    {
+        if (ItemTemplate is not null)
+        {
+            @ItemTemplate(item)
+        }
+        else
+        {
+            <XBubble Placement="@item.Placement"
+                     Variant="@item.Variant"
+                     AvatarIcon="@item.AvatarIcon"
+                     AvatarUrl="@item.AvatarUrl"
+                     Header="@ResolveHeader(item)"
+                     Content="@item.Content"
+                     ContentTemplate="@item.ContentTemplate"
+                     Loading="@item.Loading"
+                     Markdown="@Markdown"
+                     Attachments="@item.Attachments"
+                     Actions="@item.Actions"
+                     OnAction="@OnAction" />
+        }
+    }
+
+    @if (Loading)
+    {
+        <XBubble Placement="XBubblePlacement.Start"
+                 Variant="@LoadingVariant"
+                 AvatarIcon="@LoadingAvatarIcon"
+                 Header="@LoadingHeader"
+                 Loading="true" />
+    }
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XBubbleItem> Items { get; set; } = Array.Empty<XBubbleItem>();
+    [Parameter] public bool Markdown { get; set; } = true;
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public string LoadingHeader { get; set; } = "Assistant";
+    [Parameter] public string LoadingAvatarIcon { get; set; } = "robot";
+    [Parameter] public XBubbleVariant LoadingVariant { get; set; }
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public RenderFragment<XBubbleItem>? ItemTemplate { get; set; }
+    [Parameter] public EventCallback<string> OnAction { get; set; }
+    [Parameter] public string AriaLive { get; set; } = "polite";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-bubble-list", Class);
+
+    private static string? ResolveHeader(XBubbleItem item)
+    {
+        return string.IsNullOrWhiteSpace(item.Header) ? item.Role : item.Header;
+    }
+}

@@ -1,0 +1,52 @@
+@namespace AntDesign.X.Components
+
+<div class="@ClassName" style="@Style" role="toolbar">
+    @foreach (var item in Items)
+    {
+        if (item.Template is not null)
+        {
+            @item.Template
+        }
+        else
+        {
+            <button type="button"
+                    class="@ActionClass(item)"
+                    title="@item.Tooltip"
+                    disabled="@item.Disabled"
+                    @onclick="() => HandleAction(item.Key)">
+                @if (!string.IsNullOrWhiteSpace(item.Icon))
+                {
+                    <XIcon Type="@item.Icon" />
+                }
+                @if (!IconOnly && !string.IsNullOrWhiteSpace(item.Label))
+                {
+                    <span>@item.Label</span>
+                }
+            </button>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<XActionItem> Items { get; set; } = Array.Empty<XActionItem>();
+    [Parameter] public string Size { get; set; } = "middle";
+    [Parameter] public bool IconOnly { get; set; }
+    [Parameter] public EventCallback<string> OnAction { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-actions", $"antdx-actions-{Size}", Class);
+
+    private static string ActionClass(XActionItem item)
+    {
+        return XCss.Combine(
+            "antdx-action",
+            item.Danger ? "antdx-action-danger" : null,
+            item.Disabled ? "antdx-action-disabled" : null);
+    }
+
+    private Task HandleAction(string key)
+    {
+        return OnAction.InvokeAsync(key);
+    }
+}

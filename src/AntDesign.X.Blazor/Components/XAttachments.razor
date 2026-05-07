@@ -1,0 +1,79 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="antdx-attachments-header">@HeaderTemplate</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="antdx-attachments-header">
+            <span>@Title</span>
+            @if (Items.Count > 0)
+            {
+                <span class="antdx-attachments-count">@Items.Count</span>
+            }
+        </div>
+    }
+
+    @if (Items.Count == 0)
+    {
+        <label class="antdx-attachments-empty">
+            @if (UploadEnabled)
+            {
+                <InputFile class="antdx-attachments-input" multiple="@Multiple" OnChange="@HandleFiles" />
+            }
+            <XIcon Type="inbox" />
+            <span>@Placeholder</span>
+        </label>
+    }
+    else
+    {
+        <div class="antdx-attachments-list">
+            @foreach (var item in Items)
+            {
+                <XFileCard Item="@item"
+                           Compact="@Compact"
+                           Removable="@Removable"
+                           OnRemove="@OnRemove" />
+            }
+        </div>
+    }
+
+    @if (UploadEnabled && Items.Count > 0)
+    {
+        <label class="antdx-attachments-upload">
+            <InputFile class="antdx-attachments-input" multiple="@Multiple" OnChange="@HandleFiles" />
+            <XIcon Type="paper-clip" />
+            <span>@UploadText</span>
+        </label>
+    }
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XAttachmentItem> Items { get; set; } = Array.Empty<XAttachmentItem>();
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Drop files here or click to upload";
+    [Parameter] public string UploadText { get; set; } = "Add file";
+    [Parameter] public bool UploadEnabled { get; set; }
+    [Parameter] public bool Multiple { get; set; } = true;
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public bool Removable { get; set; } = true;
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> OnFilesSelected { get; set; }
+    [Parameter] public EventCallback<string> OnRemove { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-attachments",
+        Compact ? "antdx-attachments-compact" : null,
+        UploadEnabled ? "antdx-attachments-uploadable" : null,
+        Class);
+
+    private Task HandleFiles(InputFileChangeEventArgs args)
+    {
+        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles();
+        return OnFilesSelected.InvokeAsync(files);
+    }
+}

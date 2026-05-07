@@ -1,0 +1,88 @@
+@namespace AntDesign.X.Components
+
+<article class="@ClassName" style="@Style">
+    <div class="antdx-file-card-preview">
+        @if (PreviewTemplate is not null)
+        {
+            @PreviewTemplate
+        }
+        else if (!string.IsNullOrWhiteSpace(Item.ImageUrl))
+        {
+            <img src="@Item.ImageUrl" alt="@Item.Name" />
+        }
+        else
+        {
+            <XIcon Type="@ResolveIcon()" />
+        }
+    </div>
+    <div class="antdx-file-card-body">
+        <div class="antdx-file-card-name" title="@Item.Name">@Item.Name</div>
+        <div class="antdx-file-card-meta">
+            @if (!string.IsNullOrWhiteSpace(Item.Description))
+            {
+                <span>@Item.Description</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(SizeText))
+            {
+                <span>@SizeText</span>
+            }
+        </div>
+        @if (Item.Status == XFileCardStatus.Uploading && Item.Percent is not null)
+        {
+            <div class="antdx-file-card-progress" aria-label="Upload progress">
+                <span style="width:@Item.Percent%"></span>
+            </div>
+        }
+    </div>
+    @if (Removable && Item.Removable)
+    {
+        <button type="button"
+                class="antdx-file-card-remove"
+                title="Remove"
+                @onclick="() => OnRemove.InvokeAsync(Item.Id)">
+            <XIcon Type="close" />
+        </button>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public XAttachmentItem Item { get; set; } = new();
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public bool Removable { get; set; } = true;
+    [Parameter] public RenderFragment? PreviewTemplate { get; set; }
+    [Parameter] public EventCallback<string> OnRemove { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string SizeText => XCss.FormatSize(Item.Size);
+
+    private string ClassName => XCss.Combine(
+        "antdx-file-card",
+        $"antdx-file-card-{XCss.FileStatus(Item.Status)}",
+        Compact ? "antdx-file-card-compact" : null,
+        Class);
+
+    private string ResolveIcon()
+    {
+        if (!string.IsNullOrWhiteSpace(Item.ContentType))
+        {
+            if (Item.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            {
+                return "file-image";
+            }
+
+            if (Item.ContentType.Contains("pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return "file-pdf";
+            }
+
+            if (Item.ContentType.Contains("zip", StringComparison.OrdinalIgnoreCase) ||
+                Item.ContentType.Contains("compressed", StringComparison.OrdinalIgnoreCase))
+            {
+                return "file-zip";
+            }
+        }
+
+        return "file";
+    }
+}

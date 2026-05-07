@@ -1,0 +1,52 @@
+@namespace AntDesign.X.Components
+
+<div class="@ClassName" style="@Style">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    <div class="antdx-suggestion-list" role="listbox">
+        @foreach (var item in FilteredItems)
+        {
+            <button type="button"
+                    class="antdx-suggestion-item"
+                    role="option"
+                    disabled="@item.Disabled"
+                    @onclick="() => Select(item)">
+                <span class="antdx-suggestion-icon">
+                    <XIcon Type="@item.Icon" />
+                </span>
+                <span class="antdx-suggestion-main">
+                    <span>@item.Title</span>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <small>@item.Description</small>
+                    }
+                </span>
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<XPromptItem> Items { get; set; } = Array.Empty<XPromptItem>();
+    [Parameter] public string? Query { get; set; }
+    [Parameter] public bool Open { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<XPromptItem> OnSelect { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-suggestion", Open ? "antdx-suggestion-open" : null, Class);
+
+    private IEnumerable<XPromptItem> FilteredItems => string.IsNullOrWhiteSpace(Query)
+        ? Items
+        : Items.Where(item =>
+            item.Title.Contains(Query, StringComparison.OrdinalIgnoreCase) ||
+            (item.Description?.Contains(Query, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private Task Select(XPromptItem item)
+    {
+        return item.Disabled ? Task.CompletedTask : OnSelect.InvokeAsync(item);
+    }
+}

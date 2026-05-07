@@ -1,0 +1,69 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="antdx-thought-chain-header">@Title</div>
+    }
+
+    <ol class="antdx-thought-chain-list">
+        @foreach (var item in Items)
+        {
+            <li class="@ItemClass(item)">
+                <span class="antdx-thought-chain-dot">
+                    <XIcon Type="@ResolveIcon(item)" />
+                </span>
+                <div class="antdx-thought-chain-card">
+                    <div class="antdx-thought-chain-title">@item.Title</div>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <div class="antdx-thought-chain-description">@item.Description</div>
+                    }
+                    @if (item.ContentTemplate is not null)
+                    {
+                        <div class="antdx-thought-chain-content">@item.ContentTemplate</div>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(item.Content))
+                    {
+                        <div class="antdx-thought-chain-content">@item.Content</div>
+                    }
+                </div>
+            </li>
+        }
+    </ol>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XThoughtItem> Items { get; set; } = Array.Empty<XThoughtItem>();
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-thought-chain",
+        Compact ? "antdx-thought-chain-compact" : null,
+        Class);
+
+    private static string ItemClass(XThoughtItem item)
+    {
+        return XCss.Combine("antdx-thought-chain-item", $"antdx-thought-chain-item-{XCss.Status(item.Status)}");
+    }
+
+    private static string ResolveIcon(XThoughtItem item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.Icon))
+        {
+            return item.Icon;
+        }
+
+        return item.Status switch
+        {
+            XSemanticStatus.Processing => "loading",
+            XSemanticStatus.Success => "check",
+            XSemanticStatus.Warning => "exclamation",
+            XSemanticStatus.Error => "close",
+            _ => "bulb"
+        };
+    }
+}

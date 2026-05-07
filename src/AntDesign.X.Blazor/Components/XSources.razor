@@ -1,0 +1,77 @@
+@namespace AntDesign.X.Components
+
+<section class="@ClassName" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="antdx-sources-header">@Title</div>
+    }
+
+    <div class="antdx-sources-list">
+        @for (var index = 0; index < Items.Count; index++)
+        {
+            var item = Items[index];
+            if (!string.IsNullOrWhiteSpace(item.Url))
+            {
+                <a class="antdx-source"
+                   href="@item.Url"
+                   target="@Target"
+                   rel="noreferrer">
+                    @SourceContent(item, index)
+                </a>
+            }
+            else
+            {
+                <article class="antdx-source">
+                    @SourceContent(item, index)
+                </article>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<XSourceItem> Items { get; set; } = Array.Empty<XSourceItem>();
+    [Parameter] public string? Title { get; set; } = "Sources";
+    [Parameter] public string Target { get; set; } = "_blank";
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine(
+        "antdx-sources",
+        Compact ? "antdx-sources-compact" : null,
+        Class);
+
+    private RenderFragment SourceContent(XSourceItem item, int index) => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-source-index");
+        builder.AddContent(seq++, index + 1);
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-source-icon");
+        builder.OpenComponent<XIcon>(seq++);
+        builder.AddAttribute(seq++, "Type", string.IsNullOrWhiteSpace(item.Icon) ? "link" : item.Icon);
+        builder.CloseComponent();
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-source-main");
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-source-title");
+        builder.AddContent(seq++, item.Title);
+        builder.CloseElement();
+
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-source-description");
+            builder.AddContent(seq++, item.Description);
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+}

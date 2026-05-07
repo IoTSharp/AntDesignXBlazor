@@ -1,57 +1,145 @@
 # AntDesign.X.Blazor
 
-[Ant Design X](https://x.ant.design/) 的 Blazor 实现，与 [AntDesign.Blazor](https://antblazor.com/) 协同工作。
+[Ant Design X](https://x.ant.design/) 的 Blazor 门面实现。项目目标是在 **纯 Blazor + AntDesign.Blazor** 中复现 Ant Design X 的 AI 对话产品语义，并提供一个可运行的示例应用，让使用者能逐个查看组件、交互和代码写法。
 
-> Ant Design X 官方仅提供 React 实现。本项目用 **纯 Blazor + AntDesign.Blazor** 复现其"对话原语"组件（Bubble / BubbleList / Welcome / Prompts / Sender / Conversations / ThoughtChain / Attachments / Actions），并提供 Light / Dark 主题适配。
+官方 Ant Design X 是面向 React 生态的 AI 组件库，除 UI 组件外也提供接入 AI 服务的 API 方案。其组件总览按 Common、Wake、Express、Confirmation、Feedback、Others 分组，覆盖 Bubble、Conversations、Notification、Welcome、Prompts、Attachments、Sender、Suggestion、Think、ThoughtChain、Actions、CodeHighlighter、FileCard、Folder、Mermaid、Sources、XProvider。本项目据此建立 Blazor 映射。
 
-## 目标
+> 设计参考：Ant Design X 官方站点当前公开的 2.x 组件矩阵，以及 X SDK 中的 XRequest / XStream / useXChat / useXAgent 方向。
 
-1. **协同而非替代** AntDesign.Blazor —— 复用其 `Card / Tag / Button / Avatar / Icon / Menu / Timeline / TextArea` 等已有组件，只补齐 X 专属的对话语义层。
-2. **纯 Blazor，无 React/Vue/Svelte 依赖**。
-3. **无侵入命名空间**：所有 CSS 类一律以 `antdx-` 前缀。
+## 项目原则
 
-## 项目结构
+1. **协同 AntDesign.Blazor**：基础视觉和通用控件继续使用 AntDesign.Blazor，AntDesign.X.Blazor 只补齐 AI 对话、输入、来源、思考链、文件卡片等 X 语义组件。
+2. **保持原汁原味**：组件命名、交互结构和视觉层级尽量贴近 Ant Design X；Blazor API 使用 C# 事件、`RenderFragment`、强类型模型表达。
+3. **纯 Blazor**：不引入 React / Vue / Svelte 工程。Mermaid 仅作为浏览器端图渲染库可选接入。
+4. **样式隔离**：CSS 类统一使用 `antdx-` 前缀，降低对宿主应用的污染。
+5. **示例即文档**：`examples/AntDesign.X.Blazor.Demo` 是可演示应用，也是组件使用手册。
 
-```
-src/
-  AntDesign.X.Blazor/
-    Components/                # X 系列组件（XBubble、XSender、…）
+## 当前已实现
+
+- 显示：`XBubble`、`XBubbleList`、`XWelcome`、`XThoughtChain`、`XThink`、`XSources`、`XFolder`
+- 输入：`XSender`、`XAttachments`、`XFileCard`、`XSuggestion`、`XPrompts`
+- 操作与反馈：`XActions`、`XNotification`
+- 内容渲染：`XMarkdown`、`XCodeHighlighter`、`XMermaid`
+- 全局门面：`XProvider`、浅色/深色主题 token、`antdx-` 样式令牌
+- 示例应用：完整 AI 工作台、组件分区展示、代码片段展示、附件选择、通知与暗色主题切换
+
+## 目录结构
+
+```text
+external/AntDesignXBlazor/
+  src/AntDesign.X.Blazor/
+    Components/
+    Models/
+    Utilities/
     wwwroot/css/antdesign-x.css
-    AntDesign.X.Blazor.csproj  # Razor Class Library (net10.0)
+    wwwroot/js/antdesign-x-module.js
+  examples/AntDesign.X.Blazor.Demo/
+  ROADMAP.md
+  README.md
 ```
 
-## 在 Blazor 项目中使用
+## 在 Blazor 中使用
 
 ```xml
-<!-- YourApp.csproj -->
-<ProjectReference Include="path/to/AntDesign.X.Blazor.csproj" />
+<ProjectReference Include="external/AntDesignXBlazor/src/AntDesign.X.Blazor/AntDesign.X.Blazor.csproj" />
 ```
 
 ```html
-<!-- App.razor / index.html，放在 ant-design-blazor.css 之后 -->
+<link rel="stylesheet" href="_content/AntDesign/css/ant-design-blazor.css" />
 <link rel="stylesheet" href="_content/AntDesign.X.Blazor/css/antdesign-x.css" />
+<script src="_content/AntDesign/js/ant-design-blazor.js"></script>
+```
+
+如需 `XMermaid`：
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 ```
 
 ```razor
 @using AntDesign.X
 @using AntDesign.X.Components
 
-<XBubble Placement="XBubblePlacement.Start"
-         AvatarIcon="robot"
-         Header="助手"
-         ContentTemplate="@(@<text>你好，我是 AI 助手。</text>)" />
+<XProvider Theme="light">
+    <XBubble Placement="XBubblePlacement.Start"
+             AvatarIcon="robot"
+             Header="Assistant"
+             Content="Hello from **Ant Design X Blazor**"
+             Markdown="true" />
+</XProvider>
 ```
 
-## 路线图（Phase 1）
+## 完整输入闭环
 
-- [x] XBubble + 设计令牌
-- [ ] XBubbleList
-- [ ] XWelcome / XPromptCard
-- [ ] XSender（含 InputFile 拖放、附件预览、长按语音）
-- [ ] XConversations（基于 AntD `Menu`）
-- [ ] XThoughtChain（基于 AntD `Timeline`）
-- [ ] XAttachments / XActions
+```razor
+<XBubbleList Items="@messages" OnAction="@HandleAction" />
 
-## License
+<XSender @bind-Value="@draft"
+         Attachments="@attachments"
+         Actions="@senderActions"
+         OnSubmit="@Submit"
+         OnFilesSelected="@AddFiles"
+         OnAttachmentRemove="@RemoveAttachment" />
+```
+
+```csharp
+private string? draft;
+private readonly List<XAttachmentItem> attachments = [];
+
+private Task Submit(XSenderRequest request)
+{
+    messages.Add(new XBubbleItem
+    {
+        Role = "You",
+        Placement = XBubblePlacement.End,
+        AvatarIcon = "user",
+        Content = request.Text,
+        Attachments = request.Attachments
+    });
+
+    draft = string.Empty;
+    return Task.CompletedTask;
+}
+```
+
+## 示例应用
+
+示例应用位于：
+
+```text
+examples/AntDesign.X.Blazor.Demo/
+```
+
+运行方式：
+
+```powershell
+dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/AntDesign.X.Blazor.Demo.csproj
+```
+
+> 在 Camel.NET 仓库协作规则下，AI 默认不主动执行本机 build/run；用户可在需要时自行运行上述示例命令。子模块本身是独立 Blazor 组件库，不改变 Camel.NET 后端 Docker Compose 验收基线。
+
+## 与官方 Ant Design X 的映射
+
+| 官方能力 | Blazor 门面 | 当前状态 |
+| --- | --- | --- |
+| Bubble / Bubble.List | `XBubble` / `XBubbleList` | 已实现 |
+| Sender | `XSender` | 已实现基础输入、附件、停止、动作 |
+| Conversations | `XConversations` | 已实现分组、激活、计数 |
+| Prompts | `XPrompts` | 已实现卡片与选择 |
+| Attachments / FileCard | `XAttachments` / `XFileCard` | 已实现选择、列表、移除、状态 |
+| Welcome | `XWelcome` | 已实现 |
+| Actions | `XActions` | 已实现 |
+| Suggestion | `XSuggestion` | 已实现过滤与选择 |
+| ThoughtChain / Think | `XThoughtChain` / `XThink` | 已实现 |
+| Sources | `XSources` | 已实现 |
+| Folder | `XFolder` | 已实现 |
+| Notification | `XNotification` | 已实现 |
+| XMarkdown | `XMarkdown` | 已实现 Markdig 渲染 |
+| CodeHighlighter | `XCodeHighlighter` | 已实现代码框与复制 |
+| Mermaid | `XMermaid` | 已实现 Mermaid 可选渲染与 fallback |
+| XProvider | `XProvider` | 已实现主题 token 门面 |
+| XRequest / XStream / useXChat / useXAgent | 待设计为 Blazor services/hooks-like patterns | 路线图中 |
+
+## 许可证
 
 MIT

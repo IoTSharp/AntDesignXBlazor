@@ -1,0 +1,94 @@
+@namespace AntDesign.X.Components
+
+<nav class="@ClassName" style="@Style" aria-label="@AriaLabel">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="antdx-conversations-header">@HeaderTemplate</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="antdx-conversations-header">
+            <span>@Title</span>
+            @if (!string.IsNullOrWhiteSpace(Extra))
+            {
+                <small>@Extra</small>
+            }
+        </div>
+    }
+
+    @foreach (var group in Groups)
+    {
+        if (Groupable)
+        {
+            <div class="antdx-conversations-group">@group.Key</div>
+        }
+
+        foreach (var item in group)
+        {
+            <button type="button"
+                    class="@ItemClass(item)"
+                    disabled="@item.Disabled"
+                    @onclick="() => Select(item.Key)">
+                <span class="antdx-conversation-icon">
+                    <XIcon Type="@item.Icon" />
+                </span>
+                <span class="antdx-conversation-main">
+                    <span class="antdx-conversation-title">@item.Title</span>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <span class="antdx-conversation-description">@item.Description</span>
+                    }
+                </span>
+                @if (item.Count is not null)
+                {
+                    <span class="antdx-conversation-count">@item.Count</span>
+                }
+                else if (item.UpdatedAt is not null)
+                {
+                    <time class="antdx-conversation-time">@item.UpdatedAt.Value.ToLocalTime().ToString(TimeFormat)</time>
+                }
+            </button>
+        }
+    }
+</nav>
+
+@code {
+    [Parameter] public IReadOnlyList<XConversationItem> Items { get; set; } = Array.Empty<XConversationItem>();
+    [Parameter] public string? ActiveKey { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Extra { get; set; }
+    [Parameter] public bool Groupable { get; set; } = true;
+    [Parameter] public string AriaLabel { get; set; } = "Conversations";
+    [Parameter] public string TimeFormat { get; set; } = "MM-dd";
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public EventCallback<string> ActiveKeyChanged { get; set; }
+    [Parameter] public EventCallback<XConversationItem> OnSelect { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ClassName => XCss.Combine("antdx-conversations", Class);
+
+    private IEnumerable<IGrouping<string, XConversationItem>> Groups =>
+        Items.GroupBy(item => Groupable ? string.IsNullOrWhiteSpace(item.Group) ? "Recent" : item.Group : string.Empty);
+
+    private string ItemClass(XConversationItem item)
+    {
+        return XCss.Combine(
+            "antdx-conversation-item",
+            item.Key == ActiveKey ? "antdx-conversation-item-active" : null,
+            item.Disabled ? "antdx-conversation-item-disabled" : null);
+    }
+
+    private async Task Select(string key)
+    {
+        var item = Items.FirstOrDefault(value => value.Key == key);
+        if (item is null || item.Disabled)
+        {
+            return;
+        }
+
+        ActiveKey = key;
+        await ActiveKeyChanged.InvokeAsync(key);
+        await OnSelect.InvokeAsync(item);
+    }
+}
