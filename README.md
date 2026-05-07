@@ -20,8 +20,9 @@
 - 输入：`XSender`、`XAttachments`、`XFileCard`、`XSuggestion`、`XPrompts`
 - 操作与反馈：`XActions`、`XNotification`
 - 内容渲染：`XMarkdown`、`XCodeHighlighter`、`XMermaid`
+- SDK：`IXRequestClient`、`XStreamReader`、`XChatStore`、`XAgentStore`
 - 全局门面：`XProvider`、浅色/深色主题 token、`antdx-` 样式令牌
-- 示例应用：完整 AI 工作台、组件分区展示、代码片段展示、附件选择、通知与暗色主题切换
+- 示例应用：完整 AI 工作台、组件分区展示、代码片段展示、附件选择、通知、暗色主题切换与 mock streaming 闭环
 
 ## 目录结构
 
@@ -109,6 +110,8 @@ private Task Submit(XSenderRequest request)
 }
 ```
 
+SDK 场景下，示例应用会把这类状态放进 `XChatStore` / `XAgentStore`，并通过 mock streaming service 演示流式更新、重试和中断。
+
 ## 示例应用
 
 示例应用位于：
@@ -145,7 +148,7 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 | CodeHighlighter | `XCodeHighlighter` | 已实现代码框与复制 |
 | Mermaid | `XMermaid` | 已实现 Mermaid 渲染、主题跟随、代码/图切换与 fallback |
 | XProvider | `XProvider` | 已实现主题 token 门面 |
-| XRequest / XStream / useXChat / useXAgent | 待设计为 Blazor services/hooks-like patterns | 路线图中 |
+| XRequest / XStream / useXChat / useXAgent | `IXRequestClient` / `XStreamReader` / `XChatStore` / `XAgentStore` | 已实现 SDK 与示例闭环 |
 
 ## 许可证
 

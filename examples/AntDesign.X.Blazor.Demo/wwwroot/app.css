@@ -167,6 +167,50 @@ body {
     width: 100%;
 }
 
+.demo-agent-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.demo-agent-events {
+    min-width: 0;
+    color: var(--antdx-text-secondary);
+}
+
+.demo-agent-events-title {
+    margin-bottom: 8px;
+    color: var(--antdx-text);
+    font-weight: 700;
+}
+
+.demo-agent-events ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.demo-agent-events li {
+    display: grid;
+    gap: 3px;
+    padding: 10px;
+    background: var(--antdx-page-bg);
+    border: 1px solid var(--antdx-border);
+    border-radius: 8px;
+}
+
+.demo-agent-events strong {
+    color: var(--antdx-color-primary);
+}
+
+.demo-agent-events small {
+    color: var(--antdx-text-tertiary);
+    overflow-wrap: anywhere;
+}
+
 .demo-code-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

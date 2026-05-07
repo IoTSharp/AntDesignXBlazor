@@ -1,5 +1,8 @@
 @page "/"
+@implements IDisposable
 @inject IXNotificationService NotificationService
+@inject XChatStore ChatStore
+@inject XAgentStore AgentStore
 
 <section class="demo-hero">
     <div class="demo-kicker">Ant Design X 2.x for Blazor</div>
@@ -30,15 +33,15 @@
                           OnItemClick="@UsePrompt" />
             </XWelcome>
             <div class="demo-chat-scroll">
-                <XBubbleList Items="@Messages"
+                <XBubbleList Items="@ChatStore.Messages"
                              RoleConfigs="@BubbleRoleConfigs"
-                             Loading="@Loading"
+                             Loading="@ChatStore.IsLoading"
                              OnAction="@HandleMessageAction" />
             </div>
             <XSender @bind-Value="@Draft"
                      Attachments="@DraftAttachments"
                      Actions="@SenderActions"
-                     Loading="@Loading"
+                     Loading="@ChatStore.IsLoading"
                      AutoSize="true"
                      ClearAfterSubmit="true"
                      Clearable="true"
@@ -112,6 +115,53 @@
                    OnClose="@CloseNotification" />
 </section>
 
+<section id="sdk" class="demo-section">
+    <h2>SDK 闭环</h2>
+    <div class="demo-grid">
+        <div class="demo-agent-panel">
+            <div class="demo-sender-header">
+                <span>Agent Trace</span>
+                <XActions Items="@AgentActions"
+                          IconOnly="true"
+                          Size="small"
+                          OnAction="@HandleAgentAction" />
+            </div>
+            <XBubbleList Items="@AgentStore.Messages"
+                         RoleConfigs="@BubbleRoleConfigs"
+                         Loading="@AgentStore.IsRunning"
+                         OnAction="@HandleAgentMessageAction" />
+            <XActions Items="@AgentStore.ToolActions"
+                      OnAction="@HandleAgentToolAction" />
+        </div>
+        <XThoughtChain Title="ThoughtChain"
+                       Items="@AgentStore.Thoughts" />
+        <XSources Items="@AgentStore.Sources" />
+        <div class="demo-agent-events">
+            <div class="demo-agent-events-title">Recent events</div>
+            @if (AgentStore.Events.Count == 0)
+            {
+                <p>Run an agent trace to see thoughts, tool calls, and sources appear here.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var item in AgentStore.Events.Reverse().Take(6))
+                    {
+                        <li>
+                            <strong>@item.Kind</strong>
+                            <span>@item.Title</span>
+                            @if (!string.IsNullOrWhiteSpace(item.Content))
+                            {
+                                <small>@item.Content</small>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</section>
+
 <section id="markdown" class="demo-section">
     <h2>Markdown、代码与图</h2>
     <div class="demo-code-grid">
@@ -132,7 +182,6 @@
     private string ActiveConversation { get; set; } = "intro";
     private string ActiveFolder { get; set; } = "components";
     private string? Draft { get; set; }
-    private bool Loading { get; set; }
     private bool ConversationSortDescending { get; set; } = true;
 
     private readonly List<XAttachmentItem> DraftAttachments = [];
@@ -146,12 +195,13 @@
         new() { Key = "sender", Group = "Today", Title = "Sender patterns", Description = "附件、停止、快捷发送", Icon = "edit", UpdatedAt = DateTimeOffset.UtcNow.AddMinutes(-31) },
         new() { Key = "display", Group = "Earlier", Title = "Display primitives", Description = "来源、思考链、文件卡片", Icon = "appstore", UpdatedAt = DateTimeOffset.UtcNow.AddHours(-5) }
     ];
-    private readonly List<XBubbleItem> MessageItems = [];
 
     private IReadOnlyList<XConversationItem> Conversations =>
         ConversationSortDescending
             ? ConversationItems.OrderByDescending(item => item.UpdatedAt ?? DateTimeOffset.MinValue).ToArray()
             : ConversationItems.OrderBy(item => item.UpdatedAt ?? DateTimeOffset.MinValue).ToArray();
+
+    private IReadOnlyList<XBubbleItem> Messages => ChatStore.Messages;
 
     private IReadOnlyList<XPromptItem> Prompts =>
     [
@@ -215,6 +265,14 @@
         new() { Key = "like", Label = "Like", Icon = "like" }
     ];
 
+    private IReadOnlyList<XActionItem> AgentActions =>
+    [
+        new() { Key = "run", Label = "Run", Icon = "thunderbolt" },
+        new() { Key = "retry", Label = "Retry", Icon = "reload" },
+        new() { Key = "abort", Label = "Abort", Icon = "pause-circle", Danger = true },
+        new() { Key = "reset", Label = "Reset", Icon = "delete", Danger = true }
+    ];
+
     private IReadOnlyList<XActionItem> ConversationMenuItems =>
     [
         new() { Key = "archive", Icon = "inbox", Tooltip = "Archive" },
@@ -264,8 +322,6 @@
             }
         };
 
-    private IReadOnlyList<XBubbleItem> Messages => MessageItems;
-
     private RenderFragment SenderHeaderTemplate => builder =>
     {
         builder.OpenElement(0, "div");
@@ -293,15 +349,26 @@
 
     protected override void OnInitialized()
     {
-        if (MessageItems.Count == 0)
-        {
-            SeedMessages();
-        }
+        ChatStore.Changed += HandleStoresChanged;
+        AgentStore.Changed += HandleStoresChanged;
+        ChatStore.ConversationKey = ActiveConversation;
+        AgentStore.AgentKey = ActiveConversation;
+        ChatStore.ReplaceMessages(SeedMessages());
+        AgentStore.Reset();
     }
 
-    private void SeedMessages()
+    public void Dispose()
     {
-        MessageItems.AddRange(
+        ChatStore.Changed -= HandleStoresChanged;
+        AgentStore.Changed -= HandleStoresChanged;
+    }
+
+    private void HandleStoresChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private IReadOnlyList<XBubbleItem> SeedMessages() =>
         [
             new()
             {
@@ -343,8 +410,7 @@
                 Attachments = new[] { DoneFile },
                 Actions = MessageActions
             }
-        ]);
-    }
+        ];
 
     private IReadOnlyList<XThoughtItem> Thoughts =>
     [
@@ -440,6 +506,11 @@
     private async Task UsePrompt(XPromptItem prompt)
     {
         Draft = prompt.Title;
+        if (string.Equals(prompt.Key, "rag", StringComparison.OrdinalIgnoreCase))
+        {
+            await RunAgentScenarioAsync(prompt.Description ?? prompt.Title);
+        }
+
         await NotificationService.OpenAsync(new XNotificationItem
         {
             Key = Guid.NewGuid().ToString("N"),
@@ -463,6 +534,8 @@
     private Task SetActiveConversation(string key)
     {
         ActiveConversation = key;
+        ChatStore.ConversationKey = key;
+        AgentStore.AgentKey = key;
         return Task.CompletedTask;
     }
 
@@ -474,16 +547,6 @@
 
     private async Task Submit(XSenderRequest request)
     {
-        Loading = true;
-        MessageItems.Add(new XBubbleItem
-        {
-            Key = Guid.NewGuid().ToString("N"),
-            Role = "user",
-            Placement = XBubblePlacement.End,
-            Content = request.Text,
-            Attachments = request.Attachments.Select(item => item with { }).ToArray(),
-            Status = XMessageStatus.Local
-        });
         TouchConversation(ActiveConversation, request.Text);
         await NotificationService.OpenAsync(new XNotificationItem
         {
@@ -492,23 +555,12 @@
             Description = request.Text,
             Status = XSemanticStatus.Processing
         });
-        await Task.Delay(650);
-        MessageItems.Add(new XBubbleItem
-        {
-            Key = Guid.NewGuid().ToString("N"),
-            Role = "assistant",
-            Placement = XBubblePlacement.Start,
-            Header = "Composer",
-            Content = $"收到 {request.Attachments.Count} 个附件，已准备继续处理。",
-            Actions = MessageActions
-        });
-        Loading = false;
+        await ChatStore.SubmitAsync(request);
     }
 
-    private Task Stop()
+    private async Task Stop()
     {
-        Loading = false;
-        return Task.CompletedTask;
+        await ChatStore.AbortAsync();
     }
 
     private Task ClearDraft()
@@ -572,14 +624,73 @@
         });
     }
 
-    private Task HandleMessageAction(string key)
+    private async Task HandleMessageAction(string key)
     {
-        return NotificationService.OpenAsync(new XNotificationItem
+        if (string.Equals(key, "reload", StringComparison.OrdinalIgnoreCase))
+        {
+            await ChatStore.RetryAsync();
+        }
+
+        await NotificationService.OpenAsync(new XNotificationItem
         {
             Key = Guid.NewGuid().ToString("N"),
             Title = $"Message action: {key}",
             Description = "Bubble action invoked.",
             Status = XSemanticStatus.Success
+        });
+    }
+
+    private async Task HandleAgentMessageAction(string key)
+    {
+        if (string.Equals(key, "reload", StringComparison.OrdinalIgnoreCase))
+        {
+            await AgentStore.RetryAsync();
+        }
+
+        await NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Agent action: {key}",
+            Description = "Agent bubble action invoked.",
+            Status = XSemanticStatus.Success
+        });
+    }
+
+    private Task HandleAgentToolAction(string key)
+    {
+        return NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Tool call: {key}",
+            Description = "Tool call summary clicked.",
+            Status = XSemanticStatus.Default
+        });
+    }
+
+    private async Task HandleAgentAction(string key)
+    {
+        switch (key)
+        {
+            case "run":
+                await RunAgentScenarioAsync("请解释当前 SDK 闭环如何工作，并输出思考、工具调用和来源。");
+                break;
+            case "retry":
+                await AgentStore.RetryAsync();
+                break;
+            case "abort":
+                await AgentStore.AbortAsync();
+                break;
+            case "reset":
+                AgentStore.Reset();
+                break;
+        }
+
+        await NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Agent action: {key}",
+            Description = "Agent control invoked.",
+            Status = XSemanticStatus.Default
         });
     }
 
@@ -606,6 +717,8 @@
         if (ActiveConversation == item.Key)
         {
             ActiveConversation = ConversationItems.FirstOrDefault()?.Key ?? string.Empty;
+            ChatStore.ConversationKey = ActiveConversation;
+            AgentStore.AgentKey = ActiveConversation;
         }
 
         return NotificationService.OpenAsync(new XNotificationItem
@@ -647,6 +760,21 @@
             Title = "Conversation sorted",
             Description = ConversationSortDescending ? "Newest first" : "Oldest first",
             Status = XSemanticStatus.Default
+        });
+    }
+
+    private async Task RunAgentScenarioAsync(string prompt)
+    {
+        AgentStore.AgentKey = ActiveConversation;
+        await AgentStore.RunAsync(new XAgentRequest
+        {
+            Prompt = prompt,
+            Attachments = DraftAttachments.Select(item => item with { }).ToArray(),
+            Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["conversation"] = ActiveConversation,
+                ["source"] = "demo",
+            },
         });
     }
 

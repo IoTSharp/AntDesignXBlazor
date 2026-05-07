@@ -27,7 +27,7 @@
                            multiple="@Multiple"
                            disabled="@Disabled"
                            accept="@Accept"
-                           AdditionalAttributes="@InputAttributes"
+                           @attributes="InputAttributes"
                            OnChange="@HandleFiles" />
             }
             <XIcon Type="inbox" />
@@ -54,7 +54,7 @@
                        multiple="@Multiple"
                        disabled="@Disabled"
                        accept="@Accept"
-                       AdditionalAttributes="@InputAttributes"
+                       @attributes="InputAttributes"
                        OnChange="@HandleFiles" />
             <XIcon Type="paper-clip" />
             <span>@UploadText</span>

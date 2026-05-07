@@ -56,12 +56,12 @@ Blazor 实现策略：
 
 ## 里程碑 C：Blazor X SDK
 
-- [ ] `IXRequestClient`：映射官方 XRequest，请求、取消、错误、headers
-- [ ] `XStreamReader`：映射 XStream，支持 SSE / fetch stream / OpenAI-compatible chunks
-- [ ] `XChatStore`：映射 useXChat，管理 messages、loading、submit、retry、abort
-- [ ] `XAgentStore`：映射 useXAgent，管理 agent 状态、tool call、intermediate events
-- [ ] 与 `IHttpClientFactory`、`CancellationToken`、Blazor Server circuit 生命周期对齐
-- [ ] 示例应用接入 mock streaming service，演示真实流式输出
+- [x] `IXRequestClient`：映射官方 XRequest，请求、取消、错误、headers
+- [x] `XStreamReader`：映射 XStream，支持 SSE / fetch stream / OpenAI-compatible chunks
+- [x] `XChatStore`：映射 useXChat，管理 messages、loading、submit、retry、abort
+- [x] `XAgentStore`：映射 useXAgent，管理 agent 状态、tool call、intermediate events
+- [x] 与 `IHttpClientFactory`、`CancellationToken`、Blazor Server circuit 生命周期对齐
+- [x] 示例应用接入 mock streaming service，演示真实流式输出
 
 ## 里程碑 D：质量与发布
 
