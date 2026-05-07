@@ -1,0 +1,46 @@
+@page "/components/markdown"
+@layout ComponentLayout
+
+<PageTitle>Markdown 渲染 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Markdown 渲染</h1>
+    <p>渲染流式或静态 Markdown，内置代码块高亮，可关闭。</p>
+</header>
+
+<DemoCard Title="基本" SourceCode="@BasicSource">
+    <XMarkdown Content="@Sample" />
+</DemoCard>
+
+<DemoCard Title="关闭代码高亮" SourceCode="@PlainSource">
+    <XMarkdown Content="@Sample" EnableCodeHighlighter="false" />
+</DemoCard>
+
+<DemoCard Title="代码不可复制 / 不显示头部" SourceCode="@SlimSource">
+    <XMarkdown Content="@Sample" CodeCopyable="false" ShowCodeHeader="false" />
+</DemoCard>
+
+@code {
+    private const string Sample = """
+# Hello, Ant Design X
+
+支持 **粗体**、*斜体*、`code`、[链接](https://ant-design-x.antgroup.com/) 与列表：
+
+- 流式追加
+- 代码高亮
+- 表格 / 引用
+
+```csharp
+public sealed record Greeting(string Name)
+{
+    public string Hello() => $"Hello, {Name}!";
+}
+```
+
+> 引用块也会被正确渲染。
+""";
+
+    private const string BasicSource = """<XMarkdown Content="@Sample" />""";
+    private const string PlainSource = """<XMarkdown Content="@Sample" EnableCodeHighlighter="false" />""";
+    private const string SlimSource  = """<XMarkdown Content="@Sample" CodeCopyable="false" ShowCodeHeader="false" />""";
+}

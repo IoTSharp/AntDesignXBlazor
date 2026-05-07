@@ -1,0 +1,42 @@
+@page "/components/icon"
+@layout ComponentLayout
+
+<PageTitle>XIcon 图标 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>XIcon 图标</h1>
+    <p>统一封装 Ant Design 图标 / 自定义图片 / 子内容三种形态。</p>
+</header>
+
+<DemoCard Title="Ant Design 图标 Type" SourceCode="@TypeSource">
+    <XIcon Type="robot" />
+    <XIcon Type="user" />
+    <XIcon Type="bulb" />
+    <XIcon Type="experiment" />
+</DemoCard>
+
+<DemoCard Title="图片 Src" SourceCode="@SrcSource">
+    <XIcon Src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+           Alt="logo" />
+</DemoCard>
+
+<DemoCard Title="自定义子内容" SourceCode="@ChildSource">
+    <XIcon>
+        <span style="font-size:18px">🦙</span>
+    </XIcon>
+</DemoCard>
+
+@code {
+    private const string TypeSource = """
+<XIcon Type="robot" />
+<XIcon Type="user" />
+""";
+
+    private const string SrcSource = """<XIcon Src="..." Alt="logo" />""";
+
+    private const string ChildSource = """
+<XIcon>
+    <span style="font-size:18px">🦙</span>
+</XIcon>
+""";
+}

@@ -44,6 +44,8 @@ public static class ComponentNav
         }),
         new("其他", new NavItem[]
         {
+            new("markdown", "Markdown 渲染", "Markdown"),
+            new("icon", "图标", "Icon"),
             new("x-provider", "全局化配置", "XProvider"),
         }),
     ];
