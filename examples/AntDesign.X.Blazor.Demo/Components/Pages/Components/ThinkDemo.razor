@@ -1,0 +1,38 @@
+@page "/components/think"
+@layout ComponentLayout
+
+<PageTitle>Think 思考过程 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Think 思考过程</h1>
+    <p>展示模型的推理 / 工具调用过程，可折叠。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <XThink Title="Think"
+            Description="可折叠推理过程"
+            Status="XSemanticStatus.Processing"
+            Content="@Content" />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>状态：default / processing / success / error</li>
+        <li>自定义内容渲染</li>
+    </ul>
+</section>
+
+@code {
+    private const string Content = """
+1. 解析问题
+2. 查询知识库
+3. 召回 3 篇相关文档
+4. 综合答案
+""";
+
+    private const string BasicSource = """
+<XThink Title="Think" Description="可折叠推理过程" Status="XSemanticStatus.Processing" Content="@Content" />
+""";
+}

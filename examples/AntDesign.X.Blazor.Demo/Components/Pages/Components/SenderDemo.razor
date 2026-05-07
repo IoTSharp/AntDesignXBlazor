@@ -1,0 +1,112 @@
+@page "/components/sender"
+@layout ComponentLayout
+
+<PageTitle>Sender 输入框 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Sender 输入框</h1>
+    <p>对话产品的输入区，支持附件、动作槽、提交模式、停止与清空。</p>
+</header>
+
+<DemoCard Title="基本"
+          Description="双向绑定 + Enter 提交。"
+          SourceCode="@BasicSource">
+    <XSender @bind-Value="_text"
+             Placeholder="说点什么..."
+             SubmitMode="XSenderSubmitMode.Enter"
+             OnSubmit="@OnSubmit"
+             OnClear="@(() => _text = string.Empty)" />
+    @if (!string.IsNullOrEmpty(_lastSubmit))
+    {
+        <p class="demo-tip">最近提交：<code>@_lastSubmit</code></p>
+    }
+</DemoCard>
+
+<DemoCard Title="附件 + 动作"
+          Description="附件展示、动作槽、可折叠 Header/Footer。"
+          SourceCode="@AttachmentSource">
+    <XSender @bind-Value="_text2"
+             Placeholder="支持附件..."
+             Multiple="true"
+             Attachments="@_atts"
+             Actions="@_actions"
+             OnFilesSelected="@AddFiles"
+             OnAttachmentRemove="@RemoveAtt"
+             OnAction="@(k => _lastAction = k)"
+             OnSubmit="@(r => _lastSubmit = r.Text)" />
+    @if (!string.IsNullOrEmpty(_lastAction))
+    {
+        <p class="demo-tip">最近动作：<code>@_lastAction</code></p>
+    }
+</DemoCard>
+
+<DemoCard Title="ShiftEnter 模式"
+          Description="Enter 换行，Shift+Enter 提交。"
+          SourceCode="@ShiftSource">
+    <XSender @bind-Value="_text3"
+             SubmitMode="XSenderSubmitMode.ShiftEnter"
+             Placeholder="Shift+Enter 提交..." />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>Loading + Cancel</li>
+        <li>BeforeUpload 异步校验</li>
+        <li>MaxAttachments / Accept 限制</li>
+        <li>Header / Footer 自定义模板</li>
+        <li>Prefix / Suffix 模板</li>
+    </ul>
+</section>
+
+@code {
+    private string _text = string.Empty;
+    private string _text2 = string.Empty;
+    private string _text3 = string.Empty;
+    private string? _lastSubmit;
+    private string? _lastAction;
+
+    private readonly List<XAttachmentItem> _atts =
+    [
+        new() { Name = "spec.pdf", Size = 102400, ContentType = "application/pdf", Status = XFileCardStatus.Done },
+    ];
+
+    private readonly IReadOnlyList<XActionItem> _actions =
+    [
+        new() { Key = "search", Label = "搜索", Icon = "search" },
+        new() { Key = "image",  Label = "生图",  Icon = "picture" },
+    ];
+
+    private void OnSubmit(XSenderRequest r) { _lastSubmit = r.Text; _text = string.Empty; }
+
+    private void AddFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var f in files)
+        {
+            _atts.Add(new XAttachmentItem { Name = f.Name, Size = f.Size, ContentType = f.ContentType, Status = XFileCardStatus.Done });
+        }
+    }
+    private void RemoveAtt(string id) => _atts.RemoveAll(a => a.Id == id);
+
+    private const string BasicSource = """
+<XSender @bind-Value="_text"
+         Placeholder="说点什么..."
+         SubmitMode="XSenderSubmitMode.Enter"
+         OnSubmit="@OnSubmit" />
+""";
+
+    private const string AttachmentSource = """
+<XSender @bind-Value="_text"
+         Multiple="true"
+         Attachments="@_atts"
+         Actions="@_actions"
+         OnFilesSelected="@AddFiles"
+         OnAttachmentRemove="@RemoveAtt"
+         OnAction="@(k => _lastAction = k)"
+         OnSubmit="@(r => _lastSubmit = r.Text)" />
+""";
+
+    private const string ShiftSource = """
+<XSender @bind-Value="_text" SubmitMode="XSenderSubmitMode.ShiftEnter" />
+""";
+}

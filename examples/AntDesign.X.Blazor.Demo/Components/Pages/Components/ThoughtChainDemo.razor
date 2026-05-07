@@ -1,0 +1,37 @@
+@page "/components/thought-chain"
+@layout ComponentLayout
+
+<PageTitle>ThoughtChain 思维链 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>ThoughtChain 思维链</h1>
+    <p>线性展示 Agent 的推理与工具调用步骤。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <XThoughtChain Title="ThoughtChain" Items="@Items" />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>大小 small / middle / large</li>
+        <li>嵌套 children</li>
+        <li>折叠 collapsible</li>
+        <li>自定义 icon / extra</li>
+    </ul>
+</section>
+
+@code {
+    private IReadOnlyList<XThoughtItem> Items { get; } =
+    [
+        new() { Key = "1", Title = "解析输入", Status = XSemanticStatus.Success, Description = "理解用户意图" },
+        new() { Key = "2", Title = "调用工具 search", Status = XSemanticStatus.Success, Content = "返回 5 条匹配" },
+        new() { Key = "3", Title = "综合答案", Status = XSemanticStatus.Processing, Content = "正在生成..." },
+    ];
+
+    private const string BasicSource = """
+<XThoughtChain Title="ThoughtChain" Items="@Items" />
+""";
+}

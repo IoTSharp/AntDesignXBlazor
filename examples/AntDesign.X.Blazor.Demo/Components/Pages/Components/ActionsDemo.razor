@@ -1,0 +1,41 @@
+@page "/components/actions"
+@layout ComponentLayout
+
+<PageTitle>Actions 动作 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Actions 动作</h1>
+    <p>用于在气泡或输入框周围放置一组动作按钮。</p>
+</header>
+
+<DemoCard Title="文字按钮" SourceCode="@TextSource">
+    <XActions Items="@Items" Size="middle" OnAction="@(k => _last = k)" />
+    @if (!string.IsNullOrEmpty(_last))
+    {
+        <p class="demo-tip">最近动作：<code>@_last</code></p>
+    }
+</DemoCard>
+
+<DemoCard Title="仅图标" SourceCode="@IconSource">
+    <XActions Items="@Items" IconOnly="true" Size="small" OnAction="@(k => _last = k)" />
+</DemoCard>
+
+@code {
+    private string? _last;
+
+    private IReadOnlyList<XActionItem> Items { get; } =
+    [
+        new() { Key = "copy",      Label = "复制",   Icon = "copy" },
+        new() { Key = "regen",     Label = "重新生成", Icon = "reload" },
+        new() { Key = "good",      Label = "赞",     Icon = "like" },
+        new() { Key = "bad",       Label = "踩",     Icon = "dislike", Danger = true },
+    ];
+
+    private const string TextSource = """
+<XActions Items="@Items" Size="middle" OnAction="@(k => _last = k)" />
+""";
+
+    private const string IconSource = """
+<XActions Items="@Items" IconOnly="true" Size="small" />
+""";
+}

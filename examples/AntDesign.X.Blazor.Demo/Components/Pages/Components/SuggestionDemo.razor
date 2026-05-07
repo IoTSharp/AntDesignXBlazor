@@ -1,0 +1,44 @@
+@page "/components/suggestion"
+@layout ComponentLayout
+
+<PageTitle>Suggestion 联想 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Suggestion 联想</h1>
+    <p>输入查询，弹出联想项；常与 Sender 组合实现 / 命令、@@提及等。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <input class="demo-input" @bind="_query" @bind:event="oninput" placeholder="输入 a/r/c..." />
+    <XSuggestion Query="@_query" Items="@Items" OnSelect="@(p => _picked = p.Title)" />
+    @if (!string.IsNullOrEmpty(_picked))
+    {
+        <p class="demo-tip">最近选择：<code>@_picked</code></p>
+    }
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>受控 Open</li>
+        <li>嵌套 children</li>
+        <li>与 Sender 集成</li>
+    </ul>
+</section>
+
+@code {
+    private string _query = string.Empty;
+    private string? _picked;
+
+    private IReadOnlyList<XPromptItem> Items { get; } =
+    [
+        new() { Key = "1", Title = "Ask: 解释 RAG", Icon = "experiment" },
+        new() { Key = "2", Title = "Refactor 当前文件",      Icon = "thunderbolt" },
+        new() { Key = "3", Title = "Convert 为 TS",          Icon = "code" },
+    ];
+
+    private const string BasicSource = """
+<XSuggestion Query="@_query" Items="@Items" OnSelect="@(p => _picked = p.Title)" />
+""";
+}

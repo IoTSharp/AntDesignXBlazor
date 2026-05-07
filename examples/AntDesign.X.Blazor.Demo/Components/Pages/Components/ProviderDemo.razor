@@ -1,0 +1,47 @@
+@page "/components/x-provider"
+@layout ComponentLayout
+
+<PageTitle>XProvider 全局配置 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>XProvider 全局配置</h1>
+    <p>全局主题 token / locale / 默认行为；建议在应用根注入一次。</p>
+</header>
+
+<DemoCard Title="主题 token" SourceCode="@TokensSource">
+    <XProvider Tokens="@Tokens">
+        <XBubble Header="Assistant" AvatarIcon="robot"
+                 Placement="XBubblePlacement.Start"
+                 Variant="XBubbleVariant.Filled"
+                 Content="主题色与圆角已被覆盖。" />
+        <XBubble Header="You" AvatarIcon="user"
+                 Placement="XBubblePlacement.End"
+                 Variant="XBubbleVariant.Outlined"
+                 Content="Tokens 通过 CSS 变量下发。" />
+    </XProvider>
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>Locale 切换</li>
+        <li>嵌套 Provider 覆盖</li>
+        <li>SyncTheme 与系统暗色</li>
+    </ul>
+</section>
+
+@code {
+    private XThemeTokens Tokens { get; } = new()
+    {
+        PrimaryColor = "#722ed1",
+        BorderRadius = "12px",
+        BubbleStartBackground = "#f9f0ff",
+        BubbleEndBackground = "#722ed1",
+    };
+
+    private const string TokensSource = """
+<XProvider Tokens="@(new XThemeTokens { PrimaryColor = "#722ed1", BorderRadius = "12px" })">
+    <XBubble Content="主题色与圆角已被覆盖。" />
+</XProvider>
+""";
+}

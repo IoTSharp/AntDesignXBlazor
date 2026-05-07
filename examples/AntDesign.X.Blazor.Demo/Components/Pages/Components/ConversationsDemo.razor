@@ -1,0 +1,49 @@
+@page "/components/conversations"
+@layout ComponentLayout
+
+<PageTitle>Conversations 管理对话 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Conversations 管理对话</h1>
+    <p>会话列表，用于管理多轮对话的会话切换、菜单与重命名。</p>
+</header>
+
+<DemoCard Title="基本"
+          Description="受控的会话列表 + 分组。"
+          SourceCode="@BasicSource">
+    <XConversations Items="@Items"
+                    ActiveKey="@ActiveKey"
+                    ActiveKeyChanged="@(k => ActiveKey = k)"
+                    Title="Conversations" />
+    <p class="demo-tip">当前激活：<code>@ActiveKey</code></p>
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>受控 activeKey</li>
+        <li>分组 group</li>
+        <li>菜单与子项</li>
+        <li>重命名 / 删除</li>
+        <li>自定义图标与计数</li>
+        <li>排序 slot</li>
+    </ul>
+</section>
+
+@code {
+    private string ActiveKey { get; set; } = "today-1";
+
+    private IReadOnlyList<XConversationItem> Items { get; } =
+    [
+        new() { Key = "today-1", Group = "今天", Title = "Ant Design X 介绍", Description = "组件总览", Icon = "message", Count = 3, UpdatedAt = DateTimeOffset.Now.AddMinutes(-12) },
+        new() { Key = "today-2", Group = "今天", Title = "Sender 模式", Description = "附件、停止、快捷发送", Icon = "edit", UpdatedAt = DateTimeOffset.Now.AddMinutes(-31) },
+        new() { Key = "earlier-1", Group = "更早", Title = "展示原语", Description = "Sources / ThoughtChain", Icon = "appstore", UpdatedAt = DateTimeOffset.Now.AddHours(-5) },
+    ];
+
+    private const string BasicSource = """
+<XConversations Items="@Items"
+                ActiveKey="@ActiveKey"
+                ActiveKeyChanged="@(k => ActiveKey = k)"
+                Title="Conversations" />
+""";
+}

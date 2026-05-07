@@ -1,0 +1,43 @@
+@page "/components/mermaid"
+@layout ComponentLayout
+
+<PageTitle>Mermaid 图表 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Mermaid 图表</h1>
+    <p>渲染 Mermaid 文本为 SVG，支持源码 / 渲染切换。</p>
+</header>
+
+<DemoCard Title="流程图" SourceCode="@FlowSource">
+    <XMermaid Title="Flow" Definition="@Flow" AllowRenderTypeToggle="true" />
+</DemoCard>
+
+<DemoCard Title="时序图" SourceCode="@SeqSource">
+    <XMermaid Title="Sequence" Definition="@Seq" />
+</DemoCard>
+
+@code {
+    private const string Flow = """
+flowchart LR
+    A[User] --> B(Sender)
+    B --> C{Has attachments?}
+    C -->|Yes| D[Upload]
+    C -->|No|  E[Submit]
+    D --> E
+    E --> F[Stream response]
+""";
+
+    private const string Seq = """
+sequenceDiagram
+    participant U as User
+    participant S as Sender
+    participant M as Model
+    U->>S: text + files
+    S->>M: chat.completions
+    M-->>S: stream chunks
+    S-->>U: render bubble
+""";
+
+    private const string FlowSource = """<XMermaid Title="Flow" Definition="@Flow" AllowRenderTypeToggle="true" />""";
+    private const string SeqSource  = """<XMermaid Title="Sequence" Definition="@Seq" />""";
+}

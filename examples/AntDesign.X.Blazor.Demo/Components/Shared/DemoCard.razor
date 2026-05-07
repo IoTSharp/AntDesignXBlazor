@@ -1,0 +1,38 @@
+@* 统一的演示卡片：参考 ant-design-x 站点 demo card 风格 *@
+
+<article class="demo-card">
+    <header class="demo-card-header">
+        <div>
+            <h3>@Title</h3>
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <p>@Description</p>
+            }
+        </div>
+        @if (HeaderExtra is not null)
+        {
+            <div class="demo-card-extra">@HeaderExtra</div>
+        }
+    </header>
+
+    <div class="demo-card-body">
+        @ChildContent
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(SourceCode))
+    {
+        <details class="demo-card-source">
+            <summary>查看源代码</summary>
+            <XCodeHighlighter Language="@Language" Code="@SourceCode" />
+        </details>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? HeaderExtra { get; set; }
+    [Parameter] public string? SourceCode { get; set; }
+    [Parameter] public string Language { get; set; } = "razor";
+}

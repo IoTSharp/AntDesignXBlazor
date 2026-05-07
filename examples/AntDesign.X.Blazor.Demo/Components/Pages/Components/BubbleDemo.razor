@@ -1,0 +1,118 @@
+@page "/components/bubble"
+@layout ComponentLayout
+
+<PageTitle>Bubble 对话气泡 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Bubble 对话气泡</h1>
+    <p>用于在 AI 对话场景下显示一条消息。支持 placement、variant、shape、loading、Markdown、附件等。</p>
+</header>
+
+<DemoCard Title="基本"
+          Description="最简单的气泡用法。"
+          SourceCode="@BasicSource">
+    <XBubble Content="Hello, Ant Design X for Blazor!" />
+    <XBubble Content="你好，这是一段中文消息。" Placement="XBubblePlacement.End" />
+</DemoCard>
+
+<DemoCard Title="头像与角色"
+          Description="通过 Header / AvatarIcon 区分角色。"
+          SourceCode="@AvatarSource">
+    <XBubble Content="我是助手"
+             Header="Assistant"
+             AvatarIcon="robot"
+             Placement="XBubblePlacement.Start"
+             Variant="XBubbleVariant.Filled"
+             Shape="XBubbleShape.Round" />
+    <XBubble Content="我是用户"
+             Header="User"
+             AvatarIcon="user"
+             Placement="XBubblePlacement.End"
+             Variant="XBubbleVariant.Outlined"
+             Shape="XBubbleShape.Round" />
+</DemoCard>
+
+<DemoCard Title="加载中"
+          Description="设置 Loading=true 显示加载点。"
+          SourceCode="@LoadingSource">
+    <XBubble Loading="true" Header="Assistant" AvatarIcon="robot" />
+</DemoCard>
+
+<DemoCard Title="Bubble.List + roles"
+          Description="使用 XBubbleList 与角色配置批量渲染消息流。"
+          SourceCode="@ListSource">
+    <XBubbleList Items="@ListItems" RoleConfigs="@RoleConfigs" />
+</DemoCard>
+
+<DemoCard Title="Markdown 内容"
+          Description="设置 Markdown=true 让消息走 Markdown 渲染。"
+          SourceCode="@MarkdownSource">
+    <XBubble Markdown="true"
+             Header="Assistant"
+             AvatarIcon="robot"
+             Content="@MarkdownContent" />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>Header / Footer 组合</li>
+        <li>打字效果（typing / streaming）</li>
+        <li>文件附件气泡</li>
+        <li>自定义 message render</li>
+        <li>语义化 classNames / styles</li>
+    </ul>
+</section>
+
+@code {
+    private IReadOnlyList<XBubbleItem> ListItems { get; } =
+    [
+        new() { Key = "1", Role = "user", Content = "帮我用 Blazor 写个对话框" },
+        new() { Key = "2", Role = "assistant", Content = "可以使用 `XSender` + `XBubbleList` 组合：\n\n```razor\n<XBubbleList Items=\"@msgs\" />\n<XSender @bind-Value=\"@draft\" OnSubmit=\"@send\" />\n```" }
+    ];
+
+    private IReadOnlyDictionary<string, XBubbleRoleConfig> RoleConfigs { get; } =
+        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["assistant"] = new() { Placement = XBubblePlacement.Start, AvatarIcon = "robot", Header = "Assistant", Markdown = true },
+            ["user"] = new() { Placement = XBubblePlacement.End, AvatarIcon = "user", Header = "You" }
+        };
+
+    private const string MarkdownContent = "**Markdown** 支持：\n\n- 列表\n- `code`\n- [链接](https://ant-design-x.antgroup.com/)";
+
+    private const string BasicSource = """
+<XBubble Content="Hello, Ant Design X for Blazor!" />
+<XBubble Content="你好，这是一段中文消息。" Placement="XBubblePlacement.End" />
+""";
+
+    private const string AvatarSource = """
+<XBubble Content="我是助手" Header="Assistant" AvatarIcon="robot"
+         Placement="XBubblePlacement.Start" Variant="XBubbleVariant.Filled" Shape="XBubbleShape.Round" />
+<XBubble Content="我是用户" Header="User" AvatarIcon="user"
+         Placement="XBubblePlacement.End" Variant="XBubbleVariant.Outlined" Shape="XBubbleShape.Round" />
+""";
+
+    private const string LoadingSource = """
+<XBubble Loading="true" Header="Assistant" AvatarIcon="robot" />
+""";
+
+    private const string ListSource = """
+<XBubbleList Items="@ListItems" RoleConfigs="@RoleConfigs" />
+
+@code {
+    IReadOnlyList<XBubbleItem> ListItems = [
+        new() { Role = "user", Content = "帮我用 Blazor 写个对话框" },
+        new() { Role = "assistant", Content = "可以使用 XSender + XBubbleList 组合" }
+    ];
+    IReadOnlyDictionary<string, XBubbleRoleConfig> RoleConfigs =
+        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase) {
+            ["assistant"] = new() { Placement = XBubblePlacement.Start, AvatarIcon = "robot", Header = "Assistant", Markdown = true },
+            ["user"]      = new() { Placement = XBubblePlacement.End,   AvatarIcon = "user",  Header = "You" }
+        };
+}
+""";
+
+    private const string MarkdownSource = """
+<XBubble Markdown="true" Header="Assistant" AvatarIcon="robot" Content="@MarkdownContent" />
+""";
+}

@@ -1,0 +1,29 @@
+@page "/components/sources"
+@layout ComponentLayout
+
+<PageTitle>Sources 引用来源 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Sources 引用来源</h1>
+    <p>展示 RAG 召回的引用列表，可点击跳转。</p>
+</header>
+
+<DemoCard Title="基本" SourceCode="@BasicSource">
+    <XSources Items="@Items" />
+</DemoCard>
+
+<DemoCard Title="紧凑" SourceCode="@CompactSource">
+    <XSources Title="References" Items="@Items" Compact="true" />
+</DemoCard>
+
+@code {
+    private IReadOnlyList<XSourceItem> Items { get; } =
+    [
+        new() { Key = "1", Title = "Ant Design X 官网",         Url = "https://ant-design-x.antgroup.com/", Icon = "global" },
+        new() { Key = "2", Title = "RFC-001 Architecture.md",  Description = "Repo 内文档", Icon = "file-text" },
+        new() { Key = "3", Title = "Issue #42",                 Url = "https://example.com/issues/42", Icon = "github" },
+    ];
+
+    private const string BasicSource = """<XSources Items="@Items" />""";
+    private const string CompactSource = """<XSources Title="References" Items="@Items" Compact="true" />""";
+}

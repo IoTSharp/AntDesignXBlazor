@@ -1,0 +1,49 @@
+@page "/components/code-highlighter"
+@layout ComponentLayout
+
+<PageTitle>Code Highlighter 代码高亮 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Code Highlighter 代码高亮</h1>
+    <p>独立的代码块高亮组件，也被 XMarkdown 内部使用。</p>
+</header>
+
+<DemoCard Title="C#" SourceCode="@CsharpSource">
+    <XCodeHighlighter Language="csharp" Code="@CsharpCode" />
+</DemoCard>
+
+<DemoCard Title="Razor" SourceCode="@RazorSource">
+    <XCodeHighlighter Language="razor" Code="@RazorCode" />
+</DemoCard>
+
+<DemoCard Title="JSON / 不显示头部" SourceCode="@JsonSource">
+    <XCodeHighlighter Language="json" Code="@JsonCode" ShowHeader="false" />
+</DemoCard>
+
+@code {
+    private const string CsharpCode = """
+using AntDesign.X;
+
+public sealed record Greeting(string Name)
+{
+    public string Hello() => $"Hello, {Name}!";
+}
+""";
+
+    private const string RazorCode = """
+<XBubbleList Items="@msgs" RoleConfigs="@roles" />
+<XSender @bind-Value="@draft" OnSubmit="@send" />
+""";
+
+    private const string JsonCode = """
+{
+  "model": "gpt-x",
+  "stream": true,
+  "messages": [{ "role": "user", "content": "hi" }]
+}
+""";
+
+    private const string CsharpSource = """<XCodeHighlighter Language="csharp" Code="@CsharpCode" />""";
+    private const string RazorSource  = """<XCodeHighlighter Language="razor"  Code="@RazorCode" />""";
+    private const string JsonSource   = """<XCodeHighlighter Language="json"   Code="@JsonCode" ShowHeader="false" />""";
+}

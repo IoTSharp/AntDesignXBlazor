@@ -1,0 +1,54 @@
+@page "/components/attachments"
+@layout ComponentLayout
+
+<PageTitle>Attachments 输入附件 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Attachments 输入附件</h1>
+    <p>用于在 Sender 之外独立展示附件区域，可拖拽 / 粘贴。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <XAttachments Title="Attachments"
+                  Items="@Items"
+                  UploadEnabled="true"
+                  DragHover="true"
+                  Pastable="true"
+                  OnFilesSelected="@AddFiles"
+                  OnRemove="@Remove" />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>状态：上传中 / 完成 / 失败</li>
+        <li>拖拽 hover</li>
+        <li>粘贴文件</li>
+        <li>文件夹（directory）</li>
+        <li>beforeUpload 校验</li>
+        <li>自定义渲染</li>
+    </ul>
+</section>
+
+@code {
+    private readonly List<XAttachmentItem> Items =
+    [
+        new() { Name = "design-spec.md", Size = 4096, Status = XFileCardStatus.Done },
+    ];
+
+    private void AddFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var f in files)
+        {
+            Items.Add(new XAttachmentItem { Name = f.Name, Size = f.Size, ContentType = f.ContentType, Status = XFileCardStatus.Done });
+        }
+    }
+
+    private void Remove(string id) => Items.RemoveAll(i => i.Id == id);
+
+    private const string BasicSource = """
+<XAttachments Items="@Items" UploadEnabled="true" DragHover="true" Pastable="true"
+              OnFilesSelected="@AddFiles" OnRemove="@Remove" />
+""";
+}

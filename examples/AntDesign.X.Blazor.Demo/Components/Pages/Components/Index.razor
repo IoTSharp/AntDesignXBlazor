@@ -1,0 +1,25 @@
+@page "/components"
+@layout ComponentLayout
+
+<PageTitle>组件总览 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-overview-header">
+    <h1>组件总览</h1>
+    <p>对照官方 <a href="https://ant-design-x.antgroup.com/components/overview-cn" target="_blank" rel="noopener">Ant Design X</a> 的分类结构。每个组件提供独立路由与官方对齐的 demo 矩阵。</p>
+</header>
+
+@foreach (var group in ComponentNav.Groups)
+{
+    <section class="demo-overview-group">
+        <h2>@group.Title</h2>
+        <div class="demo-overview-grid">
+            @foreach (var item in group.Items)
+            {
+                <a class="demo-overview-card" href="@($"components/{item.Slug}")">
+                    <h3>@item.Title</h3>
+                    <code>@item.EnglishTitle</code>
+                </a>
+            }
+        </div>
+    </section>
+}

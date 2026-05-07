@@ -1,0 +1,54 @@
+@page "/components/welcome"
+@layout ComponentLayout
+
+<PageTitle>Welcome 欢迎 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Welcome 欢迎</h1>
+    <p>对话产品的欢迎屏，可与 Prompts 组合。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <XWelcome Title="Ant Design X Blazor"
+              Description="保持 Ant Design X 的对话产品语义，用纯 Blazor 交付。"
+              Icon="robot" />
+</DemoCard>
+
+<DemoCard Title="与 Prompts 组合"
+          SourceCode="@WithPromptsSource">
+    <XWelcome Title="开始一个新对话"
+              Description="从下面的提示开始。"
+              Icon="thunderbolt">
+        <XPrompts Items="@Prompts" Wrap="true" />
+    </XWelcome>
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>Variant（filled / borderless）</li>
+        <li>自定义 icon / extra</li>
+    </ul>
+</section>
+
+@code {
+    private IReadOnlyList<XPromptItem> Prompts { get; } =
+    [
+        new() { Key = "a", Title = "解释 RAG", Icon = "experiment" },
+        new() { Key = "b", Title = "生成代码", Icon = "code" },
+        new() { Key = "c", Title = "总结文档", Icon = "file-text" },
+    ];
+
+    private const string BasicSource = """
+<XWelcome Title="Ant Design X Blazor"
+          Description="保持 Ant Design X 的对话产品语义。"
+          Icon="robot" />
+""";
+
+    private const string WithPromptsSource = """
+<XWelcome Title="开始一个新对话" Description="从下面的提示开始。" Icon="thunderbolt">
+    <XPrompts Items="@Prompts" Wrap="true" />
+</XWelcome>
+""";
+}

@@ -1,0 +1,58 @@
+@page "/components/notification"
+@layout ComponentLayout
+
+<PageTitle>Notification 系统通知 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Notification 系统通知</h1>
+    <p>用于展示 AI 系统状态、流式进度或异步事件。可声明式渲染或通过 <code>IXNotificationService</code> 调用。</p>
+</header>
+
+<DemoCard Title="基本"
+          Description="渲染一个通知队列。"
+          SourceCode="@BasicSource">
+    <button class="demo-btn" @onclick="Push">推送一条通知</button>
+    <XNotification Items="@Items"
+                   Placement="XNotificationPlacement.TopRight"
+                   MaxCount="4"
+                   DefaultDuration="@TimeSpan.FromSeconds(5)"
+                   OnClose="@Close" />
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>队列 / maxCount</li>
+        <li>duration 与 pauseOnHover</li>
+        <li>四角 placement</li>
+        <li>全局 service：IXNotificationService.OpenAsync</li>
+        <li>状态：success / info / warning / error / processing</li>
+    </ul>
+</section>
+
+@code {
+    private readonly List<XNotificationItem> Items = [];
+    private int _seq;
+
+    private void Push()
+    {
+        Items.Add(new XNotificationItem
+        {
+            Key = $"n-{++_seq}",
+            Title = $"事件 #{_seq}",
+            Description = "这是一条由 demo 触发的通知。",
+            Status = (XSemanticStatus)(_seq % 4),
+            CreatedAt = DateTimeOffset.Now,
+        });
+    }
+
+    private void Close(string key) => Items.RemoveAll(i => i.Key == key);
+
+    private const string BasicSource = """
+<XNotification Items="@Items"
+               Placement="XNotificationPlacement.TopRight"
+               MaxCount="4"
+               DefaultDuration="@TimeSpan.FromSeconds(5)"
+               OnClose="@Close" />
+""";
+}

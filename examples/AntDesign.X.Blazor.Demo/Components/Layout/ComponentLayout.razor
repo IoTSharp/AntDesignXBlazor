@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+
+<div class="demo-component-page">
+    <nav class="demo-component-nav">
+        <a href="components" class="demo-component-nav-home">← 组件总览</a>
+        <div class="demo-component-nav-groups">
+            @foreach (var group in ComponentNav.Groups)
+            {
+                <div class="demo-component-nav-group">
+                    <h4>@group.Title</h4>
+                    @foreach (var item in group.Items)
+                    {
+                        <a href="@($"components/{item.Slug}")">@item.Title</a>
+                    }
+                </div>
+            }
+        </div>
+    </nav>
+    <article class="demo-component-content">
+        @Body
+    </article>
+</div>

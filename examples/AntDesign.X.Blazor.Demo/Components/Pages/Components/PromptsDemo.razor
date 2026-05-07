@@ -1,0 +1,62 @@
+@page "/components/prompts"
+@layout ComponentLayout
+
+<PageTitle>Prompts 提示集 · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Prompts 提示集</h1>
+    <p>把建议的指令组织成卡片或菜单。</p>
+</header>
+
+<DemoCard Title="基本"
+          SourceCode="@BasicSource">
+    <XPrompts Items="@Items"
+              Wrap="true"
+              ExpandAllByDefault="true"
+              OnItemClick="@(p => _last = p.Title)" />
+    @if (!string.IsNullOrEmpty(_last))
+    {
+        <p class="demo-tip">最近选择：<code>@_last</code></p>
+    }
+</DemoCard>
+
+<section class="demo-todo">
+    <h2>待补 demo</h2>
+    <ul>
+        <li>嵌套 children</li>
+        <li>垂直布局</li>
+        <li>卡片样式</li>
+        <li>禁用项</li>
+        <li>默认展开 / 收起</li>
+    </ul>
+</section>
+
+@code {
+    private string? _last;
+
+    private IReadOnlyList<XPromptItem> Items { get; } =
+    [
+        new()
+        {
+            Key = "build", Title = "生成工作台", Icon = "thunderbolt", Tag = "Chat",
+            Children =
+            [
+                new() { Key = "build-chat", Title = "Chat flow", Description = "消息流和输入编排" },
+                new() { Key = "build-files", Title = "File flow", Description = "附件、状态和预览" },
+            ]
+        },
+        new()
+        {
+            Key = "rag", Title = "解释 RAG", Icon = "experiment", Tag = "RAG",
+            Children =
+            [
+                new() { Key = "rag-memory", Title = "Memory" },
+                new() { Key = "rag-eval", Title = "Evaluation" },
+            ]
+        },
+    ];
+
+    private const string BasicSource = """
+<XPrompts Items="@Items" Wrap="true" ExpandAllByDefault="true" OnItemClick="@OnPick" />
+""";
+}
