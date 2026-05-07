@@ -5,45 +5,73 @@
 
 <header class="demo-page-header">
     <h1>Folder 文件夹</h1>
-    <p>层级文件夹/分组导航，常用于 RAG 知识库与对话归档。</p>
+    <p>展示对话相关的文件树或资源分类。</p>
 </header>
 
-<DemoCard Title="基本" SourceCode="@BasicSource">
-    <XFolder Title="知识库"
-             Items="@Items"
-             ActiveKey="@_active"
-             ActiveKeyChanged="@(k => _active = k)"
-             OnSelect="@(i => _picked = i.Name)" />
-    <p class="demo-tip">激活：<code>@_active</code> · 最近：<code>@_picked</code></p>
+<DemoCard Title="基础树"
+          Description="Items + Children。"
+          SourceCode="@BasicSource">
+    <XFolder Items="@_items" Title="知识库" OnSelect="OnSelect" />
+    @if (!string.IsNullOrEmpty(_selected))
+    {
+        <p class="demo-tip">已选中：@_selected</p>
+    }
 </DemoCard>
 
-<DemoCard Title="卡片样式" SourceCode="@CardSource">
-    <XFolder Title="项目" Items="@Items" Variant="XFolderVariant.Card" />
+<DemoCard Title="无边框"
+          Description="Variant=Borderless。"
+          SourceCode="@BorderlessSource">
+    <XFolder Items="@_items" Variant="XFolderVariant.Borderless" Title="紧凑" />
+</DemoCard>
+
+<DemoCard Title="单级 + 禁用"
+          Description="Disabled 项。"
+          SourceCode="@FlatSource">
+    <XFolder Items="@_flat" />
 </DemoCard>
 
 @code {
-    private string? _active = "specs";
-    private string? _picked;
+    private string? _selected;
 
-    private IReadOnlyList<XFolderItem> Items { get; } =
+    private readonly IReadOnlyList<XFolderItem> _items =
     [
-        new() { Key = "specs", Name = "Specs", Icon = "folder", Children =
+        new()
+        {
+            Name = "项目文档",
+            Icon = "folder",
+            Children =
             [
-                new() { Key = "rfc-1", Name = "RFC-001 Architecture" },
-                new() { Key = "rfc-2", Name = "RFC-002 Sender" },
-            ]},
-        new() { Key = "kb",    Name = "Knowledge", Icon = "database" },
-        new() { Key = "trash", Name = "Trash",     Icon = "delete", Disabled = true },
+                new() { Name = "README.md", Icon = "file-text" },
+                new() { Name = "ROADMAP.md", Icon = "file-text" },
+            ],
+        },
+        new()
+        {
+            Name = "源码",
+            Icon = "folder",
+            Children =
+            [
+                new() { Name = "Program.cs", Icon = "file" },
+                new() { Name = "Layout.razor", Icon = "file" },
+            ],
+        },
     ];
 
-    private const string BasicSource = """
-<XFolder Title="知识库" Items="@Items"
-         ActiveKey="@_active"
-         ActiveKeyChanged="@(k => _active = k)"
-         OnSelect="@(i => _picked = i.Name)" />
-""";
+    private readonly IReadOnlyList<XFolderItem> _flat =
+    [
+        new() { Name = "可用", Icon = "file" },
+        new() { Name = "禁用", Icon = "file", Disabled = true },
+    ];
 
-    private const string CardSource = """
-<XFolder Title="项目" Items="@Items" Variant="XFolderVariant.Card" />
+    private void OnSelect(XFolderItem item) => _selected = item.Name;
+
+    private const string BasicSource = """
+<XFolder Items="@items" OnSelect="OnSelect" />
+""";
+    private const string BorderlessSource = """
+<XFolder Items="@items" Variant="XFolderVariant.Borderless" />
+""";
+    private const string FlatSource = """
+new XFolderItem { Name = "...", Disabled = true }
 """;
 }

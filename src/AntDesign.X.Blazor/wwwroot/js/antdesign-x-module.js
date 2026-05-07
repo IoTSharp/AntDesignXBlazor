@@ -158,3 +158,71 @@ export function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight;
   }
 }
+
+export function focusElement(element, preventScroll) {
+  if (!element || typeof element.focus !== 'function') {
+    return;
+  }
+  try {
+    element.focus({ preventScroll: !!preventScroll });
+  } catch {
+    element.focus();
+  }
+}
+
+export function blurElement(element) {
+  if (element && typeof element.blur === 'function') {
+    element.blur();
+  }
+}
+
+export function isSpeechSupported() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+export function startSpeech(dotnetRef, options) {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition || !dotnetRef) {
+    return null;
+  }
+
+  const recognition = new Recognition();
+  recognition.lang = options?.lang || (navigator.language || 'en-US');
+  recognition.continuous = !!options?.continuous;
+  recognition.interimResults = options?.interimResults !== false;
+
+  recognition.onresult = (event) => {
+    let finalText = '';
+    let interimText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        finalText += result[0].transcript;
+      } else {
+        interimText += result[0].transcript;
+      }
+    }
+    dotnetRef.invokeMethodAsync('OnSpeechResult', finalText, interimText);
+  };
+
+  recognition.onerror = (event) => {
+    dotnetRef.invokeMethodAsync('OnSpeechError', event.error || 'unknown');
+  };
+
+  recognition.onend = () => {
+    dotnetRef.invokeMethodAsync('OnSpeechEnd');
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    dotnetRef.invokeMethodAsync('OnSpeechError', String(error?.message || error));
+    return null;
+  }
+
+  return {
+    stop() {
+      try { recognition.stop(); } catch { /* noop */ }
+    },
+  };
+}

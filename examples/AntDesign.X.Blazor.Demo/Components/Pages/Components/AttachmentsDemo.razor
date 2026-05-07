@@ -5,50 +5,134 @@
 
 <header class="demo-page-header">
     <h1>Attachments 输入附件</h1>
-    <p>用于在 Sender 之外独立展示附件区域，可拖拽 / 粘贴。</p>
+    <p>独立的附件区域，支持拖拽 / 粘贴 / 文件夹 / 状态展示 / beforeUpload 校验。</p>
 </header>
 
 <DemoCard Title="基本"
+          Description="点击或拖拽上传，可粘贴。"
           SourceCode="@BasicSource">
-    <XAttachments Title="Attachments"
-                  Items="@Items"
-                  UploadEnabled="true"
-                  DragHover="true"
-                  Pastable="true"
-                  OnFilesSelected="@AddFiles"
-                  OnRemove="@Remove" />
+    <XAttachments Title="Attachments" Items="@Items" UploadEnabled="true"
+                  DragHover="true" Pastable="true"
+                  OnFilesSelected="@AddFiles" OnRemove="@Remove" />
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>状态：上传中 / 完成 / 失败</li>
-        <li>拖拽 hover</li>
-        <li>粘贴文件</li>
-        <li>文件夹（directory）</li>
-        <li>beforeUpload 校验</li>
-        <li>自定义渲染</li>
-    </ul>
-</section>
+<DemoCard Title="状态展示"
+          Description="Uploading / Done / Error 三态。"
+          SourceCode="@StatusSource">
+    <XAttachments Items="@StatusItems" Removable="true" UploadEnabled="false" />
+</DemoCard>
+
+<DemoCard Title="紧凑模式"
+          Description="Compact=true 用于嵌入气泡 / Sender。"
+          SourceCode="@CompactSource">
+    <XAttachments Items="@StatusItems" Compact="true" Removable="false" UploadEnabled="false" />
+</DemoCard>
+
+<DemoCard Title="BeforeUpload 校验"
+          Description="只允许 image/* 且 ≤ 500KB。"
+          SourceCode="@BeforeUploadSource">
+    <XAttachments Items="@Items2" UploadEnabled="true" Multiple="true"
+                  Accept="image/*"
+                  BeforeUpload="@CheckImage"
+                  OnFilesSelected="@AddFiles2" OnRemove="@Remove2" />
+    @if (!string.IsNullOrEmpty(_msg))
+    {
+        <p class="demo-tip">@_msg</p>
+    }
+</DemoCard>
+
+<DemoCard Title="文件夹模式"
+          Description="Directory=true 上传整个目录。"
+          SourceCode="@DirectorySource">
+    <XAttachments Items="@Items3" UploadEnabled="true" Directory="true" Multiple="true"
+                  OnFilesSelected="@AddFiles3" OnRemove="@Remove3" />
+</DemoCard>
+
+<DemoCard Title="数量限制 MaxCount"
+          Description="最多 3 个附件。"
+          SourceCode="@MaxSource">
+    <XAttachments Items="@Items4" UploadEnabled="true" Multiple="true" MaxCount="3"
+                  OnFilesSelected="@AddFiles4" OnRemove="@Remove4" />
+</DemoCard>
 
 @code {
+    private string? _msg;
+
     private readonly List<XAttachmentItem> Items =
     [
         new() { Name = "design-spec.md", Size = 4096, Status = XFileCardStatus.Done },
     ];
 
-    private void AddFiles(IReadOnlyList<IBrowserFile> files)
+    private readonly List<XAttachmentItem> Items2 = [];
+    private readonly List<XAttachmentItem> Items3 = [];
+    private readonly List<XAttachmentItem> Items4 = [];
+
+    private readonly List<XAttachmentItem> StatusItems =
+    [
+        new() { Name = "uploading.zip", Size = 2_048_000, Status = XFileCardStatus.Uploading, Percent = 65 },
+        new() { Name = "done.pdf", Size = 102_400, Status = XFileCardStatus.Done },
+        new() { Name = "failed.docx", Size = 51_200, Status = XFileCardStatus.Error, Description = "上传失败：网络中断" },
+        new() { Name = "preview.png", ImageUrl = "https://avatars.githubusercontent.com/u/12101536?s=64", ContentType = "image/png", Size = 32_768, Status = XFileCardStatus.Done },
+    ];
+
+    private void AddFiles(IReadOnlyList<IBrowserFile> files) => Add(Items, files);
+    private void Remove(string id) => Items.RemoveAll(i => i.Id == id);
+    private void AddFiles2(IReadOnlyList<IBrowserFile> files) => Add(Items2, files);
+    private void Remove2(string id) => Items2.RemoveAll(i => i.Id == id);
+    private void AddFiles3(IReadOnlyList<IBrowserFile> files) => Add(Items3, files);
+    private void Remove3(string id) => Items3.RemoveAll(i => i.Id == id);
+    private void AddFiles4(IReadOnlyList<IBrowserFile> files) => Add(Items4, files);
+    private void Remove4(string id) => Items4.RemoveAll(i => i.Id == id);
+
+    private static void Add(List<XAttachmentItem> list, IReadOnlyList<IBrowserFile> files)
     {
         foreach (var f in files)
         {
-            Items.Add(new XAttachmentItem { Name = f.Name, Size = f.Size, ContentType = f.ContentType, Status = XFileCardStatus.Done });
+            list.Add(new XAttachmentItem { Name = f.Name, Size = f.Size, ContentType = f.ContentType, Status = XFileCardStatus.Done });
         }
     }
 
-    private void Remove(string id) => Items.RemoveAll(i => i.Id == id);
+    private ValueTask<bool> CheckImage(IBrowserFile file)
+    {
+        if (!(file.ContentType?.StartsWith("image/") ?? false))
+        {
+            _msg = $"⚠ {file.Name} 不是图片。";
+            return ValueTask.FromResult(false);
+        }
+        if (file.Size > 500 * 1024)
+        {
+            _msg = $"⚠ {file.Name} 超过 500KB。";
+            return ValueTask.FromResult(false);
+        }
+        _msg = $"✔ {file.Name} 接受。";
+        return ValueTask.FromResult(true);
+    }
 
     private const string BasicSource = """
 <XAttachments Items="@Items" UploadEnabled="true" DragHover="true" Pastable="true"
-              OnFilesSelected="@AddFiles" OnRemove="@Remove" />
+              OnFilesSelected="AddFiles" OnRemove="Remove" />
+""";
+
+    private const string StatusSource = """
+new XAttachmentItem { Status = XFileCardStatus.Uploading, Percent = 65 },
+new XAttachmentItem { Status = XFileCardStatus.Done },
+new XAttachmentItem { Status = XFileCardStatus.Error, Description = "失败" }
+""";
+
+    private const string CompactSource = """
+<XAttachments Items="@Items" Compact="true" Removable="false" />
+""";
+
+    private const string BeforeUploadSource = """
+<XAttachments Accept="image/*"
+              BeforeUpload="@(f => ValueTask.FromResult(f.ContentType?.StartsWith(\"image/\") == true && f.Size <= 500*1024))" />
+""";
+
+    private const string DirectorySource = """
+<XAttachments Directory="true" Multiple="true" UploadEnabled="true" />
+""";
+
+    private const string MaxSource = """
+<XAttachments MaxCount="3" Multiple="true" UploadEnabled="true" />
 """;
 }

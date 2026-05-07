@@ -5,23 +5,46 @@
 
 <header class="demo-page-header">
     <h1>ThoughtChain 思维链</h1>
-    <p>线性展示 Agent 的推理与工具调用步骤。</p>
+    <p>线性展示 Agent 的推理与工具调用步骤，支持嵌套、折叠与三种尺寸。</p>
 </header>
 
 <DemoCard Title="基本"
+          Description="顺序步骤 + 状态图标。"
           SourceCode="@BasicSource">
     <XThoughtChain Title="ThoughtChain" Items="@Items" />
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>大小 small / middle / large</li>
-        <li>嵌套 children</li>
-        <li>折叠 collapsible</li>
-        <li>自定义 icon / extra</li>
-    </ul>
-</section>
+<DemoCard Title="尺寸 Size"
+          Description="small / middle / large。"
+          SourceCode="@SizeSource">
+    <div class="demo-grid demo-grid-3">
+        <XThoughtChain Items="@Items" Size="small" Title="small" />
+        <XThoughtChain Items="@Items" Size="middle" Title="middle" />
+        <XThoughtChain Items="@Items" Size="large" Title="large" />
+    </div>
+</DemoCard>
+
+<DemoCard Title="嵌套 + 折叠"
+          Description="带 Children 的节点支持点击折叠。"
+          SourceCode="@NestedSource">
+    <XThoughtChain Items="@NestedItems" Collapsible="true" Title="Reasoning trace" />
+</DemoCard>
+
+<DemoCard Title="状态 Status"
+          Description="Processing / Success / Warning / Error 四态。"
+          SourceCode="@StatusSource">
+    <XThoughtChain Items="@StatusItems" />
+</DemoCard>
+
+<DemoCard Title="自定义 Extra"
+          Description="使用 ExtraTemplate 在每个节点附加耗时/Tag。"
+          SourceCode="@ExtraSource">
+    <XThoughtChain Items="@Items">
+        <ExtraTemplate Context="item">
+            <small class="demo-muted">耗时 @(Random.Shared.Next(100, 800))ms</small>
+        </ExtraTemplate>
+    </XThoughtChain>
+</DemoCard>
 
 @code {
     private IReadOnlyList<XThoughtItem> Items { get; } =
@@ -31,7 +54,56 @@
         new() { Key = "3", Title = "综合答案", Status = XSemanticStatus.Processing, Content = "正在生成..." },
     ];
 
+    private IReadOnlyList<XThoughtItem> StatusItems { get; } =
+    [
+        new() { Title = "Processing", Status = XSemanticStatus.Processing },
+        new() { Title = "Success", Status = XSemanticStatus.Success },
+        new() { Title = "Warning", Status = XSemanticStatus.Warning, Description = "命中限流" },
+        new() { Title = "Error", Status = XSemanticStatus.Error, Content = "工具调用失败" },
+    ];
+
+    private IReadOnlyList<XThoughtItem> NestedItems { get; } =
+    [
+        new() { Key = "n1", Title = "Plan", Status = XSemanticStatus.Success, Children =
+        [
+            new() { Title = "拆分任务", Status = XSemanticStatus.Success },
+            new() { Title = "选择工具", Status = XSemanticStatus.Success, Content = "search、code、image" },
+        ] },
+        new() { Key = "n2", Title = "Act", Status = XSemanticStatus.Success, Children =
+        [
+            new() { Title = "调用 search", Status = XSemanticStatus.Success, Content = "5 hits" },
+            new() { Title = "调用 code", Status = XSemanticStatus.Warning, Content = "compiled with warnings" },
+        ] },
+        new() { Key = "n3", Title = "Reflect", Status = XSemanticStatus.Processing },
+    ];
+
     private const string BasicSource = """
 <XThoughtChain Title="ThoughtChain" Items="@Items" />
+""";
+
+    private const string SizeSource = """
+<XThoughtChain Items="@Items" Size="small" />
+<XThoughtChain Items="@Items" Size="middle" />
+<XThoughtChain Items="@Items" Size="large" />
+""";
+
+    private const string NestedSource = """
+new XThoughtItem { Title = "Plan", Children = [
+    new() { Title = "拆分任务" },
+    new() { Title = "选择工具" }
+] }
+<XThoughtChain Items="@NestedItems" Collapsible="true" />
+""";
+
+    private const string StatusSource = """
+Status = XSemanticStatus.Processing | Success | Warning | Error
+""";
+
+    private const string ExtraSource = """
+<XThoughtChain Items="@Items">
+    <ExtraTemplate Context="item">
+        <small>耗时 @(Random.Shared.Next(100,800))ms</small>
+    </ExtraTemplate>
+</XThoughtChain>
 """;
 }

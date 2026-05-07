@@ -118,6 +118,7 @@ public sealed record XThoughtItem
     public RenderFragment? ContentTemplate { get; init; }
     public string? Icon { get; init; }
     public XSemanticStatus Status { get; init; }
+    public IReadOnlyList<XThoughtItem> Children { get; init; } = Array.Empty<XThoughtItem>();
 }
 
 public sealed record XFolderItem

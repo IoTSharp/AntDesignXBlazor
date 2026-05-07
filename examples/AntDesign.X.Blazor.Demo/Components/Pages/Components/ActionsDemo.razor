@@ -1,23 +1,30 @@
 @page "/components/actions"
 @layout ComponentLayout
 
-<PageTitle>Actions 动作 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Actions 动作集 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
-    <h1>Actions 动作</h1>
-    <p>用于在气泡或输入框周围放置一组动作按钮。</p>
+    <h1>Actions 动作集</h1>
+    <p>用于消息底部 / Sender footer 等区域的动作按钮组。</p>
 </header>
 
-<DemoCard Title="文字按钮" SourceCode="@TextSource">
-    <XActions Items="@Items" Size="middle" OnAction="@(k => _last = k)" />
-    @if (!string.IsNullOrEmpty(_last))
-    {
-        <p class="demo-tip">最近动作：<code>@_last</code></p>
-    }
+<DemoCard Title="基本"
+          Description="纯图标 + tooltip。"
+          SourceCode="@BasicSource">
+    <XActions Items="@Items" OnAction="@(k => _last = k)" />
+    <p class="demo-tip">最近动作：<code>@_last</code></p>
 </DemoCard>
 
-<DemoCard Title="仅图标" SourceCode="@IconSource">
-    <XActions Items="@Items" IconOnly="true" Size="small" OnAction="@(k => _last = k)" />
+<DemoCard Title="带文字 + 危险态"
+          Description="Danger=true 显示红色按钮。"
+          SourceCode="@TextSource">
+    <XActions Items="@TextItems" OnAction="@(k => _last = k)" />
+</DemoCard>
+
+<DemoCard Title="禁用项"
+          Description="Disabled=true 不可点击。"
+          SourceCode="@DisabledSource">
+    <XActions Items="@DisabledItems" />
 </DemoCard>
 
 @code {
@@ -25,17 +32,32 @@
 
     private IReadOnlyList<XActionItem> Items { get; } =
     [
-        new() { Key = "copy",      Label = "复制",   Icon = "copy" },
-        new() { Key = "regen",     Label = "重新生成", Icon = "reload" },
-        new() { Key = "good",      Label = "赞",     Icon = "like" },
-        new() { Key = "bad",       Label = "踩",     Icon = "dislike", Danger = true },
+        new() { Key = "copy", Icon = "copy", Tooltip = "复制" },
+        new() { Key = "regen", Icon = "reload", Tooltip = "重新生成" },
+        new() { Key = "share", Icon = "share-alt", Tooltip = "分享" },
+        new() { Key = "more", Icon = "more", Tooltip = "更多" },
     ];
 
-    private const string TextSource = """
-<XActions Items="@Items" Size="middle" OnAction="@(k => _last = k)" />
-""";
+    private IReadOnlyList<XActionItem> TextItems { get; } =
+    [
+        new() { Key = "save", Icon = "save", Label = "保存" },
+        new() { Key = "edit", Icon = "edit", Label = "编辑" },
+        new() { Key = "delete", Icon = "delete", Label = "删除", Danger = true },
+    ];
 
-    private const string IconSource = """
-<XActions Items="@Items" IconOnly="true" Size="small" />
+    private IReadOnlyList<XActionItem> DisabledItems { get; } =
+    [
+        new() { Key = "a", Icon = "edit", Label = "可用" },
+        new() { Key = "b", Icon = "lock", Label = "已禁用", Disabled = true },
+    ];
+
+    private const string BasicSource = """
+<XActions Items="@Items" OnAction="@OnAct" />
+""";
+    private const string TextSource = """
+new XActionItem { Label = "删除", Danger = true }
+""";
+    private const string DisabledSource = """
+new XActionItem { Label = "已禁用", Disabled = true }
 """;
 }

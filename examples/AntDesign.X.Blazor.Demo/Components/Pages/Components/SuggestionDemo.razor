@@ -1,44 +1,38 @@
 @page "/components/suggestion"
 @layout ComponentLayout
 
-<PageTitle>Suggestion 联想 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Suggestion 建议 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
-    <h1>Suggestion 联想</h1>
-    <p>输入查询，弹出联想项；常与 Sender 组合实现 / 命令、@@提及等。</p>
+    <h1>Suggestion 建议</h1>
+    <p>输入框上方的建议下拉，常配合 XSender 使用。</p>
 </header>
 
-<DemoCard Title="基本"
+<DemoCard Title="基础"
+          Description="基于 Query 过滤。"
           SourceCode="@BasicSource">
-    <input class="demo-input" @bind="_query" @bind:event="oninput" placeholder="输入 a/r/c..." />
-    <XSuggestion Query="@_query" Items="@Items" OnSelect="@(p => _picked = p.Title)" />
+    <input class="demo-input" @bind="_query" @bind:event="oninput" placeholder="输入关键字..." />
+    <XSuggestion Items="@_items" Query="@_query" Open="true" OnSelect="@(p => _picked = p.Title)" />
     @if (!string.IsNullOrEmpty(_picked))
     {
-        <p class="demo-tip">最近选择：<code>@_picked</code></p>
+        <p class="demo-tip">已选择：@_picked</p>
     }
 </DemoCard>
-
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>受控 Open</li>
-        <li>嵌套 children</li>
-        <li>与 Sender 集成</li>
-    </ul>
-</section>
 
 @code {
     private string _query = string.Empty;
     private string? _picked;
 
-    private IReadOnlyList<XPromptItem> Items { get; } =
+    private readonly IReadOnlyList<XPromptItem> _items =
     [
-        new() { Key = "1", Title = "Ask: 解释 RAG", Icon = "experiment" },
-        new() { Key = "2", Title = "Refactor 当前文件",      Icon = "thunderbolt" },
-        new() { Key = "3", Title = "Convert 为 TS",          Icon = "code" },
+        new() { Title = "解释这段代码", Description = "粘贴代码片段后获取解释" },
+        new() { Title = "总结要点", Description = "对长文进行摘要" },
+        new() { Title = "翻译为英文", Description = "保留专业术语" },
+        new() { Title = "生成 SQL", Description = "按需求构造查询" },
+        new() { Title = "撰写邮件", Description = "正式 / 非正式语气可选" },
     ];
 
     private const string BasicSource = """
-<XSuggestion Query="@_query" Items="@Items" OnSelect="@(p => _picked = p.Title)" />
+<XSuggestion Items="@items" Query="@query" Open="true" OnSelect="OnSelect" />
 """;
 }

@@ -1,15 +1,16 @@
 @page "/components/bubble"
 @layout ComponentLayout
+@implements IDisposable
 
 <PageTitle>Bubble 对话气泡 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
     <h1>Bubble 对话气泡</h1>
-    <p>用于在 AI 对话场景下显示一条消息。支持 placement、variant、shape、loading、Markdown、附件等。</p>
+    <p>用于在 AI 对话场景下显示一条消息。支持 placement / variant / shape / loading / Markdown / 附件 / 流式打字 / 自定义 message render。</p>
 </header>
 
 <DemoCard Title="基本"
-          Description="最简单的气泡用法。"
+          Description="左右两种 placement。"
           SourceCode="@BasicSource">
     <XBubble Content="Hello, Ant Design X for Blazor!" />
     <XBubble Content="你好，这是一段中文消息。" Placement="XBubblePlacement.End" />
@@ -18,24 +19,65 @@
 <DemoCard Title="头像与角色"
           Description="通过 Header / AvatarIcon 区分角色。"
           SourceCode="@AvatarSource">
-    <XBubble Content="我是助手"
-             Header="Assistant"
-             AvatarIcon="robot"
-             Placement="XBubblePlacement.Start"
-             Variant="XBubbleVariant.Filled"
-             Shape="XBubbleShape.Round" />
-    <XBubble Content="我是用户"
-             Header="User"
-             AvatarIcon="user"
-             Placement="XBubblePlacement.End"
-             Variant="XBubbleVariant.Outlined"
-             Shape="XBubbleShape.Round" />
+    <XBubble Content="我是助手" Header="Assistant" AvatarIcon="robot"
+             Placement="XBubblePlacement.Start" Variant="XBubbleVariant.Filled" Shape="XBubbleShape.Round" />
+    <XBubble Content="我是用户" Header="User" AvatarIcon="user"
+             Placement="XBubblePlacement.End" Variant="XBubbleVariant.Outlined" Shape="XBubbleShape.Round" />
 </DemoCard>
 
-<DemoCard Title="加载中"
-          Description="设置 Loading=true 显示加载点。"
+<DemoCard Title="变体 Variant"
+          Description="Filled / Outlined / Borderless / Shadow。"
+          SourceCode="@VariantSource">
+    <XBubble Content="Filled" Variant="XBubbleVariant.Filled" />
+    <XBubble Content="Outlined" Variant="XBubbleVariant.Outlined" />
+    <XBubble Content="Borderless" Variant="XBubbleVariant.Borderless" />
+    <XBubble Content="Shadow" Variant="XBubbleVariant.Shadow" />
+</DemoCard>
+
+<DemoCard Title="加载中 Loading"
+          Description="设置 Loading=true 显示打字动画。"
           SourceCode="@LoadingSource">
     <XBubble Loading="true" Header="Assistant" AvatarIcon="robot" />
+</DemoCard>
+
+<DemoCard Title="流式打字 Typewriter"
+          Description="演示流式响应：每 50ms 追加一个字符。"
+          SourceCode="@TypingSource">
+    <XBubble Header="Assistant" AvatarIcon="robot" Streaming="true"
+             Status="XMessageStatus.Loading" Markdown="true" Content="@_typing" />
+    <div class="demo-actions">
+        <button class="demo-btn" type="button" @onclick="StartTyping">Restart</button>
+    </div>
+</DemoCard>
+
+<DemoCard Title="状态 Status"
+          Description="Loading / Success / Error / Abort 四态。"
+          SourceCode="@StatusSource">
+    <XBubble Header="Loading" AvatarIcon="robot" Loading="true" Status="XMessageStatus.Loading" />
+    <XBubble Header="Success" AvatarIcon="robot" Content="生成完成。" Status="XMessageStatus.Success" />
+    <XBubble Header="Error" AvatarIcon="robot" Content="生成失败。" Status="XMessageStatus.Error" />
+    <XBubble Header="Abort" AvatarIcon="robot" Content="已中断。" Status="XMessageStatus.Abort" />
+</DemoCard>
+
+<DemoCard Title="附件气泡"
+          Description="Attachments + Actions 同时存在。"
+          SourceCode="@AttachSource">
+    <XBubble Header="User" AvatarIcon="user" Placement="XBubblePlacement.End"
+             Content="请帮我分析这两个文件。" Attachments="@_atts" Actions="@_actions" />
+</DemoCard>
+
+<DemoCard Title="自定义 messageRender"
+          Description="使用 ContentTemplate 自定义渲染（含 ThoughtChain）。"
+          SourceCode="@CustomRenderSource">
+    <XBubble Header="Assistant" AvatarIcon="robot">
+        <ContentTemplate>
+            <div class="demo-card-inset">
+                <p>下面是我推理的过程：</p>
+                <XThoughtChain Items="@_steps" Compact="true" />
+                <p><strong>结论</strong>：使用 <code>XBubbleList</code> + <code>XSender</code> 组合即可。</p>
+            </div>
+        </ContentTemplate>
+    </XBubble>
 </DemoCard>
 
 <DemoCard Title="Bubble.List + roles"
@@ -47,24 +89,50 @@
 <DemoCard Title="Markdown 内容"
           Description="设置 Markdown=true 让消息走 Markdown 渲染。"
           SourceCode="@MarkdownSource">
-    <XBubble Markdown="true"
-             Header="Assistant"
-             AvatarIcon="robot"
-             Content="@MarkdownContent" />
+    <XBubble Markdown="true" Header="Assistant" AvatarIcon="robot" Content="@MarkdownContent" />
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>Header / Footer 组合</li>
-        <li>打字效果（typing / streaming）</li>
-        <li>文件附件气泡</li>
-        <li>自定义 message render</li>
-        <li>语义化 classNames / styles</li>
-    </ul>
-</section>
-
 @code {
+    private System.Threading.Timer? _timer;
+    private string _typing = string.Empty;
+    private const string FullText = "**正在流式生成**：你可以使用 `XSender` + `XBubbleList` 组合实现一个完整的 AI 聊天界面。";
+
+    protected override void OnInitialized() => StartTyping();
+
+    private void StartTyping()
+    {
+        _typing = string.Empty;
+        _timer?.Dispose();
+        var i = 0;
+        _timer = new System.Threading.Timer(_ =>
+        {
+            if (i >= FullText.Length) { _timer?.Dispose(); return; }
+            _typing += FullText[i++];
+            InvokeAsync(StateHasChanged);
+        }, null, 200, 50);
+    }
+
+    public void Dispose() => _timer?.Dispose();
+
+    private readonly IReadOnlyList<XAttachmentItem> _atts =
+    [
+        new() { Name = "report.pdf", Size = 204800, ContentType = "application/pdf", Status = XFileCardStatus.Done },
+        new() { Name = "chart.png", Size = 80432, ContentType = "image/png", Status = XFileCardStatus.Done },
+    ];
+
+    private readonly IReadOnlyList<XActionItem> _actions =
+    [
+        new() { Key = "copy", Label = "复制", Icon = "copy" },
+        new() { Key = "regen", Label = "重答", Icon = "reload" },
+    ];
+
+    private readonly IReadOnlyList<XThoughtItem> _steps =
+    [
+        new() { Title = "理解问题", Status = XSemanticStatus.Success },
+        new() { Title = "查询组件库", Status = XSemanticStatus.Success, Content = "命中 XBubbleList / XSender" },
+        new() { Title = "组装答案", Status = XSemanticStatus.Success },
+    ];
+
     private IReadOnlyList<XBubbleItem> ListItems { get; } =
     [
         new() { Key = "1", Role = "user", Content = "帮我用 Blazor 写个对话框" },
@@ -81,38 +149,56 @@
     private const string MarkdownContent = "**Markdown** 支持：\n\n- 列表\n- `code`\n- [链接](https://ant-design-x.antgroup.com/)";
 
     private const string BasicSource = """
-<XBubble Content="Hello, Ant Design X for Blazor!" />
-<XBubble Content="你好，这是一段中文消息。" Placement="XBubblePlacement.End" />
+<XBubble Content="Hello!" />
+<XBubble Content="你好" Placement="XBubblePlacement.End" />
 """;
 
     private const string AvatarSource = """
-<XBubble Content="我是助手" Header="Assistant" AvatarIcon="robot"
-         Placement="XBubblePlacement.Start" Variant="XBubbleVariant.Filled" Shape="XBubbleShape.Round" />
-<XBubble Content="我是用户" Header="User" AvatarIcon="user"
-         Placement="XBubblePlacement.End" Variant="XBubbleVariant.Outlined" Shape="XBubbleShape.Round" />
+<XBubble Content="我是助手" Header="Assistant" AvatarIcon="robot" />
+<XBubble Content="我是用户" Header="User" AvatarIcon="user" Placement="XBubblePlacement.End" />
+""";
+
+    private const string VariantSource = """
+<XBubble Variant="XBubbleVariant.Filled"     Content="Filled" />
+<XBubble Variant="XBubbleVariant.Outlined"   Content="Outlined" />
+<XBubble Variant="XBubbleVariant.Borderless" Content="Borderless" />
+<XBubble Variant="XBubbleVariant.Shadow"     Content="Shadow" />
 """;
 
     private const string LoadingSource = """
 <XBubble Loading="true" Header="Assistant" AvatarIcon="robot" />
 """;
 
+    private const string TypingSource = """
+<XBubble Streaming="true" Markdown="true" Content="@_typing" />
+""";
+
+    private const string StatusSource = """
+<XBubble Status="XMessageStatus.Loading" Loading="true" />
+<XBubble Status="XMessageStatus.Success" Content="完成" />
+<XBubble Status="XMessageStatus.Error"   Content="失败" />
+<XBubble Status="XMessageStatus.Abort"   Content="中断" />
+""";
+
+    private const string AttachSource = """
+<XBubble Placement="XBubblePlacement.End"
+         Content="请帮我分析" Attachments="@_atts" Actions="@_actions" />
+""";
+
+    private const string CustomRenderSource = """
+<XBubble Header="Assistant" AvatarIcon="robot">
+    <ContentTemplate>
+        <p>下面是我推理的过程：</p>
+        <XThoughtChain Items="@_steps" />
+    </ContentTemplate>
+</XBubble>
+""";
+
     private const string ListSource = """
 <XBubbleList Items="@ListItems" RoleConfigs="@RoleConfigs" />
-
-@code {
-    IReadOnlyList<XBubbleItem> ListItems = [
-        new() { Role = "user", Content = "帮我用 Blazor 写个对话框" },
-        new() { Role = "assistant", Content = "可以使用 XSender + XBubbleList 组合" }
-    ];
-    IReadOnlyDictionary<string, XBubbleRoleConfig> RoleConfigs =
-        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase) {
-            ["assistant"] = new() { Placement = XBubblePlacement.Start, AvatarIcon = "robot", Header = "Assistant", Markdown = true },
-            ["user"]      = new() { Placement = XBubblePlacement.End,   AvatarIcon = "user",  Header = "You" }
-        };
-}
 """;
 
     private const string MarkdownSource = """
-<XBubble Markdown="true" Header="Assistant" AvatarIcon="robot" Content="@MarkdownContent" />
+<XBubble Markdown="true" Content="@MarkdownContent" />
 """;
 }

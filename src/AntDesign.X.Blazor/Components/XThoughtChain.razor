@@ -1,7 +1,11 @@
 @namespace AntDesign.X.Components
 
 <section class="@ClassName" style="@Style">
-    @if (!string.IsNullOrWhiteSpace(Title))
+    @if (HeaderTemplate is not null)
+    {
+        <div class="antdx-thought-chain-header">@HeaderTemplate</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Title))
     {
         <div class="antdx-thought-chain-header">@Title</div>
     }
@@ -9,46 +13,81 @@
     <ol class="antdx-thought-chain-list">
         @foreach (var item in Items)
         {
-            <li class="@ItemClass(item)">
-                <span class="antdx-thought-chain-dot">
-                    <XIcon Type="@ResolveIcon(item)" />
-                </span>
-                <div class="antdx-thought-chain-card">
-                    <div class="antdx-thought-chain-title">@item.Title</div>
-                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                    {
-                        <div class="antdx-thought-chain-description">@item.Description</div>
-                    }
-                    @if (item.ContentTemplate is not null)
-                    {
-                        <div class="antdx-thought-chain-content">@item.ContentTemplate</div>
-                    }
-                    else if (!string.IsNullOrWhiteSpace(item.Content))
-                    {
-                        <div class="antdx-thought-chain-content">@item.Content</div>
-                    }
-                </div>
-            </li>
+            @RenderItem(item, 0)
         }
     </ol>
 </section>
 
 @code {
+    private readonly HashSet<string> _collapsed = new(StringComparer.Ordinal);
+    private bool _initialized;
+
     [Parameter] public IReadOnlyList<XThoughtItem> Items { get; set; } = Array.Empty<XThoughtItem>();
     [Parameter] public string? Title { get; set; }
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public bool Compact { get; set; }
+    [Parameter] public string Size { get; set; } = "middle";
+    [Parameter] public bool Collapsible { get; set; }
+    [Parameter] public bool DefaultCollapsed { get; set; }
+    [Parameter] public IReadOnlyList<string>? CollapsedKeys { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<string>> CollapsedKeysChanged { get; set; }
+    [Parameter] public EventCallback<XThoughtItem> OnItemClick { get; set; }
+    [Parameter] public RenderFragment<XThoughtItem>? ExtraTemplate { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        if (!_initialized)
+        {
+            _initialized = true;
+            if (CollapsedKeys is not null)
+            {
+                _collapsed.Clear();
+                foreach (var key in CollapsedKeys)
+                {
+                    _collapsed.Add(key);
+                }
+            }
+            else if (DefaultCollapsed)
+            {
+                foreach (var item in Flatten(Items))
+                {
+                    if (item.Children.Count > 0)
+                    {
+                        _collapsed.Add(item.Key);
+                    }
+                }
+            }
+        }
+        else if (CollapsedKeys is not null)
+        {
+            _collapsed.Clear();
+            foreach (var key in CollapsedKeys)
+            {
+                _collapsed.Add(key);
+            }
+        }
+    }
+
     private string ClassName => XCss.Combine(
         "antdx-thought-chain",
+        $"antdx-thought-chain-{Size}",
         Compact ? "antdx-thought-chain-compact" : null,
+        Collapsible ? "antdx-thought-chain-collapsible" : null,
         Class);
 
-    private static string ItemClass(XThoughtItem item)
+    private string ItemClass(XThoughtItem item, int depth)
     {
-        return XCss.Combine("antdx-thought-chain-item", $"antdx-thought-chain-item-{XCss.Status(item.Status)}");
+        return XCss.Combine(
+            "antdx-thought-chain-item",
+            $"antdx-thought-chain-item-{XCss.Status(item.Status)}",
+            depth > 0 ? $"antdx-thought-chain-item-depth-{depth}" : null,
+            item.Children.Count > 0 ? "antdx-thought-chain-item-has-children" : null,
+            IsCollapsed(item) ? "antdx-thought-chain-item-collapsed" : null);
     }
+
+    private bool IsCollapsed(XThoughtItem item) => Collapsible && _collapsed.Contains(item.Key);
 
     private static string ResolveIcon(XThoughtItem item)
     {
@@ -66,4 +105,127 @@
             _ => "bulb"
         };
     }
+
+    private static IEnumerable<XThoughtItem> Flatten(IEnumerable<XThoughtItem> items)
+    {
+        foreach (var item in items)
+        {
+            yield return item;
+            foreach (var child in Flatten(item.Children))
+            {
+                yield return child;
+            }
+        }
+    }
+
+    private async Task ToggleAsync(XThoughtItem item)
+    {
+        if (!Collapsible || item.Children.Count == 0)
+        {
+            await OnItemClick.InvokeAsync(item);
+            return;
+        }
+
+        if (_collapsed.Contains(item.Key))
+        {
+            _collapsed.Remove(item.Key);
+        }
+        else
+        {
+            _collapsed.Add(item.Key);
+        }
+
+        await OnItemClick.InvokeAsync(item);
+        await CollapsedKeysChanged.InvokeAsync(_collapsed.ToArray());
+    }
+
+    private RenderFragment RenderItem(XThoughtItem item, int depth) => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "li");
+        builder.AddAttribute(seq++, "class", ItemClass(item, depth));
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-thought-chain-row");
+        if (Collapsible || OnItemClick.HasDelegate)
+        {
+            builder.AddAttribute(seq++, "role", "button");
+            builder.AddAttribute(seq++, "tabindex", 0);
+            builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => ToggleAsync(item)));
+        }
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-thought-chain-dot");
+        builder.OpenComponent<XIcon>(seq++);
+        builder.AddAttribute(seq++, "Type", ResolveIcon(item));
+        builder.CloseComponent();
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-thought-chain-card");
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-thought-chain-title");
+        builder.AddContent(seq++, item.Title);
+        if (Collapsible && item.Children.Count > 0)
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-thought-chain-toggle");
+            builder.OpenComponent<XIcon>(seq++);
+            builder.AddAttribute(seq++, "Type", IsCollapsed(item) ? "right" : "down");
+            builder.CloseComponent();
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "antdx-thought-chain-description");
+            builder.AddContent(seq++, item.Description);
+            builder.CloseElement();
+        }
+
+        if (!IsCollapsed(item))
+        {
+            if (item.ContentTemplate is not null)
+            {
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "antdx-thought-chain-content");
+                builder.AddContent(seq++, item.ContentTemplate);
+                builder.CloseElement();
+            }
+            else if (!string.IsNullOrWhiteSpace(item.Content))
+            {
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "antdx-thought-chain-content");
+                builder.AddContent(seq++, item.Content);
+                builder.CloseElement();
+            }
+
+            if (ExtraTemplate is not null)
+            {
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "antdx-thought-chain-extra");
+                builder.AddContent(seq++, ExtraTemplate, item);
+                builder.CloseElement();
+            }
+        }
+
+        builder.CloseElement();
+        builder.CloseElement();
+
+        if (!IsCollapsed(item) && item.Children.Count > 0)
+        {
+            builder.OpenElement(seq++, "ol");
+            builder.AddAttribute(seq++, "class", "antdx-thought-chain-list antdx-thought-chain-children");
+            foreach (var child in item.Children)
+            {
+                builder.AddContent(seq++, RenderItem(child, depth + 1));
+            }
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
 }

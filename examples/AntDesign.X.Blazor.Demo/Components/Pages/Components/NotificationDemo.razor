@@ -1,58 +1,78 @@
 @page "/components/notification"
 @layout ComponentLayout
+@inject IXNotificationService Notification
 
-<PageTitle>Notification 系统通知 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Notification 通知 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
-    <h1>Notification 系统通知</h1>
-    <p>用于展示 AI 系统状态、流式进度或异步事件。可声明式渲染或通过 <code>IXNotificationService</code> 调用。</p>
+    <h1>Notification 通知</h1>
+    <p>全局通知服务 + 容器组件，支持四象限定位与持久化通知。</p>
 </header>
 
-<DemoCard Title="基本"
-          Description="渲染一个通知队列。"
+<XNotification Placement="XNotificationPlacement.TopRight" />
+
+<DemoCard Title="不同状态"
+          Description="Default / Processing / Success / Warning / Error。"
           SourceCode="@BasicSource">
-    <button class="demo-btn" @onclick="Push">推送一条通知</button>
-    <XNotification Items="@Items"
-                   Placement="XNotificationPlacement.TopRight"
-                   MaxCount="4"
-                   DefaultDuration="@TimeSpan.FromSeconds(5)"
-                   OnClose="@Close" />
+    <div class="demo-grid">
+        <button class="demo-btn" @onclick="@(() => Open("默认通知", XSemanticStatus.Default))">Default</button>
+        <button class="demo-btn" @onclick="@(() => Open("处理中", XSemanticStatus.Processing))">Processing</button>
+        <button class="demo-btn" @onclick="@(() => Open("操作成功", XSemanticStatus.Success))">Success</button>
+        <button class="demo-btn" @onclick="@(() => Open("注意检查", XSemanticStatus.Warning))">Warning</button>
+        <button class="demo-btn" @onclick="@(() => Open("发生错误", XSemanticStatus.Error))">Error</button>
+    </div>
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>队列 / maxCount</li>
-        <li>duration 与 pauseOnHover</li>
-        <li>四角 placement</li>
-        <li>全局 service：IXNotificationService.OpenAsync</li>
-        <li>状态：success / info / warning / error / processing</li>
-    </ul>
-</section>
+<DemoCard Title="持久通知"
+          Description="Duration=Zero 不会自动关闭，需手动 Close。"
+          SourceCode="@PersistSource">
+    <button class="demo-btn" @onclick="OpenPersistent">推送持久通知</button>
+    <button class="demo-btn" @onclick="@(() => Notification.ClearAsync())">清空</button>
+</DemoCard>
+
+<DemoCard Title="带标签去重"
+          Description="同一 Tag 只保留最新一条。"
+          SourceCode="@TagSource">
+    <button class="demo-btn" @onclick="OpenTagged">推送带 Tag 的通知</button>
+</DemoCard>
 
 @code {
-    private readonly List<XNotificationItem> Items = [];
     private int _seq;
 
-    private void Push()
-    {
-        Items.Add(new XNotificationItem
+    private Task Open(string title, XSemanticStatus status) =>
+        Notification.OpenAsync(new XNotificationItem
         {
-            Key = $"n-{++_seq}",
-            Title = $"事件 #{_seq}",
-            Description = "这是一条由 demo 触发的通知。",
-            Status = (XSemanticStatus)(_seq % 4),
-            CreatedAt = DateTimeOffset.Now,
+            Title = title,
+            Description = $"#{++_seq} 触发于 {DateTime.Now:HH:mm:ss}",
+            Status = status,
         });
-    }
 
-    private void Close(string key) => Items.RemoveAll(i => i.Key == key);
+    private Task OpenPersistent() =>
+        Notification.OpenAsync(new XNotificationItem
+        {
+            Title = "持久通知",
+            Description = "需要手动关闭",
+            Status = XSemanticStatus.Warning,
+            Duration = TimeSpan.Zero,
+        });
+
+    private Task OpenTagged() =>
+        Notification.OpenAsync(new XNotificationItem
+        {
+            Title = "上传进度",
+            Description = $"已完成 {Random.Shared.Next(1, 100)}%",
+            Status = XSemanticStatus.Processing,
+            Tag = "upload",
+        });
 
     private const string BasicSource = """
-<XNotification Items="@Items"
-               Placement="XNotificationPlacement.TopRight"
-               MaxCount="4"
-               DefaultDuration="@TimeSpan.FromSeconds(5)"
-               OnClose="@Close" />
+@inject IXNotificationService Notification
+await Notification.OpenAsync(new XNotificationItem { Title = "...", Status = XSemanticStatus.Success });
+""";
+    private const string PersistSource = """
+new XNotificationItem { Duration = TimeSpan.Zero }
+""";
+    private const string TagSource = """
+new XNotificationItem { Tag = "upload" } // 同 Tag 只保留最新
 """;
 }

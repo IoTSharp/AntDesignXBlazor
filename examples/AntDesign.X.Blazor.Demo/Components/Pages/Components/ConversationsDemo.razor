@@ -5,11 +5,11 @@
 
 <header class="demo-page-header">
     <h1>Conversations 管理对话</h1>
-    <p>会话列表，用于管理多轮对话的会话切换、菜单与重命名。</p>
+    <p>会话列表组件，支持分组、菜单、重命名、删除、自定义图标与计数。</p>
 </header>
 
-<DemoCard Title="基本"
-          Description="受控的会话列表 + 分组。"
+<DemoCard Title="基本 + 分组"
+          Description="按 Group 字段自动分组并显示更新时间。"
           SourceCode="@BasicSource">
     <XConversations Items="@Items"
                     ActiveKey="@ActiveKey"
@@ -18,32 +18,137 @@
     <p class="demo-tip">当前激活：<code>@ActiveKey</code></p>
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>受控 activeKey</li>
-        <li>分组 group</li>
-        <li>菜单与子项</li>
-        <li>重命名 / 删除</li>
-        <li>自定义图标与计数</li>
-        <li>排序 slot</li>
-    </ul>
-</section>
+<DemoCard Title="重命名 + 删除"
+          Description="启用 AllowRename / AllowDelete，事件回调双向同步。"
+          SourceCode="@RenameSource">
+    <XConversations Items="@RenamableItems"
+                    ActiveKey="@ActiveKey2"
+                    ActiveKeyChanged="@(k => ActiveKey2 = k)"
+                    AllowRename="true"
+                    AllowDelete="true"
+                    OnRename="@HandleRename"
+                    OnDelete="@HandleDelete" />
+    @if (!string.IsNullOrEmpty(_lastEvent))
+    {
+        <p class="demo-tip">@_lastEvent</p>
+    }
+</DemoCard>
+
+<DemoCard Title="自定义菜单 MenuFactory"
+          Description="按会话动态生成右侧动作。"
+          SourceCode="@MenuSource">
+    <XConversations Items="@Items"
+                    ActiveKey="@ActiveKey3"
+                    ActiveKeyChanged="@(k => ActiveKey3 = k)"
+                    AllowRename="false"
+                    AllowDelete="false"
+                    MenuFactory="@MakeMenu"
+                    OnMenuAction="@HandleMenu" />
+    @if (!string.IsNullOrEmpty(_lastMenu))
+    {
+        <p class="demo-tip">@_lastMenu</p>
+    }
+</DemoCard>
+
+<DemoCard Title="排序 SortTemplate"
+          Description="使用 SortTemplate 自定义排序控件。"
+          SourceCode="@SortSource">
+    <XConversations Items="@SortedItems" Title="排序示例">
+        <SortTemplate>
+            <button class="demo-link" @onclick="ToggleSort">
+                @(_desc ? "↓ 时间倒序" : "↑ 时间正序")
+            </button>
+        </SortTemplate>
+    </XConversations>
+</DemoCard>
+
+<DemoCard Title="禁用项"
+          Description="Disabled=true 的会话不可选中。"
+          SourceCode="@DisabledSource">
+    <XConversations Items="@DisabledItems" Title="存档" />
+</DemoCard>
 
 @code {
     private string ActiveKey { get; set; } = "today-1";
+    private string ActiveKey2 { get; set; } = "r1";
+    private string ActiveKey3 { get; set; } = "today-1";
+    private string? _lastEvent;
+    private string? _lastMenu;
+    private bool _desc = true;
 
     private IReadOnlyList<XConversationItem> Items { get; } =
     [
         new() { Key = "today-1", Group = "今天", Title = "Ant Design X 介绍", Description = "组件总览", Icon = "message", Count = 3, UpdatedAt = DateTimeOffset.Now.AddMinutes(-12) },
         new() { Key = "today-2", Group = "今天", Title = "Sender 模式", Description = "附件、停止、快捷发送", Icon = "edit", UpdatedAt = DateTimeOffset.Now.AddMinutes(-31) },
         new() { Key = "earlier-1", Group = "更早", Title = "展示原语", Description = "Sources / ThoughtChain", Icon = "appstore", UpdatedAt = DateTimeOffset.Now.AddHours(-5) },
+        new() { Key = "earlier-2", Group = "更早", Title = "确认与对话", Description = "Conversations / Prompts", Icon = "comment", UpdatedAt = DateTimeOffset.Now.AddDays(-2) },
     ];
 
+    private List<XConversationItem> RenamableItems { get; } =
+    [
+        new() { Key = "r1", Title = "演示对话", Icon = "message", UpdatedAt = DateTimeOffset.Now },
+        new() { Key = "r2", Title = "Sender 测试", Icon = "edit", UpdatedAt = DateTimeOffset.Now.AddMinutes(-10) },
+    ];
+
+    private List<XConversationItem> DisabledItems { get; } =
+    [
+        new() { Key = "a1", Title = "归档对话 1", Icon = "inbox", Disabled = true },
+        new() { Key = "a2", Title = "归档对话 2", Icon = "inbox", Disabled = true },
+    ];
+
+    private IReadOnlyList<XConversationItem> SortedItems => _desc
+        ? Items.OrderByDescending(i => i.UpdatedAt ?? DateTimeOffset.MinValue).ToList()
+        : Items.OrderBy(i => i.UpdatedAt ?? DateTimeOffset.MinValue).ToList();
+
+    private void ToggleSort() => _desc = !_desc;
+
+    private void HandleRename(XConversationRenameRequest req)
+    {
+        var idx = RenamableItems.FindIndex(i => i.Key == req.Key);
+        if (idx >= 0)
+        {
+            RenamableItems[idx] = RenamableItems[idx] with { Title = req.Title };
+        }
+        _lastEvent = $"重命名 {req.Key} → {req.Title}";
+    }
+
+    private void HandleDelete(XConversationItem item)
+    {
+        RenamableItems.RemoveAll(i => i.Key == item.Key);
+        _lastEvent = $"删除 {item.Title}";
+    }
+
+    private IReadOnlyList<XActionItem> MakeMenu(XConversationItem item) =>
+    [
+        new() { Key = "pin", Icon = "pushpin", Tooltip = "Pin" },
+        new() { Key = "share", Icon = "share-alt", Tooltip = "Share" },
+        new() { Key = "archive", Icon = "inbox", Tooltip = "Archive" },
+    ];
+
+    private void HandleMenu(XConversationActionRequest req) =>
+        _lastMenu = $"动作 {req.ActionKey} on {req.ConversationKey}";
+
     private const string BasicSource = """
-<XConversations Items="@Items"
-                ActiveKey="@ActiveKey"
-                ActiveKeyChanged="@(k => ActiveKey = k)"
-                Title="Conversations" />
+<XConversations Items="@Items" ActiveKey="@ActiveKey"
+                ActiveKeyChanged="@(k => ActiveKey = k)" Title="Conversations" />
+""";
+
+    private const string RenameSource = """
+<XConversations Items="@Items" AllowRename AllowDelete
+                OnRename="HandleRename" OnDelete="HandleDelete" />
+""";
+
+    private const string MenuSource = """
+<XConversations MenuFactory="@MakeMenu" OnMenuAction="@HandleMenu" />
+""";
+
+    private const string SortSource = """
+<XConversations Items="@SortedItems">
+    <SortTemplate><button @onclick="ToggleSort">切换排序</button></SortTemplate>
+</XConversations>
+""";
+
+    private const string DisabledSource = """
+new XConversationItem { Title = "归档", Disabled = true }
 """;
 }

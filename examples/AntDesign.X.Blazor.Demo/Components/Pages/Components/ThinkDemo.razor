@@ -1,38 +1,67 @@
 @page "/components/think"
 @layout ComponentLayout
 
-<PageTitle>Think 思考过程 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Think 思考 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
-    <h1>Think 思考过程</h1>
-    <p>展示模型的推理 / 工具调用过程，可折叠。</p>
+    <h1>Think 思考</h1>
+    <p>展示模型推理过程的可折叠区块，支持状态、Markdown 渲染。</p>
 </header>
 
-<DemoCard Title="基本"
+<DemoCard Title="基础"
+          Description="Processing 状态 + 默认展开。"
           SourceCode="@BasicSource">
-    <XThink Title="Think"
-            Description="可折叠推理过程"
-            Status="XSemanticStatus.Processing"
-            Content="@Content" />
+    <XThink Title="思考中"
+            Description="正在分析问题"
+            Content="1. 拆解任务\n2. 查找资料\n3. 给出结论"
+            Status="XSemanticStatus.Processing" />
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>状态：default / processing / success / error</li>
-        <li>自定义内容渲染</li>
-    </ul>
-</section>
+<DemoCard Title="完成态 + 默认折叠"
+          Description="Open=false。"
+          SourceCode="@DoneSource">
+    <XThink Title="已完成"
+            Content="基于以上分析，建议采用方案 A。"
+            Status="XSemanticStatus.Success"
+            Open="false" />
+</DemoCard>
+
+<DemoCard Title="错误态"
+          Description="Status=Error。"
+          SourceCode="@ErrorSource">
+    <XThink Title="思考失败"
+            Content="检索资料时发生错误，已中断。"
+            Status="XSemanticStatus.Error" />
+</DemoCard>
+
+<DemoCard Title="嵌入 ChildContent"
+          Description="ChildContent 自定义内容。"
+          SourceCode="@CustomSource">
+    <XThink Title="多步推理" Status="XSemanticStatus.Processing">
+        <XThoughtChain Items="@_chain" Size="small" />
+    </XThink>
+</DemoCard>
 
 @code {
-    private const string Content = """
-1. 解析问题
-2. 查询知识库
-3. 召回 3 篇相关文档
-4. 综合答案
-""";
+    private readonly IReadOnlyList<XThoughtItem> _chain =
+    [
+        new() { Title = "解析输入", Status = XSemanticStatus.Success },
+        new() { Title = "检索知识库", Status = XSemanticStatus.Success },
+        new() { Title = "生成答案", Status = XSemanticStatus.Processing },
+    ];
 
     private const string BasicSource = """
-<XThink Title="Think" Description="可折叠推理过程" Status="XSemanticStatus.Processing" Content="@Content" />
+<XThink Title="..." Content="..." Status="XSemanticStatus.Processing" />
+""";
+    private const string DoneSource = """
+<XThink Status="XSemanticStatus.Success" Open="false" />
+""";
+    private const string ErrorSource = """
+<XThink Status="XSemanticStatus.Error" />
+""";
+    private const string CustomSource = """
+<XThink ...>
+    <XThoughtChain Items="@items" />
+</XThink>
 """;
 }

@@ -1,41 +1,69 @@
 @page "/components/file-card"
 @layout ComponentLayout
 
-<PageTitle>FileCard 文件卡 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>FileCard 文件卡片 · AntDesign.X.Blazor</PageTitle>
 
 <header class="demo-page-header">
-    <h1>FileCard 文件卡</h1>
-    <p>展示单个附件，可显示进度、状态、可移除。</p>
+    <h1>FileCard 文件卡片</h1>
+    <p>用于列表与气泡内的单个文件展示，支持上传中、完成、错误三态及预览图。</p>
 </header>
 
-<DemoCard Title="状态" SourceCode="@StatusSource">
-    <XFileCard Item="@Done" />
-    <XFileCard Item="@Uploading" />
-    <XFileCard Item="@Error" />
+<DemoCard Title="状态矩阵"
+          Description="Default / Uploading / Done / Error。"
+          SourceCode="@StatusSource">
+    <div class="demo-grid demo-grid-2">
+        <XFileCard Item="@New("design.pdf", 102400, XFileCardStatus.Done)" />
+        <XFileCard Item="@New("upload.zip", 2048000, XFileCardStatus.Uploading, 45)" />
+        <XFileCard Item="@New("error.docx", 51200, XFileCardStatus.Error, 0, "网络中断")" />
+        <XFileCard Item="@_preview" />
+    </div>
 </DemoCard>
 
-<DemoCard Title="紧凑 + 可移除" SourceCode="@CompactSource">
-    <XFileCard Item="@Done" Compact="true" Removable="true" OnRemove="@(id => _removed = id)" />
-    @if (!string.IsNullOrEmpty(_removed))
+<DemoCard Title="可移除"
+          Description="设置 Removable + OnRemove。"
+          SourceCode="@RemoveSource">
+    @foreach (var it in _list.ToArray())
     {
-        <p class="demo-tip">移除：<code>@_removed</code></p>
+        <XFileCard Item="@it" Removable="true" OnRemove="@(_ => _list.Remove(it))" />
     }
+    <button class="demo-btn" @onclick="AddRandom">添加</button>
+</DemoCard>
+
+<DemoCard Title="紧凑模式"
+          Description="Compact=true 适合气泡内嵌。"
+          SourceCode="@CompactSource">
+    <XFileCard Item="@New("compact.json", 4096, XFileCardStatus.Done)" Compact="true" />
 </DemoCard>
 
 @code {
-    private string? _removed;
+    private readonly XAttachmentItem _preview = new()
+    {
+        Name = "preview.png",
+        ContentType = "image/png",
+        ImageUrl = "https://avatars.githubusercontent.com/u/12101536?s=80",
+        Size = 32768,
+        Status = XFileCardStatus.Done,
+    };
 
-    private XAttachmentItem Done { get; } = new() { Name = "spec.pdf", Size = 204800, ContentType = "application/pdf", Status = XFileCardStatus.Done };
-    private XAttachmentItem Uploading { get; } = new() { Name = "video.mp4", Size = 5_242_880, ContentType = "video/mp4", Status = XFileCardStatus.Uploading, Percent = 42 };
-    private XAttachmentItem Error { get; } = new() { Name = "broken.zip", Size = 12_345, ContentType = "application/zip", Status = XFileCardStatus.Error };
+    private List<XAttachmentItem> _list =
+    [
+        New("a.md", 1024, XFileCardStatus.Done),
+        New("b.csv", 8192, XFileCardStatus.Done),
+    ];
+
+    private void AddRandom() =>
+        _list.Add(New($"new-{Random.Shared.Next(99)}.txt", 1024, XFileCardStatus.Done));
+
+    private static XAttachmentItem New(string name, long size, XFileCardStatus status, int percent = 0, string? desc = null) =>
+        new() { Name = name, Size = size, Status = status, Percent = percent, Description = desc };
 
     private const string StatusSource = """
-<XFileCard Item="@Done" />
-<XFileCard Item="@Uploading" />
-<XFileCard Item="@Error" />
+<XFileCard Item="@(new XAttachmentItem { Status = XFileCardStatus.Uploading, Percent = 45 })" />
 """;
-
+    private const string RemoveSource = """
+<XFileCard Item="@it" Removable="true" OnRemove="@(_ => list.Remove(it))" />
+""";
     private const string CompactSource = """
-<XFileCard Item="@Done" Compact="true" Removable="true" OnRemove="@(id => _removed = id)" />
+<XFileCard Item="@it" Compact="true" />
 """;
 }

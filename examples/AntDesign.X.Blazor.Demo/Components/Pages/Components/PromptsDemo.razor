@@ -5,58 +5,90 @@
 
 <header class="demo-page-header">
     <h1>Prompts 提示集</h1>
-    <p>把建议的指令组织成卡片或菜单。</p>
+    <p>常用提示卡片，支持图标、标签、子项嵌套。</p>
 </header>
 
-<DemoCard Title="基本"
+<DemoCard Title="基础"
+          Description="水平排列的提示卡片。"
           SourceCode="@BasicSource">
-    <XPrompts Items="@Items"
-              Wrap="true"
-              ExpandAllByDefault="true"
-              OnItemClick="@(p => _last = p.Title)" />
-    @if (!string.IsNullOrEmpty(_last))
+    <XPrompts Items="@_basic" OnSelect="@(p => _selected = p.Title)" />
+    @if (!string.IsNullOrEmpty(_selected))
     {
-        <p class="demo-tip">最近选择：<code>@_last</code></p>
+        <p class="demo-tip">已选中：@_selected</p>
     }
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>嵌套 children</li>
-        <li>垂直布局</li>
-        <li>卡片样式</li>
-        <li>禁用项</li>
-        <li>默认展开 / 收起</li>
-    </ul>
-</section>
+<DemoCard Title="纵向"
+          Description="Vertical=true。"
+          SourceCode="@VerticalSource">
+    <XPrompts Items="@_basic" Vertical="true" />
+</DemoCard>
+
+<DemoCard Title="嵌套子项"
+          Description="Children + 自动展开/收起。"
+          SourceCode="@NestedSource">
+    <XPrompts Items="@_nested" />
+</DemoCard>
+
+<DemoCard Title="禁用"
+          Description="Disabled 单项禁用。"
+          SourceCode="@DisabledSource">
+    <XPrompts Items="@_disabled" />
+</DemoCard>
 
 @code {
-    private string? _last;
+    private string? _selected;
 
-    private IReadOnlyList<XPromptItem> Items { get; } =
+    private readonly IReadOnlyList<XPromptItem> _basic =
+    [
+        new() { Title = "今天的天气", Description = "查询当前位置天气", Icon = "cloud" },
+        new() { Title = "推荐一本书", Description = "根据兴趣推荐", Icon = "book" },
+        new() { Title = "写一段 SQL", Description = "按需求生成", Icon = "code" },
+    ];
+
+    private readonly IReadOnlyList<XPromptItem> _nested =
     [
         new()
         {
-            Key = "build", Title = "生成工作台", Icon = "thunderbolt", Tag = "Chat",
+            Title = "代码助手",
+            Description = "代码相关任务",
+            Icon = "code",
             Children =
             [
-                new() { Key = "build-chat", Title = "Chat flow", Description = "消息流和输入编排" },
-                new() { Key = "build-files", Title = "File flow", Description = "附件、状态和预览" },
-            ]
+                new() { Title = "解释代码", Description = "逐行讲解" },
+                new() { Title = "重构建议", Description = "性能与可读性" },
+            ],
         },
         new()
         {
-            Key = "rag", Title = "解释 RAG", Icon = "experiment", Tag = "RAG",
+            Title = "写作助手",
+            Description = "文案相关",
+            Icon = "edit",
             Children =
             [
-                new() { Key = "rag-memory", Title = "Memory" },
-                new() { Key = "rag-eval", Title = "Evaluation" },
-            ]
+                new() { Title = "撰写邮件", Description = "正式语气" },
+                new() { Title = "总结要点", Description = "精炼输出" },
+            ],
         },
     ];
 
+    private readonly IReadOnlyList<XPromptItem> _disabled =
+    [
+        new() { Title = "可用", Description = "点击触发" },
+        new() { Title = "禁用", Description = "Disabled=true", Disabled = true },
+        new() { Title = "高级（标签）", Description = "Pro", Tag = "PRO" },
+    ];
+
     private const string BasicSource = """
-<XPrompts Items="@Items" Wrap="true" ExpandAllByDefault="true" OnItemClick="@OnPick" />
+<XPrompts Items="@items" OnSelect="@(p => ...)" />
+""";
+    private const string VerticalSource = """
+<XPrompts Items="@items" Vertical="true" />
+""";
+    private const string NestedSource = """
+new XPromptItem { Title = "...", Children = [ new() { Title = "..." } ] }
+""";
+    private const string DisabledSource = """
+new XPromptItem { Title = "...", Disabled = true }
 """;
 }

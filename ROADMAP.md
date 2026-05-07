@@ -2,6 +2,26 @@
 
 本路线图把 [Ant Design X](https://ant-design-x.antgroup.com/) 官方 React 设计系统完整映射到 Blazor。状态只描述本子模块真实进展，不把目标能力写成已完成。
 
+## 进度总览（最新）
+
+图例：✅ 已完成 ｜ 🚀 进行中 ｜ ⏳ 待开始 ｜ 🧪 验证中
+
+| # | 里程碑 | 状态 | 摘要 |
+| --- | --- | --- | --- |
+| 1 | 组件矩阵闭环（19 个） | ✅ | 17 个 X 组件 + Markdown + Icon 全部上线 |
+| 2 | DemoCard / ComponentLayout / ComponentNav 框架 | ✅ | 每组件独立路由 `/components/{slug}` |
+| 3 | ROADMAP 与官方 2.x 对齐表 | ✅ | 见下方差异核对 |
+| 4 | 默认 `dotnet build` 释放文件锁 | ✅ | 旧 demo 进程 PID 69332 已结束 |
+| 5 | XSender 高级特性（语音 / focus / 折叠 / 停止） | ✅ | SpeechRecognition、FocusAsync/BlurAsync、recording 动效已落地 |
+| 6 | XBubble 流式打字机 + loading 三态 | ✅ | BubbleDemo 覆盖 placement / variant / typing / loading |
+| 7 | XAttachments 拖拽 / 粘贴 / 缩略图增强 | ✅ | AttachmentsDemo 覆盖拖拽 / 粘贴 / 缩略图 |
+| 8 | XConversations 分组 / 菜单 / groupable | ✅ | ConversationsDemo 覆盖 group / activeKey / menu |
+| 9 | XThoughtChain 折叠 / 状态图标 / 嵌套 | ✅ | XThoughtChain 重写 + Children + ThoughtChainDemo |
+| 10 | useXAgent / useXChat 等价 .NET API 评估 | 🚀 | XAgentStore / XChatStore 已具 abort / regenerate / streaming chunk 回调 |
+| 11 | 单元 + 快照测试骨架（bUnit + Verify） | ⏳ | |
+| 12 | NuGet 打包元数据 / CI 构建脚本 | ⏳ | |
+| 13 | 14 个组件 demo 页全部接通 | ✅ | Welcome / Prompts / Suggestion / Sources / Folder / Notification / Think / FileCard / Bubble / Sender / Attachments / Conversations / ThoughtChain / Actions |
+
 ## 与官方 2.x 的差异核对（最新一次审计）
 
 参照 [组件总览](https://ant-design-x.antgroup.com/components/overview-cn) 与 [github.com/ant-design/x](https://github.com/ant-design/x) 的 demo 源码：
@@ -83,37 +103,37 @@
 #### Notification — `/components/notification`
 
 - [x] 基本
-- [ ] 队列 / maxCount
-- [ ] duration 与 pauseOnHover
-- [ ] 四角 placement
-- [ ] 全局 service：`IXNotificationService.OpenAsync`
-- [ ] 状态：success / info / warning / error / processing
+- [x] 队列 / maxCount
+- [x] duration 与 pauseOnHover
+- [x] 四角 placement
+- [x] 全局 service：`IXNotificationService.OpenAsync`
+- [x] 状态：success / info / warning / error / processing
 
 ### 唤醒 / Wake
 
 #### Welcome — `/components/welcome`
 
 - [x] 基本
-- [ ] Variant（filled / borderless）
-- [ ] 自定义 icon / extra
-- [ ] 与 Prompts 组合
+- [x] Variant（filled / borderless）
+- [x] 自定义 icon / extra
+- [x] 与 Prompts 组合
 
 #### Prompts — `/components/prompts`
 
 - [x] 基本
-- [ ] 嵌套 children
-- [ ] 垂直布局 vertical
-- [ ] 卡片样式
-- [ ] 禁用项
-- [ ] 默认展开 / 收起
+- [x] 嵌套 children
+- [x] 垂直布局 vertical
+- [x] 卡片样式
+- [x] 禁用项
+- [x] 默认展开 / 收起
 
 ### 确认 / Confirmation
 
 #### Think — `/components/think`
 
 - [x] 基本
-- [ ] 状态：default / processing / success / error
-- [ ] 自定义内容渲染
+- [x] 状态：default / processing / success / error
+- [x] 自定义内容渲染
 
 #### ThoughtChain — `/components/thought-chain`
 
@@ -138,19 +158,20 @@
 #### Sender — `/components/sender`
 
 - [x] 基本
-- [ ] 提交方式（Enter / Shift+Enter）
-- [ ] 受控 value
-- [ ] Header & Footer 折叠
+- [x] 提交方式（Enter / Shift+Enter / Ctrl+Enter）
+- [x] 受控 value
+- [x] Header & Footer 折叠
 - [ ] 引用功能（reference）
-- [ ] 语音输入按钮
-- [ ] 工具动作（action 列表）
-- [ ] 停止生成（loading + cancel）
-- [ ] AutoSize / clearable
+- [x] 语音输入按钮（Web Speech API）
+- [x] 工具动作（action 列表）
+- [x] 停止生成（loading + cancel）
+- [x] AutoSize / clearable
+- [x] 编程式 `FocusAsync` / `BlurAsync`
 
 #### Suggestion — `/components/suggestion`
 
 - [x] 基本
-- [ ] 自定义触发字符
+- [x] 自定义触发字符
 - [ ] 多级 children
 - [ ] 与 Sender 联动
 
@@ -173,16 +194,16 @@
 #### FileCard — `/components/file-card`
 
 - [x] 基本
-- [ ] 上传中 percent
-- [ ] 错误状态
-- [ ] 图片预览
-- [ ] 自定义 icon
+- [x] 上传中 percent
+- [x] 错误状态
+- [x] 图片预览
+- [x] 自定义 icon
 
 #### Folder — `/components/folder`
 
 - [x] 基本
-- [ ] 卡片 variant
-- [ ] 受控 activeKey
+- [x] 卡片 variant
+- [x] 受控 activeKey
 - [ ] 自定义渲染
 - [ ] 状态徽标
 
@@ -196,9 +217,9 @@
 #### Sources — `/components/sources`
 
 - [x] 基本
-- [ ] 卡片样式
+- [x] 卡片样式
 - [ ] 多列布局
-- [ ] 链接打开方式
+- [x] 链接打开方式
 
 ### 其他 / Others
 
