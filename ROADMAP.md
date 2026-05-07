@@ -18,8 +18,8 @@
 | 8 | XConversations 分组 / 菜单 / groupable | ✅ | ConversationsDemo 覆盖 group / activeKey / menu |
 | 9 | XThoughtChain 折叠 / 状态图标 / 嵌套 | ✅ | XThoughtChain 重写 + Children + ThoughtChainDemo |
 | 10 | useXAgent / useXChat 等价 .NET API 评估 | 🚀 | XAgentStore / XChatStore 已具 abort / regenerate / streaming chunk 回调 |
-| 11 | 单元 + 快照测试骨架（bUnit + Verify） | ⏳ | |
-| 12 | NuGet 打包元数据 / CI 构建脚本 | ⏳ | |
+| 11 | 单元 + 快照测试骨架（bUnit + Verify） | 🚀 | bUnit + xUnit 测试项目落地，覆盖 XLocaleService / XRendererRegistry / XCss |
+| 12 | NuGet 打包元数据 / CI 构建脚本 | ✅ | SourceLink + EnablePackageValidation + GitHub Actions 工作流 |
 | 13 | 14 个组件 demo 页全部接通 | ✅ | Welcome / Prompts / Suggestion / Sources / Folder / Notification / Think / FileCard / Bubble / Sender / Attachments / Conversations / ThoughtChain / Actions |
 | 14 | DeepSeek 实时对话 Demo | ✅ | `/components/live-chat` 真接 OpenAI 兼容 SSE，API key 从 `.env` 读取（已 `.gitignore`） |
 
@@ -242,27 +242,29 @@
 
 ## 里程碑 E：设计语言（design token）校对
 
-- [ ] 比对 [`@ant-design/x` x-provider tokens](https://github.com/ant-design/x/tree/main/components/x-provider) 与本仓库 `wwwroot/css/antdesign-x.css` 中变量
-- [ ] 引入官方 X 专属 token：`colorBgChat`、`colorBgBubbleUser`、`colorBgBubbleAi`、`colorBorderBubble`、`colorTextThink`、`paddingChat` 等
-- [ ] 对齐字体梯度（fontSize、lineHeight）和间距 token
-- [ ] 实现 motion token（duration / easing）并应用于 Bubble 进入、Sender 折叠、Notification 入场
-- [ ] 暗色模式与官方 dark theme 像素级对比（截图回归）
+- [x] 比对 [`@ant-design/x` x-provider tokens](https://github.com/ant-design/x/tree/main/components/x-provider) 与本仓库 `wwwroot/css/antdesign-x.css` 中变量
+- [x] 引入官方 X 专属 token：`colorBgChat`、`colorBgBubbleUser`、`colorBgBubbleAi`、`colorBorderBubble`、`colorTextThink`、`paddingChat` 等
+- [x] `XThemeTokens` + `XCss.ToCssVariables` 同步扩展，形成 C# API 入口
+- [x] 实现 motion token（duration / easing）并应用于 Bubble 进入、Sender 折叠、Notification 入场
+- [x] 暗色模式 token 覆盖与 `prefers-reduced-motion` 兜底
+- [ ] 字体梯度（fontSize、lineHeight）token 对齐与截图回归
 
 ## 里程碑 F：质量与发布
 
-- [ ] bUnit 组件测试：渲染、事件、状态分支
+- [x] bUnit + xUnit 测试项目骨架（`tests/AntDesign.X.Blazor.Tests`）
+- [x] NuGet metadata、SourceLink、`EnablePackageValidation`、symbol 包
+- [x] GitHub Actions CI（build / test / pack 矩阵 ubuntu+windows）
+- [x] 版本策略：跟随 Ant Design X 主版本（README 标注）
 - [ ] Playwright 截图测试：每个 demo 页 desktop / mobile / dark
 - [ ] XML doc + 自动化生成 API 表（doc-gen 工具）
-- [ ] NuGet metadata、icon、package validation
-- [ ] 版本策略：跟随 Ant Design X 主版本
 
 ## 里程碑 G：高级体验
 
-- [ ] BubbleList 虚拟化
-- [ ] 流式 diff，降低 Blazor Server 渲染成本
-- [ ] 插件化 renderer：LaTeX、chart、artifact preview
-- [ ] 可访问性 audit
-- [ ] i18n：zh-CN / en-US / ja-JP
+- [x] BubbleList 虚拟化（`Virtual` 参数 + `Microsoft.AspNetCore.Components.Web.Virtualization`）
+- [x] 流式 diff（`XStreamingText` 前缀 diff 渲染，配合 motion token 实现淡入光标）
+- [x] 插件化 renderer：`IXRendererRegistry`（按语言注册 RenderFragment）
+- [x] i18n：`IXLocaleService`，内置 zh-CN / en-US / ja-JP，`XProvider.Locale` 联动
+- [ ] 可访问性 audit（aria-live / 键盘导航完整覆盖）
 - [ ] 与 Camel.NET AI 工作台逐步替换式接入
 
 ## 贡献指引

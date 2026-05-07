@@ -1,14 +1,40 @@
 @namespace AntDesign.X.Components
 @implements IAsyncDisposable
 @inject IJSRuntime JsRuntime
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 
-<section class="@ClassName" style="@Style" aria-live="@AriaLive" @ref="Root">
+<section class="@ClassName" style="@Style" aria-live="@AriaLive" role="log" @ref="Root">
     @if (HeaderTemplate is not null)
     {
         <div class="antdx-bubble-list-header">@HeaderTemplate</div>
     }
 
-    @foreach (var item in Items)
+    @if (UseVirtualization)
+    {
+        <Virtualize TItem="XBubbleItem" Items="@_virtualItems" ItemSize="@VirtualItemSize" OverscanCount="@VirtualOverscan" Context="item">
+            @RenderItem(item)
+        </Virtualize>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            @RenderItem(item)
+        }
+    }
+
+    @if (Loading)
+    {
+        <XBubble Placement="XBubblePlacement.Start"
+                 Variant="@LoadingVariant"
+                 AvatarIcon="@LoadingAvatarIcon"
+                 Header="@LoadingHeader"
+                 Loading="true" />
+    }
+</section>
+
+@code {
+    private RenderFragment RenderItem(XBubbleItem item) => __builder =>
     {
         if (ItemTemplate is not null)
         {
@@ -47,19 +73,8 @@
                      Style="@ResolveStyle(item)"
                      OnAction="@OnAction" />
         }
-    }
+    };
 
-    @if (Loading)
-    {
-        <XBubble Placement="XBubblePlacement.Start"
-                 Variant="@LoadingVariant"
-                 AvatarIcon="@LoadingAvatarIcon"
-                 Header="@LoadingHeader"
-                 Loading="true" />
-    }
-</section>
-
-@code {
     private static readonly IReadOnlyDictionary<string, XBubbleRoleConfig> DefaultRoleConfigs =
         new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase)
         {
@@ -112,6 +127,10 @@
     [Parameter] public XBubbleVariant LoadingVariant { get; set; }
     [Parameter] public IReadOnlyDictionary<string, XBubbleRoleConfig> RoleConfigs { get; set; } = new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase);
     [Parameter] public bool AutoScroll { get; set; } = true;
+    [Parameter] public bool Virtual { get; set; }
+    [Parameter] public int VirtualThreshold { get; set; } = 50;
+    [Parameter] public float VirtualItemSize { get; set; } = 96f;
+    [Parameter] public int VirtualOverscan { get; set; } = 4;
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public RenderFragment<XBubbleItem>? ItemTemplate { get; set; }
     [Parameter] public EventCallback<string> OnAction { get; set; }
@@ -120,6 +139,11 @@
     [Parameter] public string? Style { get; set; }
 
     private string ClassName => XCss.Combine("antdx-bubble-list", Class);
+
+    private bool UseVirtualization => Virtual && Items.Count >= VirtualThreshold && ItemTemplate is null;
+
+    private System.Collections.Generic.ICollection<XBubbleItem> _virtualItems
+        => Items as System.Collections.Generic.ICollection<XBubbleItem> ?? Items.ToList();
 
     protected override void OnParametersSet()
     {

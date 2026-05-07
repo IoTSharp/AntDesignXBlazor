@@ -1,10 +1,19 @@
 :root {
     --antdx-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* font scale —— 与 antd 5 token 对齐 */
+    --antdx-font-size-sm: 12px;
+    --antdx-font-size: 14px;
+    --antdx-font-size-lg: 16px;
+    --antdx-font-size-xl: 20px;
+    --antdx-line-height-sm: 1.5;
+    --antdx-line-height: 1.5715;
+    --antdx-line-height-lg: 1.65;
     --antdx-color-primary: #1677ff;
     --antdx-color-primary-hover: #4096ff;
     --antdx-color-success: #52c41a;
     --antdx-color-warning: #faad14;
     --antdx-color-error: #ff4d4f;
+    --antdx-color-info: #1677ff;
     --antdx-text: rgba(0, 0, 0, 0.88);
     --antdx-text-secondary: rgba(0, 0, 0, 0.65);
     --antdx-text-tertiary: rgba(0, 0, 0, 0.45);
@@ -18,13 +27,40 @@
     --antdx-bubble-bg-end: #1677ff;
     --antdx-bubble-fg-start: rgba(0, 0, 0, 0.88);
     --antdx-bubble-fg-end: #ffffff;
+    /* X 专属 token —— 与 @ant-design/x x-provider 对齐 */
+    --antdx-color-bg-chat: #f7f8fa;
+    --antdx-color-bg-bubble-user: #1677ff;
+    --antdx-color-bg-bubble-ai: #f5f5f5;
+    --antdx-color-bg-bubble-system: rgba(0, 0, 0, 0.02);
+    --antdx-color-border-bubble: rgba(5, 5, 5, 0.08);
+    --antdx-color-text-bubble-user: #ffffff;
+    --antdx-color-text-bubble-ai: rgba(0, 0, 0, 0.88);
+    --antdx-color-text-think: rgba(0, 0, 0, 0.55);
+    --antdx-color-bg-think: rgba(22, 119, 255, 0.04);
+    --antdx-color-bg-thought-chain: rgba(22, 119, 255, 0.04);
+    /* spacing token */
+    --antdx-padding-chat: 16px;
+    --antdx-padding-bubble: 10px 14px;
+    --antdx-padding-xxs: 4px;
+    --antdx-padding-xs: 8px;
+    --antdx-padding-sm: 12px;
+    --antdx-padding: 16px;
+    --antdx-padding-lg: 24px;
+    --antdx-margin-bubble: 12px;
     --antdx-radius-xs: 6px;
     --antdx-radius-sm: 8px;
     --antdx-radius-md: 12px;
     --antdx-radius-lg: 16px;
     --antdx-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     --antdx-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --antdx-motion: 0.18s ease;
+    /* motion token —— 与 antd motion 对齐 */
+    --antdx-motion-duration-fast: 0.10s;
+    --antdx-motion-duration: 0.18s;
+    --antdx-motion-duration-slow: 0.30s;
+    --antdx-motion-ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --antdx-motion-ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --antdx-motion-ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    --antdx-motion: var(--antdx-motion-duration) var(--antdx-motion-ease-in-out);
 }
 
 [data-theme="dark"],
@@ -42,8 +78,26 @@
     --antdx-bubble-bg-end: #1668dc;
     --antdx-bubble-fg-start: rgba(255, 255, 255, 0.88);
     --antdx-bubble-fg-end: #ffffff;
+    --antdx-color-bg-chat: #141414;
+    --antdx-color-bg-bubble-user: #1668dc;
+    --antdx-color-bg-bubble-ai: #262626;
+    --antdx-color-bg-bubble-system: rgba(255, 255, 255, 0.04);
+    --antdx-color-border-bubble: rgba(255, 255, 255, 0.10);
+    --antdx-color-text-bubble-user: #ffffff;
+    --antdx-color-text-bubble-ai: rgba(255, 255, 255, 0.88);
+    --antdx-color-text-think: rgba(255, 255, 255, 0.55);
+    --antdx-color-bg-think: rgba(22, 119, 255, 0.10);
+    --antdx-color-bg-thought-chain: rgba(22, 119, 255, 0.10);
     --antdx-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
     --antdx-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --antdx-motion-duration-fast: 0s;
+        --antdx-motion-duration: 0s;
+        --antdx-motion-duration-slow: 0s;
+    }
 }
 
 .antdx-provider,
@@ -201,19 +255,25 @@
 }
 
 .antdx-bubble-content {
-    padding: 10px 14px;
-    color: var(--antdx-bubble-fg-start);
-    background: var(--antdx-bubble-bg-start);
+    padding: var(--antdx-padding-bubble);
+    color: var(--antdx-color-text-bubble-ai, var(--antdx-bubble-fg-start));
+    background: var(--antdx-color-bg-bubble-ai, var(--antdx-bubble-bg-start));
     border: 1px solid transparent;
     border-radius: var(--antdx-radius-md);
     box-shadow: var(--antdx-shadow-sm);
-    line-height: 1.65;
+    line-height: var(--antdx-line-height-lg);
     overflow-wrap: anywhere;
+    animation: antdx-bubble-enter var(--antdx-motion-duration) var(--antdx-motion-ease-out) both;
 }
 
 .antdx-bubble-end .antdx-bubble-content {
-    color: var(--antdx-bubble-fg-end);
-    background: var(--antdx-bubble-bg-end);
+    color: var(--antdx-color-text-bubble-user, var(--antdx-bubble-fg-end));
+    background: var(--antdx-color-bg-bubble-user, var(--antdx-bubble-bg-end));
+}
+
+@keyframes antdx-bubble-enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .antdx-bubble-borderless .antdx-bubble-content {
@@ -540,6 +600,13 @@
     box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.10);
 }
 
+.antdx-sender-header,
+.antdx-sender-custom-footer,
+.antdx-sender-footer {
+    transition: max-height var(--antdx-motion-duration) var(--antdx-motion-ease-in-out),
+                opacity var(--antdx-motion-duration) var(--antdx-motion-ease-in-out);
+}
+
 .antdx-sender-textarea {
     width: 100%;
     min-height: 52px;
@@ -827,9 +894,10 @@
 .antdx-thought-chain-card {
     min-width: 0;
     padding: 10px 12px;
-    background: var(--antdx-component-bg);
+    background: var(--antdx-color-bg-thought-chain, var(--antdx-component-bg));
     border: 1px solid var(--antdx-border);
     border-radius: var(--antdx-radius-md);
+    transition: border-color var(--antdx-motion);
 }
 
 .antdx-thought-chain-title {
@@ -847,7 +915,8 @@
 
 .antdx-think {
     overflow: hidden;
-    background: var(--antdx-component-bg);
+    color: var(--antdx-color-text-think, var(--antdx-text-secondary));
+    background: var(--antdx-color-bg-think, var(--antdx-component-bg));
     border: 1px solid var(--antdx-border);
     border-radius: var(--antdx-radius-md);
 }
@@ -1110,6 +1179,12 @@
     border: 1px solid var(--antdx-border);
     border-radius: var(--antdx-radius-md);
     box-shadow: var(--antdx-shadow);
+    animation: antdx-notification-enter var(--antdx-motion-duration-slow) var(--antdx-motion-ease-out) both;
+}
+
+@keyframes antdx-notification-enter {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .antdx-notification-icon {
@@ -1475,3 +1550,33 @@
 .antdx-thought-chain-children { padding-left: 24px; margin-top: 4px; border-left: 1px dashed var(--antdx-border); }
 .antdx-thought-chain-item-depth-1 > .antdx-thought-chain-row .antdx-thought-chain-dot { transform: scale(0.85); }
 .antdx-thought-chain-item-has-children > .antdx-thought-chain-row { font-weight: 500; }
+
+.antdx-streaming-text {
+    display: inline;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.antdx-streaming-text-delta {
+    color: inherit;
+    animation: antdx-stream-fade var(--antdx-motion-duration) var(--antdx-motion-ease-out) both;
+}
+
+.antdx-streaming-text-cursor {
+    display: inline-block;
+    width: 1px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.18em;
+    background: currentColor;
+    animation: antdx-stream-blink 1s steps(2) infinite;
+}
+
+@keyframes antdx-stream-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes antdx-stream-blink {
+    50% { opacity: 0; }
+}

@@ -51,6 +51,24 @@ internal static class XCss
         Append(builder, "--antdx-bubble-bg-end", tokens.BubbleEndBackground);
         Append(builder, "--antdx-page-bg", tokens.PageBackground);
         Append(builder, "--antdx-component-bg", tokens.ComponentBackground);
+        Append(builder, "--antdx-color-bg-chat", tokens.ColorBgChat);
+        Append(builder, "--antdx-color-bg-bubble-user", tokens.ColorBgBubbleUser);
+        Append(builder, "--antdx-color-bg-bubble-ai", tokens.ColorBgBubbleAi);
+        Append(builder, "--antdx-color-bg-bubble-system", tokens.ColorBgBubbleSystem);
+        Append(builder, "--antdx-color-border-bubble", tokens.ColorBorderBubble);
+        Append(builder, "--antdx-color-text-bubble-user", tokens.ColorTextBubbleUser);
+        Append(builder, "--antdx-color-text-bubble-ai", tokens.ColorTextBubbleAi);
+        Append(builder, "--antdx-color-text-think", tokens.ColorTextThink);
+        Append(builder, "--antdx-color-bg-think", tokens.ColorBgThink);
+        Append(builder, "--antdx-color-bg-thought-chain", tokens.ColorBgThoughtChain);
+        Append(builder, "--antdx-padding-chat", tokens.PaddingChat);
+        Append(builder, "--antdx-padding-bubble", tokens.PaddingBubble);
+        Append(builder, "--antdx-motion-duration-fast", tokens.MotionDurationFast);
+        Append(builder, "--antdx-motion-duration", tokens.MotionDuration);
+        Append(builder, "--antdx-motion-duration-slow", tokens.MotionDurationSlow);
+        Append(builder, "--antdx-motion-ease-in-out", tokens.MotionEaseInOut);
+        Append(builder, "--antdx-motion-ease-out", tokens.MotionEaseOut);
+        Append(builder, "--antdx-motion-ease-in", tokens.MotionEaseIn);
         return builder.ToString();
     }
 

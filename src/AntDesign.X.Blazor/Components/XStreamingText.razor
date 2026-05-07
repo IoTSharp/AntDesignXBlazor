@@ -1,0 +1,49 @@
+@namespace AntDesign.X.Components
+@implements IDisposable
+
+@*
+    XStreamingText —— 流式 diff 渲染组件。
+    仅当 Text 与上一次的值具备 prefix 关系时，发送增量给浏览器；否则触发完整重置，
+    用于减少 Blazor Server 的 SignalR 负载。
+*@
+
+<span class="antdx-streaming-text @Class" style="@Style" data-stream-id="@_id">
+    <span class="antdx-streaming-text-base">@_committed</span><span class="antdx-streaming-text-delta">@_delta</span>@if (ShowCursor)
+    {
+        <span class="antdx-streaming-text-cursor" aria-hidden="true"></span>
+    }
+</span>
+
+@code {
+    private readonly string _id = Guid.NewGuid().ToString("N");
+    private string _committed = string.Empty;
+    private string _delta = string.Empty;
+    private string _previous = string.Empty;
+
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public bool ShowCursor { get; set; } = true;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var current = Text ?? string.Empty;
+
+        if (current.Length >= _previous.Length && current.StartsWith(_previous, StringComparison.Ordinal))
+        {
+            // 增量追加 —— 仅 diff 末尾
+            _committed = _previous;
+            _delta = current.Substring(_previous.Length);
+        }
+        else
+        {
+            // 非 prefix 变化 —— 整段重置
+            _committed = current;
+            _delta = string.Empty;
+        }
+
+        _previous = current;
+    }
+
+    public void Dispose() { }
+}

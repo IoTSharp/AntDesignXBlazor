@@ -33,6 +33,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IXRequestClient, XRequestClient>();
         services.AddScoped<XChatStore>();
         services.AddScoped<XAgentStore>();
+        services.AddSingleton<IXRendererRegistry, XRendererRegistry>();
+        services.AddScoped<IXLocaleService, XLocaleService>();
         return services;
     }
 }

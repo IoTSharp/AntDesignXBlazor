@@ -5,6 +5,9 @@
   <Folder Name="/examples/">
     <Project Path="examples/AntDesign.X.Blazor.Demo/AntDesign.X.Blazor.Demo.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AntDesign.X.Blazor.Tests/AntDesign.X.Blazor.Tests.csproj" />
+  </Folder>
   <Folder Name="/docs/">
     <File Path="README.md" />
     <File Path="ROADMAP.md" />

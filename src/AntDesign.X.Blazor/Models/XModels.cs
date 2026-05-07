@@ -170,4 +170,26 @@ public sealed record XThemeTokens
     public string? BubbleEndBackground { get; init; }
     public string? PageBackground { get; init; }
     public string? ComponentBackground { get; init; }
+
+    // X 专属 token
+    public string? ColorBgChat { get; init; }
+    public string? ColorBgBubbleUser { get; init; }
+    public string? ColorBgBubbleAi { get; init; }
+    public string? ColorBgBubbleSystem { get; init; }
+    public string? ColorBorderBubble { get; init; }
+    public string? ColorTextBubbleUser { get; init; }
+    public string? ColorTextBubbleAi { get; init; }
+    public string? ColorTextThink { get; init; }
+    public string? ColorBgThink { get; init; }
+    public string? ColorBgThoughtChain { get; init; }
+    public string? PaddingChat { get; init; }
+    public string? PaddingBubble { get; init; }
+
+    // motion token
+    public string? MotionDurationFast { get; init; }
+    public string? MotionDuration { get; init; }
+    public string? MotionDurationSlow { get; init; }
+    public string? MotionEaseInOut { get; init; }
+    public string? MotionEaseOut { get; init; }
+    public string? MotionEaseIn { get; init; }
 }

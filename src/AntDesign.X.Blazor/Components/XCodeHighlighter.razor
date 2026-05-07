@@ -1,5 +1,6 @@
 @namespace AntDesign.X.Components
 @inject IJSRuntime JsRuntime
+@inject IXRendererRegistry RendererRegistry
 
 <figure class="@ClassName" style="@Style">
     @if (ShowHeader)
@@ -15,7 +16,17 @@
             }
         </figcaption>
     }
-    <pre><code>@Code</code></pre>
+    @{
+        var customRenderer = RendererRegistry.Resolve(Language);
+    }
+    @if (customRenderer is not null)
+    {
+        <div class="antdx-code-custom">@customRenderer(Code ?? string.Empty)</div>
+    }
+    else
+    {
+        <pre><code>@Code</code></pre>
+    }
 </figure>
 
 @code {
