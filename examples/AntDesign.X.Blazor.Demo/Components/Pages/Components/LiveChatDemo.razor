@@ -1,0 +1,209 @@
+@page "/components/live-chat"
+@layout ComponentLayout
+@using AntDesign.X.Blazor.Demo.Services
+@using System.Threading
+@inject DeepSeekChatClient DeepSeek
+@implements IDisposable
+
+<PageTitle>实时对话（DeepSeek） · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Live Chat · DeepSeek</h1>
+    <p>真实接入 DeepSeek 对话 API（OpenAI 兼容 SSE 流），完整跑通 <code>XSender</code> + <code>XBubbleList</code> + 流式渲染闭环。</p>
+</header>
+
+@if (!DeepSeek.IsConfigured)
+{
+    <DemoCard Title="未配置 API Key"
+              Description="演示需要在仓库根目录创建 .env 文件并写入 DEEPSEEK_API_KEY=sk-xxx，重启 Demo 即可生效。.env 已被 .gitignore 排除，不会进入仓库。"
+              SourceCode="@ConfigSource">
+        <p class="demo-tip">请按下方说明配置后再使用。</p>
+    </DemoCard>
+}
+else
+{
+    <DemoCard Title="实时对话"
+              Description="@($"模型：{DeepSeek.Model}  · 端点：{DeepSeek.Endpoint}")"
+              SourceCode="@LiveSource">
+        <div class="demo-live-chat">
+            <XBubbleList Items="@_bubbles" RoleConfigs="@RoleConfigs" />
+            <div class="demo-live-input">
+                <XSender @bind-Value="_input"
+                         Placeholder="向 DeepSeek 提问，按 Enter 发送..."
+                         Loading="_loading"
+                         SubmitMode="XSenderSubmitMode.Enter"
+                         OnSubmit="@OnSubmit"
+                         OnCancel="@OnCancel"
+                         OnClear="@(() => _input = string.Empty)" />
+            </div>
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <p class="demo-tip" style="color:#cf1322">@_error</p>
+            }
+            <div class="demo-actions">
+                <button class="demo-btn" type="button" @onclick="ResetConversation">清空对话</button>
+            </div>
+        </div>
+    </DemoCard>
+}
+
+@code {
+    private readonly List<XBubbleItem> _bubbles = [];
+    private readonly Dictionary<string, XBubbleRoleConfig> RoleConfigs = new()
+    {
+        ["user"] = new XBubbleRoleConfig
+        {
+            Placement = XBubblePlacement.End,
+            AvatarIcon = "user",
+            Variant = XBubbleVariant.Filled,
+            Header = "我",
+        },
+        ["assistant"] = new XBubbleRoleConfig
+        {
+            Placement = XBubblePlacement.Start,
+            AvatarIcon = "robot",
+            Variant = XBubbleVariant.Outlined,
+            Header = "DeepSeek",
+            Markdown = true,
+        },
+    };
+
+    private string _input = string.Empty;
+    private bool _loading;
+    private string? _error;
+    private CancellationTokenSource? _cts;
+
+    private async Task OnSubmit(XSenderRequest request)
+    {
+        var prompt = (request.Text ?? string.Empty).Trim();
+        if (prompt.Length == 0 || _loading)
+        {
+            return;
+        }
+
+        _error = null;
+        _input = string.Empty;
+
+        _bubbles.Add(new XBubbleItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Role = "user",
+            Content = prompt,
+            Status = XMessageStatus.Success,
+        });
+
+        var assistantKey = Guid.NewGuid().ToString("N");
+        _bubbles.Add(new XBubbleItem
+        {
+            Key = assistantKey,
+            Role = "assistant",
+            Content = string.Empty,
+            Loading = true,
+            Streaming = true,
+            Status = XMessageStatus.Loading,
+        });
+
+        var history = _bubbles
+            .Where(b => b.Key != assistantKey && !string.IsNullOrEmpty(b.Content))
+            .Select(b => new DeepSeekMessage(b.Role ?? "user", b.Content ?? string.Empty))
+            .ToList();
+
+        _loading = true;
+        StateHasChanged();
+
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
+
+        try
+        {
+            var sb = new System.Text.StringBuilder();
+            await foreach (var delta in DeepSeek.StreamAsync(history, token))
+            {
+                if (!string.IsNullOrEmpty(delta.Content))
+                {
+                    sb.Append(delta.Content);
+                    UpdateAssistant(assistantKey, sb.ToString(), streaming: true, status: XMessageStatus.Updating);
+                    StateHasChanged();
+                }
+            }
+
+            UpdateAssistant(assistantKey, sb.ToString(), streaming: false, status: XMessageStatus.Success);
+        }
+        catch (OperationCanceledException)
+        {
+            UpdateAssistant(assistantKey, GetAssistantContent(assistantKey), streaming: false, status: XMessageStatus.Abort);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            UpdateAssistant(assistantKey, GetAssistantContent(assistantKey), streaming: false, status: XMessageStatus.Error);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetAssistantContent(string key)
+    {
+        var idx = _bubbles.FindIndex(b => b.Key == key);
+        return idx >= 0 ? _bubbles[idx].Content ?? string.Empty : string.Empty;
+    }
+
+    private void UpdateAssistant(string key, string content, bool streaming, XMessageStatus status)
+    {
+        var idx = _bubbles.FindIndex(b => b.Key == key);
+        if (idx < 0)
+        {
+            return;
+        }
+
+        _bubbles[idx] = _bubbles[idx] with
+        {
+            Content = content,
+            Loading = streaming,
+            Streaming = streaming,
+            Status = status,
+        };
+    }
+
+    private void OnCancel()
+    {
+        _cts?.Cancel();
+    }
+
+    private void ResetConversation()
+    {
+        _cts?.Cancel();
+        _bubbles.Clear();
+        _error = null;
+        _loading = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+
+    private const string ConfigSource = """
+# 仓库根目录 .env （已加入 .gitignore）
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# 可选
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_ENDPOINT=https://api.deepseek.com/chat/completions
+""";
+
+    private const string LiveSource = """
+@inject DeepSeekChatClient DeepSeek
+
+await foreach (var delta in DeepSeek.StreamAsync(history, ct))
+{
+    sb.Append(delta.Content);
+    UpdateAssistant(key, sb.ToString());
+}
+""";
+}

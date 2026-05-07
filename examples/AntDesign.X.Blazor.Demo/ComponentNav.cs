@@ -48,5 +48,9 @@ public static class ComponentNav
             new("icon", "图标", "Icon"),
             new("x-provider", "全局化配置", "XProvider"),
         }),
+        new("实战", new NavItem[]
+        {
+            new("live-chat", "DeepSeek 实时对话", "LiveChat"),
+        }),
     ];
 }

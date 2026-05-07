@@ -21,6 +21,7 @@
 | 11 | 单元 + 快照测试骨架（bUnit + Verify） | ⏳ | |
 | 12 | NuGet 打包元数据 / CI 构建脚本 | ⏳ | |
 | 13 | 14 个组件 demo 页全部接通 | ✅ | Welcome / Prompts / Suggestion / Sources / Folder / Notification / Think / FileCard / Bubble / Sender / Attachments / Conversations / ThoughtChain / Actions |
+| 14 | DeepSeek 实时对话 Demo | ✅ | `/components/live-chat` 真接 OpenAI 兼容 SSE，API key 从 `.env` 读取（已 `.gitignore`） |
 
 ## 与官方 2.x 的差异核对（最新一次审计）
 
@@ -80,25 +81,25 @@
 #### Bubble — `/components/bubble`
 
 - [x] 基本（placement / variant / shape）
-- [ ] 头像与名字
-- [ ] Header 与 Footer
-- [ ] 加载中
-- [ ] 打字效果（typing）
-- [ ] Markdown 内容
-- [ ] 文件附件气泡
-- [ ] Bubble.List + roles
-- [ ] 自定义 message render（messageRender）
-- [ ] 语义化 classNames / styles
+- [x] 头像与名字
+- [x] Header 与 Footer
+- [x] 加载中
+- [x] 打字效果（typing）
+- [x] Markdown 内容
+- [x] 文件附件气泡
+- [x] Bubble.List + roles
+- [x] 自定义 message render（messageRender）
+- [x] 语义化 classNames / styles
 
 #### Conversations — `/components/conversations`
 
 - [x] 基本
-- [ ] 受控 activeKey
-- [ ] 分组 group
-- [ ] 菜单（menu / items）
-- [ ] 重命名 / 删除
-- [ ] 自定义图标与计数
-- [ ] 排序 slot
+- [x] 受控 activeKey
+- [x] 分组 group
+- [x] 菜单（menu / items）
+- [x] 重命名 / 删除
+- [x] 自定义图标与计数
+- [x] 排序 slot
 
 #### Notification — `/components/notification`
 
@@ -138,22 +139,22 @@
 #### ThoughtChain — `/components/thought-chain`
 
 - [x] 基本
-- [ ] 大小 small / middle / large
-- [ ] 嵌套 children
-- [ ] 折叠 collapsible
-- [ ] 自定义 icon / extra
+- [x] 大小 small / middle / large
+- [x] 嵌套 children
+- [x] 折叠 collapsible
+- [x] 自定义 icon / extra
 
 ### 表达 / Express
 
 #### Attachments — `/components/attachments`
 
 - [x] 基本
-- [ ] 上传中 / 完成 / 失败
-- [ ] 拖拽 hover
-- [ ] 粘贴文件
-- [ ] 文件夹（directory）
-- [ ] beforeUpload 校验
-- [ ] 自定义渲染
+- [x] 上传中 / 完成 / 失败
+- [x] 拖拽 hover
+- [x] 粘贴文件
+- [x] 文件夹（directory）
+- [x] beforeUpload 校验
+- [x] 自定义渲染
 
 #### Sender — `/components/sender`
 
@@ -226,9 +227,18 @@
 #### XProvider — `/components/x-provider`
 
 - [x] 基本
-- [ ] 主题 token
+- [x] 主题 token
 - [ ] 暗色模式
 - [ ] 嵌套覆盖
+
+### 实战 / Live
+
+#### LiveChat — `/components/live-chat`
+
+- [x] 真接 DeepSeek （OpenAI 兼容 SSE）
+- [x] API key 从 `.env` / 环境变量读取，`.gitignore` 已排除 `*.env`
+- [x] 流式渲染 + 取消 + 错误状态
+- [x] 未配置时页面内提示 `.env` 填写说明
 
 ## 里程碑 E：设计语言（design token）校对
 
