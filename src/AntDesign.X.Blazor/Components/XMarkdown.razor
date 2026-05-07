@@ -1,13 +1,79 @@
 @namespace AntDesign.X.Components
 
 <div class="@ClassName" style="@Style">
-    @XCss.Markdown(Content)
+    @RenderContent()
 </div>
 
 @code {
+    private static readonly System.Text.RegularExpressions.Regex CodeFenceRegex =
+        new(@"```(?<lang>[^\r\n`]*)\r?\n(?<code>.*?)\r?\n```", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
     [Parameter] public string? Content { get; set; }
+    [Parameter] public bool EnableCodeHighlighter { get; set; } = true;
+    [Parameter] public bool ShowCodeHeader { get; set; } = true;
+    [Parameter] public bool CodeCopyable { get; set; } = true;
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
-    private string ClassName => XCss.Combine("antdx-markdown", Class);
+    private string ClassName => XCss.Combine(
+        "antdx-markdown",
+        EnableCodeHighlighter ? "antdx-markdown-code-highlighter" : null,
+        Class);
+
+    private RenderFragment RenderContent() => builder =>
+    {
+        if (string.IsNullOrWhiteSpace(Content))
+        {
+            return;
+        }
+
+        if (!EnableCodeHighlighter)
+        {
+            builder.AddMarkupContent(0, XCss.Markdown(Content).Value);
+            return;
+        }
+
+        var matches = CodeFenceRegex.Matches(Content);
+        if (matches.Count == 0)
+        {
+            builder.AddMarkupContent(0, XCss.Markdown(Content).Value);
+            return;
+        }
+
+        var seq = 0;
+        var lastIndex = 0;
+
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            if (match.Index > lastIndex)
+            {
+                var markdown = Content[lastIndex..match.Index];
+                if (!string.IsNullOrWhiteSpace(markdown))
+                {
+                    builder.AddMarkupContent(seq++, XCss.Markdown(markdown).Value);
+                }
+            }
+
+            var language = match.Groups["lang"].Value.Trim();
+            var code = match.Groups["code"].Value.Trim('\r', '\n');
+
+            builder.OpenComponent<XCodeHighlighter>(seq++);
+            builder.AddAttribute(seq++, "Language", string.IsNullOrWhiteSpace(language) ? "text" : language);
+            builder.AddAttribute(seq++, "Code", code);
+            builder.AddAttribute(seq++, "Copyable", CodeCopyable);
+            builder.AddAttribute(seq++, "ShowHeader", ShowCodeHeader);
+            builder.CloseComponent();
+
+            lastIndex = match.Index + match.Length;
+        }
+
+        if (lastIndex < Content.Length)
+        {
+            var markdown = Content[lastIndex..];
+            if (!string.IsNullOrWhiteSpace(markdown))
+            {
+                builder.AddMarkupContent(seq++, XCss.Markdown(markdown).Value);
+            }
+        }
+    };
 }

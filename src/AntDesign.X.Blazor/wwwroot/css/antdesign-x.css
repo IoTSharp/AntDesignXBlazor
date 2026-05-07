@@ -1148,6 +1148,293 @@
     cursor: pointer;
 }
 
+.antdx-notification-tag {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 20px;
+    padding: 0 7px;
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.08);
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.antdx-bubble-shape-round .antdx-bubble-content {
+    border-radius: var(--antdx-radius-lg);
+}
+
+.antdx-bubble-shape-corner .antdx-bubble-content {
+    border-radius: var(--antdx-radius-md) var(--antdx-radius-md) var(--antdx-radius-xs) var(--antdx-radius-md);
+}
+
+.antdx-bubble-status-error .antdx-bubble-content {
+    border-color: rgba(255, 77, 79, 0.35);
+}
+
+.antdx-bubble-status-processing .antdx-bubble-content,
+.antdx-bubble-streaming .antdx-bubble-content {
+    border-color: rgba(22, 119, 255, 0.25);
+}
+
+.antdx-bubble-extra {
+    color: var(--antdx-text-secondary);
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.antdx-bubble-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0;
+    color: var(--antdx-text-tertiary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.antdx-bubble-divider::before,
+.antdx-bubble-divider::after {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--antdx-border);
+    content: "";
+}
+
+.antdx-prompt-node {
+    min-width: 0;
+}
+
+.antdx-prompt-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.antdx-prompt {
+    min-height: 100%;
+}
+
+.antdx-prompt-expand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 0 8px;
+    color: var(--antdx-text-tertiary);
+    background: var(--antdx-component-bg);
+    border: 1px solid var(--antdx-border);
+    border-radius: var(--antdx-radius-md);
+    cursor: pointer;
+}
+
+.antdx-prompt-expand:hover:not(:disabled) {
+    color: var(--antdx-color-primary);
+    border-color: rgba(22, 119, 255, 0.55);
+}
+
+.antdx-prompt-expand:disabled,
+.antdx-conversation-item-action:disabled,
+.antdx-sender-icon-button:disabled,
+.antdx-mermaid-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.antdx-prompt-children-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding-left: 16px;
+    border-left: 1px solid var(--antdx-border);
+}
+
+.antdx-prompt-node-child {
+    margin-top: 2px;
+}
+
+.antdx-conversations-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px 8px;
+}
+
+.antdx-conversation-item-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    align-items: center;
+    width: calc(100% - 12px);
+    margin: 0 6px;
+}
+
+.antdx-conversation-item-wrap .antdx-conversation-item {
+    width: 100%;
+    margin: 0;
+}
+
+.antdx-conversation-item-editing {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.antdx-conversation-rename {
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    padding: 5px 8px;
+    color: var(--antdx-text);
+    background: var(--antdx-component-bg);
+    border: 1px solid var(--antdx-border-strong);
+    border-radius: var(--antdx-radius-sm);
+    font: inherit;
+}
+
+.antdx-conversation-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.antdx-conversation-item-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    color: var(--antdx-text-tertiary);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.antdx-conversation-item-action:hover:not(:disabled) {
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.08);
+}
+
+.antdx-conversation-item-action-danger:hover:not(:disabled) {
+    color: var(--antdx-color-error);
+    background: rgba(255, 77, 79, 0.10);
+}
+
+.antdx-sender-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.antdx-sender-header-content,
+.antdx-sender-prefix,
+.antdx-sender-suffix {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.antdx-sender-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--antdx-text-tertiary);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.antdx-sender-icon-button:hover {
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.08);
+}
+
+.antdx-sender-textarea-autosize {
+    resize: none;
+    overflow: hidden;
+}
+
+.antdx-sender-custom-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.antdx-sender-footer-collapsed {
+    justify-content: flex-end;
+}
+
+.antdx-sender-suffix {
+    color: var(--antdx-text-secondary);
+    font-size: 13px;
+}
+
+.antdx-attachments-disabled {
+    opacity: 0.65;
+}
+
+.antdx-attachments-uploadable .antdx-attachments-empty,
+.antdx-attachments-uploadable .antdx-attachments-upload {
+    transition: border-color var(--antdx-motion), background var(--antdx-motion), color var(--antdx-motion);
+}
+
+.antdx-attachments-drag-over .antdx-attachments-empty,
+.antdx-attachments-drag-over .antdx-attachments-upload {
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.08);
+    border-color: rgba(22, 119, 255, 0.55);
+}
+
+.antdx-markdown-code-highlighter .antdx-code {
+    margin: 12px 0;
+}
+
+.antdx-mermaid-header {
+    align-items: center;
+}
+
+.antdx-mermaid-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.antdx-mermaid-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    color: var(--antdx-text-tertiary);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.antdx-mermaid-action:hover {
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.08);
+}
+
+.antdx-mermaid-action-active {
+    color: var(--antdx-color-primary);
+    background: rgba(22, 119, 255, 0.12);
+}
+
+.antdx-mermaid-code-mode .antdx-code {
+    margin: 0;
+    border: 0;
+    border-radius: 0 0 var(--antdx-radius-md) var(--antdx-radius-md);
+}
+
 @media (max-width: 900px) {
     .antdx-shell {
         grid-template-columns: 1fr;

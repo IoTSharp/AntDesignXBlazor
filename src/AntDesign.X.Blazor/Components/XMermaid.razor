@@ -7,40 +7,94 @@
     {
         <figcaption class="antdx-mermaid-header">
             <span>@Title</span>
+            @if (AllowRenderTypeToggle)
+            {
+                <span class="antdx-mermaid-actions">
+                    <button type="button"
+                            class="@RenderTypeButtonClass(XMermaidRenderType.Image)"
+                            title="Render diagram"
+                            @onclick="() => SetRenderType(XMermaidRenderType.Image)">
+                        <XIcon Type="picture" />
+                    </button>
+                    <button type="button"
+                            class="@RenderTypeButtonClass(XMermaidRenderType.Code)"
+                            title="Show source"
+                            @onclick="() => SetRenderType(XMermaidRenderType.Code)">
+                        <XIcon Type="code" />
+                    </button>
+                </span>
+            }
         </figcaption>
     }
-    <div class="antdx-mermaid-canvas" @ref="Canvas">@Definition</div>
+
+    @if (RenderType == XMermaidRenderType.Code)
+    {
+        <XCodeHighlighter Language="mermaid"
+                          Code="@Definition"
+                          ShowHeader="false" />
+    }
+    else
+    {
+        <div class="antdx-mermaid-canvas" @ref="Canvas">@Definition</div>
+    }
 </figure>
 
 @code {
     private IJSObjectReference? _module;
 
+    [CascadingParameter] public XProvider? Provider { get; set; }
     [Parameter] public string? Definition { get; set; }
     [Parameter] public string Title { get; set; } = "Mermaid";
     [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public string? Theme { get; set; }
+    [Parameter] public bool SyncTheme { get; set; } = true;
+    [Parameter] public IReadOnlyDictionary<string, object?>? Config { get; set; }
+    [Parameter] public XMermaidRenderType RenderType { get; set; }
+    [Parameter] public EventCallback<XMermaidRenderType> RenderTypeChanged { get; set; }
+    [Parameter] public bool AllowRenderTypeToggle { get; set; } = true;
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
     private ElementReference Canvas { get; set; }
-    private string ClassName => XCss.Combine("antdx-mermaid", Class);
+    private string ResolvedTheme => !string.IsNullOrWhiteSpace(Theme)
+        ? Theme
+        : SyncTheme && Provider?.IsDark == true ? "dark" : "default";
+
+    private string ClassName => XCss.Combine(
+        "antdx-mermaid",
+        $"antdx-mermaid-theme-{ResolvedTheme.ToLowerInvariant()}",
+        RenderType == XMermaidRenderType.Code ? "antdx-mermaid-code-mode" : null,
+        Class);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (RenderType == XMermaidRenderType.Code)
+        {
+            return;
+        }
+
         try
         {
-            if (firstRender)
+            if (_module is null)
             {
                 _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AntDesign.X.Blazor/js/antdesign-x-module.js");
             }
 
             if (_module is not null)
             {
-                await _module.InvokeVoidAsync("renderMermaid", Canvas, Definition);
+                await _module.InvokeVoidAsync("renderMermaid", Canvas, Definition, new
+                {
+                    theme = ResolvedTheme,
+                    config = Config,
+                });
             }
         }
         catch (JSException)
         {
-            // Static SSR and disconnected circuits keep the source text fallback.
+            // Static SSR, prerender, missing Mermaid runtime, and disconnected circuits keep the source text fallback.
+        }
+        catch (InvalidOperationException)
+        {
         }
     }
 
@@ -50,5 +104,18 @@
         {
             await _module.DisposeAsync();
         }
+    }
+
+    private async Task SetRenderType(XMermaidRenderType renderType)
+    {
+        RenderType = renderType;
+        await RenderTypeChanged.InvokeAsync(renderType);
+    }
+
+    private string RenderTypeButtonClass(XMermaidRenderType renderType)
+    {
+        return XCss.Combine(
+            "antdx-mermaid-action",
+            RenderType == renderType ? "antdx-mermaid-action-active" : null);
     }
 }

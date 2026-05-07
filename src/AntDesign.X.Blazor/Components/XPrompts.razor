@@ -15,45 +15,27 @@
     <div class="antdx-prompts-list">
         @foreach (var item in Items)
         {
-            <button type="button"
-                    class="@PromptClass(item)"
-                    disabled="@item.Disabled"
-                    @onclick="() => Select(item)">
-                <span class="antdx-prompt-icon">
-                    <XIcon Type="@item.Icon" />
-                </span>
-                <span class="antdx-prompt-main">
-                    <span class="antdx-prompt-title">@item.Title</span>
-                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                    {
-                        <span class="antdx-prompt-description">@item.Description</span>
-                    }
-                    @if (item.Children.Count > 0)
-                    {
-                        <span class="antdx-prompt-children">
-                            @foreach (var child in item.Children)
-                            {
-                                <span>@child.Title</span>
-                            }
-                        </span>
-                    }
-                </span>
-                @if (!string.IsNullOrWhiteSpace(item.Tag))
-                {
-                    <span class="antdx-prompt-tag">@item.Tag</span>
-                }
-            </button>
+            @RenderPrompt(item, 0)
         }
     </div>
 </section>
 
 @code {
+    private bool _initializedExpanded;
+    private HashSet<string> _expandedKeys = new(StringComparer.OrdinalIgnoreCase);
+
     [Parameter] public IReadOnlyList<XPromptItem> Items { get; set; } = Array.Empty<XPromptItem>();
     [Parameter] public string? Title { get; set; }
     [Parameter] public bool Wrap { get; set; } = true;
     [Parameter] public bool Vertical { get; set; }
+    [Parameter] public bool Expandable { get; set; } = true;
+    [Parameter] public bool ExpandAllByDefault { get; set; } = true;
+    [Parameter] public IReadOnlyList<string>? ExpandedKeys { get; set; }
+    [Parameter] public IReadOnlyList<string> DefaultExpandedKeys { get; set; } = Array.Empty<string>();
     [Parameter] public RenderFragment? ExtraTemplate { get; set; }
     [Parameter] public EventCallback<XPromptItem> OnSelect { get; set; }
+    [Parameter] public EventCallback<XPromptItem> OnItemClick { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<string>> ExpandedKeysChanged { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
@@ -63,13 +45,180 @@
         Vertical ? "antdx-prompts-vertical" : null,
         Class);
 
+    protected override void OnParametersSet()
+    {
+        if (!_initializedExpanded)
+        {
+            _initializedExpanded = true;
+            _expandedKeys = DefaultExpandedKeys.Count > 0
+                ? DefaultExpandedKeys.ToHashSet(StringComparer.OrdinalIgnoreCase)
+                : ExpandAllByDefault
+                    ? CollectExpandableKeys(Items).ToHashSet(StringComparer.OrdinalIgnoreCase)
+                    : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    private RenderFragment RenderPrompt(XPromptItem item, int level) => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", XCss.Combine("antdx-prompt-node", level > 0 ? "antdx-prompt-node-child" : null));
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-prompt-row");
+
+        builder.OpenElement(seq++, "button");
+        builder.AddAttribute(seq++, "type", "button");
+        builder.AddAttribute(seq++, "class", PromptClass(item));
+        builder.AddAttribute(seq++, "disabled", item.Disabled);
+        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => Select(item)));
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-prompt-icon");
+        builder.OpenComponent<XIcon>(seq++);
+        builder.AddAttribute(seq++, "Type", item.Icon);
+        builder.CloseComponent();
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-prompt-main");
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-prompt-title");
+        builder.AddContent(seq++, item.Title);
+        builder.CloseElement();
+
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-prompt-description");
+            builder.AddContent(seq++, item.Description);
+            builder.CloseElement();
+        }
+
+        if (!Expandable && item.Children.Count > 0)
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-prompt-children");
+            foreach (var child in item.Children)
+            {
+                builder.OpenElement(seq++, "span");
+                builder.AddContent(seq++, child.Title);
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+
+        if (!string.IsNullOrWhiteSpace(item.Tag))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-prompt-tag");
+            builder.AddContent(seq++, item.Tag);
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+
+        if (Expandable && item.Children.Count > 0)
+        {
+            builder.OpenElement(seq++, "button");
+            builder.AddAttribute(seq++, "type", "button");
+            builder.AddAttribute(seq++, "class", "antdx-prompt-expand");
+            builder.AddAttribute(seq++, "title", IsExpanded(item) ? "Collapse" : "Expand");
+            builder.AddAttribute(seq++, "aria-expanded", IsExpanded(item));
+            builder.AddAttribute(seq++, "disabled", item.Disabled);
+            builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => ToggleExpand(item)));
+            builder.AddMarkupContent(seq++, IsExpanded(item) ? "&#9650;" : "&#9660;");
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+
+        if (Expandable && item.Children.Count > 0 && IsExpanded(item))
+        {
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "antdx-prompt-children-panel");
+            foreach (var child in item.Children)
+            {
+                builder.AddContent(seq++, RenderPrompt(child, level + 1));
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
     private static string PromptClass(XPromptItem item)
     {
         return XCss.Combine("antdx-prompt", item.Disabled ? "antdx-prompt-disabled" : null);
     }
 
-    private Task Select(XPromptItem item)
+    private bool IsExpanded(XPromptItem item)
     {
-        return OnSelect.InvokeAsync(item);
+        if (!Expandable || item.Children.Count == 0)
+        {
+            return false;
+        }
+
+        if (ExpandedKeys is not null)
+        {
+            return ExpandedKeys.Contains(item.Key);
+        }
+
+        return _expandedKeys.Contains(item.Key);
+    }
+
+    private async Task ToggleExpand(XPromptItem item)
+    {
+        if (item.Children.Count == 0)
+        {
+            return;
+        }
+
+        var target = ExpandedKeys is not null
+            ? ExpandedKeys.ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : _expandedKeys;
+
+        if (!target.Add(item.Key))
+        {
+            target.Remove(item.Key);
+        }
+
+        if (ExpandedKeys is null)
+        {
+            _expandedKeys = target;
+        }
+
+        await ExpandedKeysChanged.InvokeAsync(target.ToArray());
+    }
+
+    private async Task Select(XPromptItem item)
+    {
+        if (item.Disabled)
+        {
+            return;
+        }
+
+        await OnSelect.InvokeAsync(item);
+        await OnItemClick.InvokeAsync(item);
+    }
+
+    private static IEnumerable<string> CollectExpandableKeys(IEnumerable<XPromptItem> items)
+    {
+        foreach (var item in items)
+        {
+            if (item.Children.Count > 0)
+            {
+                yield return item.Key;
+
+                foreach (var child in CollectExpandableKeys(item.Children))
+                {
+                    yield return child;
+                }
+            }
+        }
     }
 }

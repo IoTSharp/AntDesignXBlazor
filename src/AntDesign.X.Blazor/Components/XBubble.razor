@@ -1,6 +1,6 @@
 @namespace AntDesign.X.Components
 
-<article class="@ClassName" style="@Style">
+<article class="@ClassName" style="@Style" data-role="@Role">
     @if (AvatarTemplate is not null)
     {
         <div class="antdx-bubble-avatar">@AvatarTemplate</div>
@@ -13,6 +13,11 @@
     }
 
     <div class="antdx-bubble-body">
+        @if (ShouldRenderFooterBefore)
+        {
+            @RenderFooter()
+        }
+
         @if (HeaderTemplate is not null)
         {
             <div class="antdx-bubble-header">@HeaderTemplate</div>
@@ -23,17 +28,24 @@
         }
 
         <div class="antdx-bubble-content">
-            @if (Loading)
+            @if (IsLoading)
             {
-                <div class="antdx-bubble-typing" aria-label="Loading">
-                    <span></span><span></span><span></span>
-                </div>
+                if (LoadingTemplate is not null)
+                {
+                    @LoadingTemplate
+                }
+                else
+                {
+                    <div class="antdx-bubble-typing" aria-label="Loading">
+                        <span></span><span></span><span></span>
+                    </div>
+                }
             }
             else if (ContentTemplate is not null)
             {
                 @ContentTemplate
             }
-            else if (Markdown && !string.IsNullOrWhiteSpace(Content))
+            else if (RenderMarkdown && !string.IsNullOrWhiteSpace(Content))
             {
                 <XMarkdown Content="@Content" />
             }
@@ -50,22 +62,24 @@
                           Removable="false" />
         }
 
-        @if (FooterTemplate is not null)
+        @if (ExtraTemplate is not null)
         {
-            <div class="antdx-bubble-footer">@FooterTemplate</div>
+            <div class="antdx-bubble-extra">@ExtraTemplate</div>
         }
-        else if (Actions.Count > 0)
+
+        @if (ShouldRenderFooterAfter)
         {
-            <XActions Items="@Actions"
-                      Size="small"
-                      OnAction="@OnAction" />
+            @RenderFooter()
         }
     </div>
 </article>
 
 @code {
-    [Parameter] public XBubblePlacement Placement { get; set; } = XBubblePlacement.Start;
-    [Parameter] public XBubbleVariant Variant { get; set; }
+    [Parameter] public string? Role { get; set; }
+    [Parameter] public XBubblePlacement? Placement { get; set; } = XBubblePlacement.Start;
+    [Parameter] public XBubbleVariant? Variant { get; set; }
+    [Parameter] public XBubbleShape? Shape { get; set; }
+    [Parameter] public XBubbleFooterPlacement? FooterPlacement { get; set; }
     [Parameter] public string? AvatarIcon { get; set; }
     [Parameter] public string? AvatarUrl { get; set; }
     [Parameter] public RenderFragment? AvatarTemplate { get; set; }
@@ -73,19 +87,61 @@
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public string? Content { get; set; }
     [Parameter] public RenderFragment? ContentTemplate { get; set; }
+    [Parameter] public RenderFragment? ExtraTemplate { get; set; }
     [Parameter] public RenderFragment? FooterTemplate { get; set; }
+    [Parameter] public RenderFragment? LoadingTemplate { get; set; }
     [Parameter] public IReadOnlyList<XAttachmentItem> Attachments { get; set; } = Array.Empty<XAttachmentItem>();
     [Parameter] public IReadOnlyList<XActionItem> Actions { get; set; } = Array.Empty<XActionItem>();
     [Parameter] public EventCallback<string> OnAction { get; set; }
-    [Parameter] public bool Loading { get; set; }
-    [Parameter] public bool Markdown { get; set; }
+    [Parameter] public bool? Loading { get; set; }
+    [Parameter] public bool? Markdown { get; set; }
+    [Parameter] public bool? Streaming { get; set; }
+    [Parameter] public XMessageStatus? Status { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
+    private XBubblePlacement EffectivePlacement => Placement ?? XBubblePlacement.Start;
+    private XBubbleVariant EffectiveVariant => Variant ?? XBubbleVariant.Filled;
+    private XBubbleShape EffectiveShape => Shape ?? XBubbleShape.Default;
+    private XBubbleFooterPlacement EffectiveFooterPlacement => FooterPlacement ?? XBubbleFooterPlacement.OuterEnd;
+    private bool RenderMarkdown => Markdown == true;
+    private bool IsLoading => Loading == true || Status == XMessageStatus.Loading;
+    private bool HasFooter => FooterTemplate is not null || Actions.Count > 0;
+    private bool ShouldRenderFooterBefore => HasFooter &&
+        (EffectiveFooterPlacement == XBubbleFooterPlacement.OuterStart ||
+         EffectiveFooterPlacement == XBubbleFooterPlacement.InnerStart);
+    private bool ShouldRenderFooterAfter => HasFooter && !ShouldRenderFooterBefore;
+
     private string ClassName => XCss.Combine(
         "antdx-bubble",
-        $"antdx-bubble-{Placement.ToString().ToLowerInvariant()}",
-        $"antdx-bubble-{Variant.ToString().ToLowerInvariant()}",
-        Loading ? "antdx-bubble-loading" : null,
+        $"antdx-bubble-{EffectivePlacement.ToString().ToLowerInvariant()}",
+        $"antdx-bubble-{EffectiveVariant.ToString().ToLowerInvariant()}",
+        $"antdx-bubble-shape-{EffectiveShape.ToString().ToLowerInvariant()}",
+        $"antdx-bubble-footer-{EffectiveFooterPlacement.ToString().ToLowerInvariant()}",
+        IsLoading ? "antdx-bubble-loading" : null,
+        Streaming == true ? "antdx-bubble-streaming" : null,
+        Status is null ? null : $"antdx-bubble-status-{Status.Value.ToString().ToLowerInvariant()}",
         Class);
+
+    private RenderFragment RenderFooter() => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-bubble-footer");
+
+        if (FooterTemplate is not null)
+        {
+            builder.AddContent(seq++, FooterTemplate);
+        }
+        else if (Actions.Count > 0)
+        {
+            builder.OpenComponent<XActions>(seq++);
+            builder.AddAttribute(seq++, "Items", Actions);
+            builder.AddAttribute(seq++, "Size", "small");
+            builder.AddAttribute(seq++, "OnAction", OnAction);
+            builder.CloseComponent();
+        }
+
+        builder.CloseElement();
+    };
 }

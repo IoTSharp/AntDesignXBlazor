@@ -1,4 +1,5 @@
 using AntDesign;
+using AntDesign.X;
 using AntDesign.X.Blazor.Demo.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddAntDesign();
+builder.Services.AddAntDesignX();
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
 @namespace AntDesign.X.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
 
-<section class="@ClassName" style="@Style" aria-live="@AriaLive">
+<section class="@ClassName" style="@Style" aria-live="@AriaLive" @ref="Root">
     @if (HeaderTemplate is not null)
     {
         <div class="antdx-bubble-list-header">@HeaderTemplate</div>
@@ -12,19 +14,37 @@
         {
             @ItemTemplate(item)
         }
+        else if (IsDivider(item))
+        {
+            <div class="@DividerClass(item)">
+                <span>@ResolveHeader(item)</span>
+            </div>
+        }
         else
         {
-            <XBubble Placement="@item.Placement"
-                     Variant="@item.Variant"
-                     AvatarIcon="@item.AvatarIcon"
-                     AvatarUrl="@item.AvatarUrl"
+            <XBubble Role="@item.Role"
+                     Placement="@ResolvePlacement(item)"
+                     Variant="@ResolveVariant(item)"
+                     Shape="@ResolveShape(item)"
+                     FooterPlacement="@ResolveFooterPlacement(item)"
+                     AvatarIcon="@ResolveAvatarIcon(item)"
+                     AvatarUrl="@ResolveAvatarUrl(item)"
+                     AvatarTemplate="@ResolveAvatarTemplate(item)"
                      Header="@ResolveHeader(item)"
+                     HeaderTemplate="@ResolveHeaderTemplate(item)"
                      Content="@item.Content"
                      ContentTemplate="@item.ContentTemplate"
-                     Loading="@item.Loading"
-                     Markdown="@Markdown"
+                     ExtraTemplate="@ResolveExtraTemplate(item)"
+                     FooterTemplate="@ResolveFooterTemplate(item)"
+                     Loading="@ResolveLoading(item)"
+                     LoadingTemplate="@ResolveLoadingTemplate(item)"
+                     Markdown="@ResolveMarkdown(item)"
+                     Streaming="@ResolveStreaming(item)"
+                     Status="@ResolveStatus(item)"
                      Attachments="@item.Attachments"
                      Actions="@item.Actions"
+                     Class="@ResolveClass(item)"
+                     Style="@ResolveStyle(item)"
                      OnAction="@OnAction" />
         }
     }
@@ -40,12 +60,58 @@
 </section>
 
 @code {
+    private static readonly IReadOnlyDictionary<string, XBubbleRoleConfig> DefaultRoleConfigs =
+        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["assistant"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Filled,
+                Shape = XBubbleShape.Round,
+                Markdown = true,
+            },
+            ["ai"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Filled,
+                Shape = XBubbleShape.Round,
+                Markdown = true,
+            },
+            ["user"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.End,
+                Variant = XBubbleVariant.Filled,
+                Shape = XBubbleShape.Corner,
+                Markdown = true,
+            },
+            ["system"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Outlined,
+                Shape = XBubbleShape.Default,
+                Markdown = true,
+            },
+            ["tool"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Borderless,
+                Shape = XBubbleShape.Default,
+                Markdown = true,
+            },
+        };
+
+    private IJSObjectReference? _module;
+    private ElementReference Root;
+    private bool _scrollPending = true;
+
     [Parameter] public IReadOnlyList<XBubbleItem> Items { get; set; } = Array.Empty<XBubbleItem>();
     [Parameter] public bool Markdown { get; set; } = true;
     [Parameter] public bool Loading { get; set; }
     [Parameter] public string LoadingHeader { get; set; } = "Assistant";
     [Parameter] public string LoadingAvatarIcon { get; set; } = "robot";
     [Parameter] public XBubbleVariant LoadingVariant { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, XBubbleRoleConfig> RoleConfigs { get; set; } = new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase);
+    [Parameter] public bool AutoScroll { get; set; } = true;
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public RenderFragment<XBubbleItem>? ItemTemplate { get; set; }
     [Parameter] public EventCallback<string> OnAction { get; set; }
@@ -55,8 +121,203 @@
 
     private string ClassName => XCss.Combine("antdx-bubble-list", Class);
 
-    private static string? ResolveHeader(XBubbleItem item)
+    protected override void OnParametersSet()
     {
-        return string.IsNullOrWhiteSpace(item.Header) ? item.Role : item.Header;
+        _scrollPending = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AntDesign.X.Blazor/js/antdesign-x-module.js");
+            }
+            catch (JSException)
+            {
+                return;
+            }
+            catch (InvalidOperationException)
+            {
+                return;
+            }
+        }
+
+        if (AutoScroll && _scrollPending && _module is not null)
+        {
+            _scrollPending = false;
+            try
+            {
+                await _module.InvokeVoidAsync("scrollToBottom", Root);
+            }
+            catch (JSException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+
+    private bool IsDivider(XBubbleItem item)
+    {
+        return string.Equals(item.Role, "divider", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string DividerClass(XBubbleItem item)
+    {
+        return XCss.Combine("antdx-bubble-divider", ResolveClass(item));
+    }
+
+    private string? ResolveHeader(XBubbleItem item)
+    {
+        return item.Header ?? item.RoleLabel ?? ResolveRoleConfig(item.Role)?.Header ?? item.Role;
+    }
+
+    private XBubblePlacement ResolvePlacement(XBubbleItem item)
+    {
+        return item.Placement
+            ?? ResolveRoleConfig(item.Role)?.Placement
+            ?? (string.Equals(item.Role, "user", StringComparison.OrdinalIgnoreCase) ? XBubblePlacement.End : XBubblePlacement.Start);
+    }
+
+    private XBubbleVariant ResolveVariant(XBubbleItem item)
+    {
+        return item.Variant
+            ?? ResolveRoleConfig(item.Role)?.Variant
+            ?? XBubbleVariant.Filled;
+    }
+
+    private XBubbleShape ResolveShape(XBubbleItem item)
+    {
+        return item.Shape
+            ?? ResolveRoleConfig(item.Role)?.Shape
+            ?? XBubbleShape.Default;
+    }
+
+    private XBubbleFooterPlacement ResolveFooterPlacement(XBubbleItem item)
+    {
+        return item.FooterPlacement
+            ?? ResolveRoleConfig(item.Role)?.FooterPlacement
+            ?? XBubbleFooterPlacement.OuterEnd;
+    }
+
+    private string? ResolveAvatarIcon(XBubbleItem item)
+    {
+        return item.AvatarIcon ?? ResolveRoleConfig(item.Role)?.AvatarIcon;
+    }
+
+    private string? ResolveAvatarUrl(XBubbleItem item)
+    {
+        return item.AvatarUrl ?? ResolveRoleConfig(item.Role)?.AvatarUrl;
+    }
+
+    private RenderFragment? ResolveAvatarTemplate(XBubbleItem item)
+    {
+        return item.AvatarTemplate ?? ResolveRoleConfig(item.Role)?.AvatarTemplate;
+    }
+
+    private RenderFragment? ResolveHeaderTemplate(XBubbleItem item)
+    {
+        return item.HeaderTemplate ?? ResolveRoleConfig(item.Role)?.HeaderTemplate;
+    }
+
+    private RenderFragment? ResolveExtraTemplate(XBubbleItem item)
+    {
+        return item.ExtraTemplate ?? ResolveRoleConfig(item.Role)?.ExtraTemplate;
+    }
+
+    private RenderFragment? ResolveFooterTemplate(XBubbleItem item)
+    {
+        return item.FooterTemplate ?? ResolveRoleConfig(item.Role)?.FooterTemplate;
+    }
+
+    private bool ResolveLoading(XBubbleItem item)
+    {
+        return item.Loading ?? ResolveRoleConfig(item.Role)?.Loading ?? false;
+    }
+
+    private RenderFragment? ResolveLoadingTemplate(XBubbleItem item)
+    {
+        return null;
+    }
+
+    private bool ResolveMarkdown(XBubbleItem item)
+    {
+        return item.Markdown ?? ResolveRoleConfig(item.Role)?.Markdown ?? Markdown;
+    }
+
+    private bool ResolveStreaming(XBubbleItem item)
+    {
+        return item.Streaming ?? ResolveRoleConfig(item.Role)?.Streaming ?? false;
+    }
+
+    private XMessageStatus? ResolveStatus(XBubbleItem item)
+    {
+        return item.Status;
+    }
+
+    private string? ResolveClass(XBubbleItem item)
+    {
+        return XCss.Combine(item.Class, ResolveRoleConfig(item.Role)?.Class);
+    }
+
+    private string? ResolveStyle(XBubbleItem item)
+    {
+        return XCss.CombineStyles(ResolveRoleConfig(item.Role)?.Style, item.Style);
+    }
+
+    private XBubbleRoleConfig? ResolveRoleConfig(string? role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return null;
+        }
+
+        DefaultRoleConfigs.TryGetValue(role, out var defaultConfig);
+        RoleConfigs.TryGetValue(role, out var customConfig);
+        return Merge(defaultConfig, customConfig);
+    }
+
+    private static XBubbleRoleConfig? Merge(XBubbleRoleConfig? fallback, XBubbleRoleConfig? overrideConfig)
+    {
+        if (fallback is null)
+        {
+            return overrideConfig;
+        }
+
+        if (overrideConfig is null)
+        {
+            return fallback;
+        }
+
+        return new XBubbleRoleConfig
+        {
+            Placement = overrideConfig.Placement ?? fallback.Placement,
+            Variant = overrideConfig.Variant ?? fallback.Variant,
+            Shape = overrideConfig.Shape ?? fallback.Shape,
+            FooterPlacement = overrideConfig.FooterPlacement ?? fallback.FooterPlacement,
+            AvatarIcon = overrideConfig.AvatarIcon ?? fallback.AvatarIcon,
+            AvatarUrl = overrideConfig.AvatarUrl ?? fallback.AvatarUrl,
+            AvatarTemplate = overrideConfig.AvatarTemplate ?? fallback.AvatarTemplate,
+            Header = overrideConfig.Header ?? fallback.Header,
+            HeaderTemplate = overrideConfig.HeaderTemplate ?? fallback.HeaderTemplate,
+            ExtraTemplate = overrideConfig.ExtraTemplate ?? fallback.ExtraTemplate,
+            FooterTemplate = overrideConfig.FooterTemplate ?? fallback.FooterTemplate,
+            Loading = overrideConfig.Loading ?? fallback.Loading,
+            Markdown = overrideConfig.Markdown ?? fallback.Markdown,
+            Streaming = overrideConfig.Streaming ?? fallback.Streaming,
+            Class = overrideConfig.Class ?? fallback.Class,
+            Style = overrideConfig.Style ?? fallback.Style,
+        };
     }
 }

@@ -54,6 +54,39 @@ internal static class XCss
         return builder.ToString();
     }
 
+    public static string CombineStyles(params string?[] values)
+    {
+        var builder = new StringBuilder();
+
+        foreach (var value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            var trimmed = value.Trim();
+            if (trimmed.Length == 0)
+            {
+                continue;
+            }
+
+            if (builder.Length > 0 && builder[builder.Length - 1] != ';')
+            {
+                builder.Append(';');
+            }
+
+            builder.Append(trimmed);
+
+            if (builder[builder.Length - 1] != ';')
+            {
+                builder.Append(';');
+            }
+        }
+
+        return builder.ToString();
+    }
+
     public static MarkupString Markdown(string? markdown)
     {
         if (string.IsNullOrWhiteSpace(markdown))

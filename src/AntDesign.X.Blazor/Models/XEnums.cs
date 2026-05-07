@@ -14,6 +14,21 @@ public enum XBubbleVariant
     Shadow = 3,
 }
 
+public enum XBubbleShape
+{
+    Default = 0,
+    Round = 1,
+    Corner = 2,
+}
+
+public enum XBubbleFooterPlacement
+{
+    OuterStart = 0,
+    OuterEnd = 1,
+    InnerStart = 2,
+    InnerEnd = 3,
+}
+
 public enum XSemanticStatus
 {
     Default = 0,
@@ -21,6 +36,16 @@ public enum XSemanticStatus
     Success = 2,
     Warning = 3,
     Error = 4,
+}
+
+public enum XMessageStatus
+{
+    Local = 0,
+    Loading = 1,
+    Updating = 2,
+    Success = 3,
+    Error = 4,
+    Abort = 5,
 }
 
 public enum XFileCardStatus
@@ -50,5 +75,12 @@ public enum XNotificationPlacement
 public enum XSenderSubmitMode
 {
     Enter = 0,
-    ModEnter = 1,
+    ShiftEnter = 1,
+    ModEnter = 2,
+}
+
+public enum XMermaidRenderType
+{
+    Image = 0,
+    Code = 1,
 }

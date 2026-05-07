@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="app.css" />
     <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode()" />
 </head>
 
 <body>
-    <Routes @rendermode="InteractiveServer" />
+    <Routes @rendermode="new InteractiveServerRenderMode()" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 

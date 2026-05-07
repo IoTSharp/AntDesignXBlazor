@@ -13,6 +13,26 @@ public sealed record XActionItem
     public RenderFragment? Template { get; init; }
 }
 
+public sealed record XBubbleRoleConfig
+{
+    public XBubblePlacement? Placement { get; init; }
+    public XBubbleVariant? Variant { get; init; }
+    public XBubbleShape? Shape { get; init; }
+    public XBubbleFooterPlacement? FooterPlacement { get; init; }
+    public string? AvatarIcon { get; init; }
+    public string? AvatarUrl { get; init; }
+    public RenderFragment? AvatarTemplate { get; init; }
+    public string? Header { get; init; }
+    public RenderFragment? HeaderTemplate { get; init; }
+    public RenderFragment? ExtraTemplate { get; init; }
+    public RenderFragment? FooterTemplate { get; init; }
+    public bool? Loading { get; init; }
+    public bool? Markdown { get; init; }
+    public bool? Streaming { get; init; }
+    public string? Class { get; init; }
+    public string? Style { get; init; }
+}
+
 public sealed record XAttachmentItem
 {
     public string Id { get; init; } = Guid.NewGuid().ToString("N");
@@ -36,9 +56,22 @@ public sealed record XBubbleItem
     public RenderFragment? ContentTemplate { get; init; }
     public string? AvatarIcon { get; init; }
     public string? AvatarUrl { get; init; }
-    public XBubblePlacement Placement { get; init; }
-    public XBubbleVariant Variant { get; init; }
-    public bool Loading { get; init; }
+    public RenderFragment? AvatarTemplate { get; init; }
+    public string? RoleLabel { get; init; }
+    public RenderFragment? HeaderTemplate { get; init; }
+    public RenderFragment? ExtraTemplate { get; init; }
+    public RenderFragment? FooterTemplate { get; init; }
+    public XBubblePlacement? Placement { get; init; }
+    public XBubbleVariant? Variant { get; init; }
+    public XBubbleShape? Shape { get; init; }
+    public XBubbleFooterPlacement? FooterPlacement { get; init; }
+    public bool? Loading { get; init; }
+    public bool? Markdown { get; init; }
+    public bool? Streaming { get; init; }
+    public XMessageStatus? Status { get; init; }
+    public string? Class { get; init; }
+    public string? Style { get; init; }
+    public IReadOnlyDictionary<string, object?>? ExtraInfo { get; init; }
     public IReadOnlyList<XAttachmentItem> Attachments { get; init; } = Array.Empty<XAttachmentItem>();
     public IReadOnlyList<XActionItem> Actions { get; init; } = Array.Empty<XActionItem>();
 }
@@ -47,6 +80,7 @@ public sealed record XConversationItem
 {
     public string Key { get; init; } = Guid.NewGuid().ToString("N");
     public string Title { get; init; } = string.Empty;
+    public string? Label { get; init; }
     public string? Description { get; init; }
     public string? Icon { get; init; }
     public string? Group { get; init; }
@@ -104,12 +138,27 @@ public sealed record XNotificationItem
     public string? Icon { get; init; }
     public XSemanticStatus Status { get; init; }
     public bool Closable { get; init; } = true;
+    public string? Tag { get; init; }
+    public TimeSpan? Duration { get; init; }
+    public DateTimeOffset? CreatedAt { get; init; }
 }
 
 public sealed record XSenderRequest
 {
     public string Text { get; init; } = string.Empty;
     public IReadOnlyList<XAttachmentItem> Attachments { get; init; } = Array.Empty<XAttachmentItem>();
+}
+
+public sealed record XConversationRenameRequest
+{
+    public string Key { get; init; } = string.Empty;
+    public string Title { get; init; } = string.Empty;
+}
+
+public sealed record XConversationActionRequest
+{
+    public string ConversationKey { get; init; } = string.Empty;
+    public string ActionKey { get; init; } = string.Empty;
 }
 
 public sealed record XThemeTokens

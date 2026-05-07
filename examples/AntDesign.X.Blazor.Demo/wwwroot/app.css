@@ -159,6 +159,14 @@ body {
     border-radius: 14px;
 }
 
+.demo-sender-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+}
+
 .demo-code-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

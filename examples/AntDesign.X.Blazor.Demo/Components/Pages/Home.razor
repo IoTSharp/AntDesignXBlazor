@@ -1,4 +1,5 @@
 @page "/"
+@inject IXNotificationService NotificationService
 
 <section class="demo-hero">
     <div class="demo-kicker">Ant Design X 2.x for Blazor</div>
@@ -13,17 +14,24 @@
                         ActiveKey="@ActiveConversation"
                         ActiveKeyChanged="@SetActiveConversation"
                         Title="Conversations"
-                        Extra="Blazor" />
+                        Extra="Blazor"
+                        SortTemplate="@ConversationSortTemplate"
+                        MenuItems="@ConversationMenuItems"
+                        OnMenuAction="@HandleConversationMenuAction"
+                        OnDelete="@HandleConversationDelete"
+                        OnRename="@HandleConversationRename" />
         <div class="demo-chat-main">
             <XWelcome Title="Ant Design X Blazor"
                       Description="保持 Ant Design X 的对话产品语义，用纯 Blazor 和 AntDesign.Blazor 交付。"
                       Icon="robot">
                 <XPrompts Items="@Prompts"
                           Wrap="true"
-                          OnSelect="@UsePrompt" />
+                          ExpandAllByDefault="true"
+                          OnItemClick="@UsePrompt" />
             </XWelcome>
             <div class="demo-chat-scroll">
                 <XBubbleList Items="@Messages"
+                             RoleConfigs="@BubbleRoleConfigs"
                              Loading="@Loading"
                              OnAction="@HandleMessageAction" />
             </div>
@@ -31,8 +39,20 @@
                      Attachments="@DraftAttachments"
                      Actions="@SenderActions"
                      Loading="@Loading"
+                     AutoSize="true"
+                     ClearAfterSubmit="true"
+                     Clearable="true"
+                     HeaderVisible="true"
+                     HeaderTemplate="@SenderHeaderTemplate"
+                     HeaderCollapsible="true"
+                     FooterCollapsible="true"
+                     SubmitMode="XSenderSubmitMode.Enter"
+                     AttachmentsPastable="true"
+                     AttachmentsDragHover="true"
+                     BeforeUpload="@BeforeUpload"
                      OnSubmit="@Submit"
                      OnCancel="@Stop"
+                     OnClear="@ClearDraft"
                      OnAction="@HandleSenderAction"
                      OnFilesSelected="@AddFiles"
                      OnAttachmentRemove="@RemoveAttachment" />
@@ -66,6 +86,9 @@
         <XAttachments Title="Attachments"
                       Items="@DraftAttachments"
                       UploadEnabled="true"
+                      DragHover="true"
+                      Pastable="true"
+                      BeforeUpload="@BeforeUpload"
                       OnFilesSelected="@AddFiles"
                       OnRemove="@RemoveAttachment" />
         <XSuggestion Query="@Draft"
@@ -83,6 +106,9 @@
                   OnAction="@HandleMessageAction" />
     </div>
     <XNotification Items="@Notifications"
+                   Placement="XNotificationPlacement.TopRight"
+                   MaxCount="4"
+                   DefaultDuration="@TimeSpan.FromSeconds(4)"
                    OnClose="@CloseNotification" />
 </section>
 
@@ -107,31 +133,79 @@
     private string ActiveFolder { get; set; } = "components";
     private string? Draft { get; set; }
     private bool Loading { get; set; }
+    private bool ConversationSortDescending { get; set; } = true;
 
     private readonly List<XAttachmentItem> DraftAttachments = [];
     private readonly List<XNotificationItem> Notifications =
     [
-        new() { Key = "hello", Title = "Ready", Description = "Demo application is interactive.", Status = XSemanticStatus.Success }
+        new() { Key = "hello", Title = "Ready", Description = "Demo application is interactive.", Status = XSemanticStatus.Success, CreatedAt = DateTimeOffset.UtcNow }
     ];
+    private readonly List<XConversationItem> ConversationItems =
+    [
+        new() { Key = "intro", Group = "Today", Title = "Ant Design X Blazor", Description = "组件总览", Icon = "message", Count = 3, UpdatedAt = DateTimeOffset.UtcNow.AddMinutes(-12) },
+        new() { Key = "sender", Group = "Today", Title = "Sender patterns", Description = "附件、停止、快捷发送", Icon = "edit", UpdatedAt = DateTimeOffset.UtcNow.AddMinutes(-31) },
+        new() { Key = "display", Group = "Earlier", Title = "Display primitives", Description = "来源、思考链、文件卡片", Icon = "appstore", UpdatedAt = DateTimeOffset.UtcNow.AddHours(-5) }
+    ];
+    private readonly List<XBubbleItem> MessageItems = [];
 
     private IReadOnlyList<XConversationItem> Conversations =>
-    [
-        new() { Key = "intro", Group = "Today", Title = "Ant Design X Blazor", Description = "组件总览", Icon = "message", Count = 3 },
-        new() { Key = "sender", Group = "Today", Title = "Sender patterns", Description = "附件、停止、快捷发送", Icon = "edit" },
-        new() { Key = "display", Group = "Earlier", Title = "Display primitives", Description = "来源、思考链、文件卡片", Icon = "appstore" }
-    ];
+        ConversationSortDescending
+            ? ConversationItems.OrderByDescending(item => item.UpdatedAt ?? DateTimeOffset.MinValue).ToArray()
+            : ConversationItems.OrderBy(item => item.UpdatedAt ?? DateTimeOffset.MinValue).ToArray();
 
     private IReadOnlyList<XPromptItem> Prompts =>
     [
-        new() { Key = "build", Title = "生成工作台", Description = "组合 Conversations + BubbleList + Sender", Icon = "thunderbolt", Tag = "Chat" },
-        new() { Key = "rag", Title = "解释 RAG", Description = "展示 Sources、Think 与 ThoughtChain", Icon = "experiment", Tag = "RAG" },
-        new() { Key = "files", Title = "处理附件", Description = "使用 Attachments 和 FileCard", Icon = "paper-clip", Tag = "Files" }
+        new()
+        {
+            Key = "build",
+            Title = "生成工作台",
+            Description = "组合 Conversations + BubbleList + Sender",
+            Icon = "thunderbolt",
+            Tag = "Chat",
+            Children =
+            [
+                new() { Key = "build-chat", Title = "Chat flow", Description = "消息流和输入编排" },
+                new() { Key = "build-files", Title = "File flow", Description = "附件、状态和预览" }
+            ]
+        },
+        new()
+        {
+            Key = "rag",
+            Title = "解释 RAG",
+            Description = "展示 Sources、Think 与 ThoughtChain",
+            Icon = "experiment",
+            Tag = "RAG",
+            Children =
+            [
+                new() { Key = "rag-memory", Title = "Memory", Description = "上下文和引用" },
+                new() { Key = "rag-eval", Title = "Evaluation", Description = "查看推理链路" }
+            ]
+        },
+        new()
+        {
+            Key = "files",
+            Title = "处理附件",
+            Description = "使用 Attachments 和 FileCard",
+            Icon = "paper-clip",
+            Tag = "Files",
+            Children =
+            [
+                new() { Key = "files-drop", Title = "Drag & drop", Description = "拖拽时高亮上传区" },
+                new() { Key = "files-paste", Title = "Paste file", Description = "从剪贴板接文件" }
+            ]
+        }
     ];
 
     private IReadOnlyList<XActionItem> SenderActions =>
     [
         new() { Key = "voice", Label = "Voice", Icon = "audio", Tooltip = "Voice input" },
         new() { Key = "image", Label = "Image", Icon = "picture", Tooltip = "Image generation" }
+    ];
+
+    private IReadOnlyList<XActionItem> SenderHeaderActions =>
+    [
+        new() { Key = "context", Icon = "folder", Tooltip = "Context" },
+        new() { Key = "pin", Icon = "pushpin", Tooltip = "Pin draft" }
     ];
 
     private IReadOnlyList<XActionItem> MessageActions =>
@@ -141,39 +215,136 @@
         new() { Key = "like", Label = "Like", Icon = "like" }
     ];
 
-    private IReadOnlyList<XBubbleItem> Messages =>
+    private IReadOnlyList<XActionItem> ConversationMenuItems =>
     [
-        new()
-        {
-            Key = "m1",
-            Role = "Assistant",
-            Header = "Ant Design X",
-            AvatarIcon = "robot",
-            Placement = XBubblePlacement.Start,
-            Content = "你好，我是 **Ant Design X Blazor** 示例。下面这些组件可以直接组合成 AI 工作台。",
-            Actions = MessageActions
-        },
-        new()
-        {
-            Key = "m2",
-            Role = "You",
-            AvatarIcon = "user",
-            Placement = XBubblePlacement.End,
-            Content = "请演示附件、来源和思考链。"
-        },
-        new()
-        {
-            Key = "m3",
-            Role = "Assistant",
-            Header = "Composer",
-            AvatarIcon = "robot",
-            Placement = XBubblePlacement.Start,
-            Variant = XBubbleVariant.Shadow,
-            Content = "可以。`XSender` 负责输入，`XAttachments` 展示草稿文件，`XThoughtChain` 呈现推理步骤，`XSources` 呈现引用来源。",
-            Attachments = new[] { DoneFile },
-            Actions = MessageActions
-        }
+        new() { Key = "archive", Icon = "inbox", Tooltip = "Archive" },
+        new() { Key = "pin", Icon = "pushpin", Tooltip = "Pin" }
     ];
+
+    private IReadOnlyList<XActionItem> ConversationSortActions =>
+    [
+        new() { Key = "newest", Icon = "sort-ascending", Tooltip = "Newest first" },
+        new() { Key = "oldest", Icon = "sort-descending", Tooltip = "Oldest first" }
+    ];
+
+    private IReadOnlyDictionary<string, XBubbleRoleConfig> BubbleRoleConfigs =>
+        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["assistant"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Filled,
+                Shape = XBubbleShape.Round,
+                AvatarIcon = "robot",
+                Header = "Assistant",
+                Markdown = true,
+            },
+            ["user"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.End,
+                Variant = XBubbleVariant.Outlined,
+                Shape = XBubbleShape.Corner,
+                AvatarIcon = "user",
+                Header = "You",
+                Markdown = true,
+            },
+            ["system"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Borderless,
+                Shape = XBubbleShape.Default,
+                Header = "System",
+                Markdown = true,
+            },
+            ["divider"] = new XBubbleRoleConfig
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Borderless,
+                Shape = XBubbleShape.Default,
+            }
+        };
+
+    private IReadOnlyList<XBubbleItem> Messages => MessageItems;
+
+    private RenderFragment SenderHeaderTemplate => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "demo-sender-header");
+        builder.OpenElement(2, "span");
+        builder.AddContent(3, "Composer");
+        builder.CloseElement();
+        builder.OpenComponent<XActions>(4);
+        builder.AddAttribute(5, "Items", SenderHeaderActions);
+        builder.AddAttribute(6, "IconOnly", true);
+        builder.AddAttribute(7, "Size", "small");
+        builder.AddAttribute(8, "OnAction", EventCallback.Factory.Create<string>(this, HandleSenderHeaderAction));
+        builder.CloseComponent();
+        builder.CloseElement();
+    };
+
+    private RenderFragment ConversationSortTemplate => builder =>
+    {
+        builder.OpenComponent<XActions>(0);
+        builder.AddAttribute(1, "Items", ConversationSortActions);
+        builder.AddAttribute(2, "IconOnly", true);
+        builder.AddAttribute(3, "OnAction", EventCallback.Factory.Create<string>(this, HandleConversationSortAction));
+        builder.CloseComponent();
+    };
+
+    protected override void OnInitialized()
+    {
+        if (MessageItems.Count == 0)
+        {
+            SeedMessages();
+        }
+    }
+
+    private void SeedMessages()
+    {
+        MessageItems.AddRange(
+        [
+            new()
+            {
+                Key = "system",
+                Role = "system",
+                Content = "System ready. Try sending a message or opening the action menus.",
+                Status = XMessageStatus.Local
+            },
+            new()
+            {
+                Key = "m1",
+                Role = "assistant",
+                Header = "Ant Design X",
+                Placement = XBubblePlacement.Start,
+                Content = "你好，我是 **Ant Design X Blazor** 示例。下面这些组件可以直接组合成 AI 工作台。",
+                Actions = MessageActions
+            },
+            new()
+            {
+                Key = "divider-today",
+                Role = "divider",
+                Header = "Today"
+            },
+            new()
+            {
+                Key = "m2",
+                Role = "user",
+                Placement = XBubblePlacement.End,
+                Content = "请演示附件、来源和思考链。"
+            },
+            new()
+            {
+                Key = "m3",
+                Role = "assistant",
+                Header = "Composer",
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Shadow,
+                Content = "可以。`XSender` 负责输入，`XAttachments` 展示草稿文件，`XThoughtChain` 呈现推理步骤，`XSources` 呈现引用来源。",
+                Attachments = new[] { DoneFile },
+                Actions = MessageActions
+            }
+        ]);
+    }
 
     private IReadOnlyList<XThoughtItem> Thoughts =>
     [
@@ -235,6 +406,10 @@
         - 支持常规 Markdown
         - 可嵌入在 `XBubble` 内
         - 适合作为 AI 输出渲染层
+
+        ```csharp
+        var draft = await sender.SubmitAsync();
+        ```
         """;
 
     private string MermaidDefinition => """
@@ -246,24 +421,43 @@
         """;
 
     private string BubbleCode => """
-        <XBubble Placement="XBubblePlacement.Start"
-                 AvatarIcon="robot"
-                 Header="Assistant"
-                 Content="Hello from Ant Design X Blazor"
-                 Markdown="true" />
+        <XBubbleList Items="@Messages"
+                     RoleConfigs="@BubbleRoleConfigs" />
         """;
 
     private string SenderCode => """
-        <XSender @bind-Value="draft"
-                 Attachments="files"
-                 OnSubmit="HandleSubmit"
-                 OnFilesSelected="HandleFiles" />
+        <XSender @bind-Value="@Draft"
+                 AutoSize="true"
+                 ClearAfterSubmit="true"
+                 HeaderCollapsible="true"
+                 FooterCollapsible="true"
+                 SubmitMode="XSenderSubmitMode.Enter"
+                 Attachments="@DraftAttachments"
+                 OnSubmit="@Submit"
+                 OnFilesSelected="@AddFiles" />
         """;
 
-    private Task UsePrompt(XPromptItem prompt)
+    private async Task UsePrompt(XPromptItem prompt)
     {
         Draft = prompt.Title;
-        return Task.CompletedTask;
+        await NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Prompt: {prompt.Title}",
+            Description = prompt.Description,
+            Status = XSemanticStatus.Success
+        });
+    }
+
+    private async Task HandleSenderHeaderAction(string key)
+    {
+        await NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Header action: {key}",
+            Description = "Sender header action invoked.",
+            Status = XSemanticStatus.Default
+        });
     }
 
     private Task SetActiveConversation(string key)
@@ -281,21 +475,46 @@
     private async Task Submit(XSenderRequest request)
     {
         Loading = true;
-        Notifications.Insert(0, new XNotificationItem
+        MessageItems.Add(new XBubbleItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Role = "user",
+            Placement = XBubblePlacement.End,
+            Content = request.Text,
+            Attachments = request.Attachments.Select(item => item with { }).ToArray(),
+            Status = XMessageStatus.Local
+        });
+        TouchConversation(ActiveConversation, request.Text);
+        await NotificationService.OpenAsync(new XNotificationItem
         {
             Key = Guid.NewGuid().ToString("N"),
             Title = "Submitted",
             Description = request.Text,
             Status = XSemanticStatus.Processing
         });
-        Draft = string.Empty;
         await Task.Delay(650);
+        MessageItems.Add(new XBubbleItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Role = "assistant",
+            Placement = XBubblePlacement.Start,
+            Header = "Composer",
+            Content = $"收到 {request.Attachments.Count} 个附件，已准备继续处理。",
+            Actions = MessageActions
+        });
         Loading = false;
     }
 
     private Task Stop()
     {
         Loading = false;
+        return Task.CompletedTask;
+    }
+
+    private Task ClearDraft()
+    {
+        Draft = string.Empty;
+        DraftAttachments.Clear();
         return Task.CompletedTask;
     }
 
@@ -317,6 +536,25 @@
         return Task.CompletedTask;
     }
 
+    private ValueTask<bool> BeforeUpload(IBrowserFile file)
+    {
+        const long MaxFileSize = 5 * 1024 * 1024;
+        if (file.Size <= MaxFileSize)
+        {
+            return ValueTask.FromResult(true);
+        }
+
+        _ = NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = "File skipped",
+            Description = $"{file.Name} is larger than 5 MB.",
+            Status = XSemanticStatus.Warning
+        });
+
+        return ValueTask.FromResult(false);
+    }
+
     private Task RemoveAttachment(string id)
     {
         DraftAttachments.RemoveAll(item => item.Id == id);
@@ -325,31 +563,112 @@
 
     private Task HandleSenderAction(string key)
     {
-        Notifications.Insert(0, new XNotificationItem
+        return NotificationService.OpenAsync(new XNotificationItem
         {
             Key = Guid.NewGuid().ToString("N"),
             Title = $"Action: {key}",
             Description = "Sender action invoked.",
             Status = XSemanticStatus.Default
         });
-        return Task.CompletedTask;
     }
 
     private Task HandleMessageAction(string key)
     {
-        Notifications.Insert(0, new XNotificationItem
+        return NotificationService.OpenAsync(new XNotificationItem
         {
             Key = Guid.NewGuid().ToString("N"),
             Title = $"Message action: {key}",
             Description = "Bubble action invoked.",
             Status = XSemanticStatus.Success
         });
-        return Task.CompletedTask;
     }
 
     private Task CloseNotification(string key)
     {
         Notifications.RemoveAll(item => item.Key == key);
         return Task.CompletedTask;
+    }
+
+    private Task HandleConversationMenuAction(XConversationActionRequest request)
+    {
+        return NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = $"Conversation action: {request.ActionKey}",
+            Description = request.ConversationKey,
+            Status = XSemanticStatus.Default
+        });
+    }
+
+    private Task HandleConversationDelete(XConversationItem item)
+    {
+        ConversationItems.RemoveAll(value => value.Key == item.Key);
+        if (ActiveConversation == item.Key)
+        {
+            ActiveConversation = ConversationItems.FirstOrDefault()?.Key ?? string.Empty;
+        }
+
+        return NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = "Conversation deleted",
+            Description = item.Title,
+            Status = XSemanticStatus.Warning
+        });
+    }
+
+    private Task HandleConversationRename(XConversationRenameRequest request)
+    {
+        var index = ConversationItems.FindIndex(item => item.Key == request.Key);
+        if (index >= 0)
+        {
+            ConversationItems[index] = ConversationItems[index] with
+            {
+                Title = request.Title,
+                UpdatedAt = DateTimeOffset.UtcNow,
+            };
+        }
+
+        return NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = "Conversation renamed",
+            Description = request.Title,
+            Status = XSemanticStatus.Success
+        });
+    }
+
+    private Task HandleConversationSortAction(string key)
+    {
+        ConversationSortDescending = !string.Equals(key, "oldest", StringComparison.OrdinalIgnoreCase);
+        return NotificationService.OpenAsync(new XNotificationItem
+        {
+            Key = Guid.NewGuid().ToString("N"),
+            Title = "Conversation sorted",
+            Description = ConversationSortDescending ? "Newest first" : "Oldest first",
+            Status = XSemanticStatus.Default
+        });
+    }
+
+    private void TouchConversation(string key, string? preview)
+    {
+        var index = ConversationItems.FindIndex(item => item.Key == key);
+        if (index < 0)
+        {
+            return;
+        }
+
+        var current = ConversationItems[index];
+        var description = string.IsNullOrWhiteSpace(preview)
+            ? current.Description
+            : preview.Length > 48
+                ? $"{preview[..48]}..."
+                : preview;
+        ConversationItems[index] = current with
+        {
+            Count = (current.Count ?? 0) + 1,
+            UpdatedAt = DateTimeOffset.UtcNow,
+            Description = description,
+        };
     }
 }

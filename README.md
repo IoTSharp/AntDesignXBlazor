@@ -50,6 +50,13 @@ external/AntDesignXBlazor/
 <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
 ```
 
+```csharp
+using AntDesign.X;
+
+builder.Services.AddAntDesign();
+builder.Services.AddAntDesignX();
+```
+
 如需 `XMermaid`：
 
 ```html
@@ -122,21 +129,21 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 
 | 官方能力 | Blazor 门面 | 当前状态 |
 | --- | --- | --- |
-| Bubble / Bubble.List | `XBubble` / `XBubbleList` | 已实现 |
-| Sender | `XSender` | 已实现基础输入、附件、停止、动作 |
-| Conversations | `XConversations` | 已实现分组、激活、计数 |
-| Prompts | `XPrompts` | 已实现卡片与选择 |
-| Attachments / FileCard | `XAttachments` / `XFileCard` | 已实现选择、列表、移除、状态 |
+| Bubble / Bubble.List | `XBubble` / `XBubbleList` | 已实现基础渲染、role config、divider、auto scroll |
+| Sender | `XSender` | 已实现输入、附件、停止、动作、autoSize、clear、折叠 |
+| Conversations | `XConversations` | 已实现分组、激活、计数、菜单、重命名、删除、排序 |
+| Prompts | `XPrompts` | 已实现卡片、嵌套展开与选择 |
+| Attachments / FileCard | `XAttachments` / `XFileCard` | 已实现选择、列表、移除、beforeUpload、目录、拖拽、粘贴 |
 | Welcome | `XWelcome` | 已实现 |
 | Actions | `XActions` | 已实现 |
 | Suggestion | `XSuggestion` | 已实现过滤与选择 |
 | ThoughtChain / Think | `XThoughtChain` / `XThink` | 已实现 |
 | Sources | `XSources` | 已实现 |
 | Folder | `XFolder` | 已实现 |
-| Notification | `XNotification` | 已实现 |
-| XMarkdown | `XMarkdown` | 已实现 Markdig 渲染 |
+| Notification | `XNotification` | 已实现列表渲染、队列宿主与全局服务 |
+| XMarkdown | `XMarkdown` | 已实现 Markdig 渲染与 code fence 高亮委托 |
 | CodeHighlighter | `XCodeHighlighter` | 已实现代码框与复制 |
-| Mermaid | `XMermaid` | 已实现 Mermaid 可选渲染与 fallback |
+| Mermaid | `XMermaid` | 已实现 Mermaid 渲染、主题跟随、代码/图切换与 fallback |
 | XProvider | `XProvider` | 已实现主题 token 门面 |
 | XRequest / XStream / useXChat / useXAgent | 待设计为 Blazor services/hooks-like patterns | 路线图中 |
 

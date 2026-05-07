@@ -1,7 +1,9 @@
 @namespace AntDesign.X.Components
+@implements IDisposable
+@inject IServiceProvider ServiceProvider
 
 <section class="@ClassName" style="@Style" aria-live="polite">
-    @foreach (var item in Items)
+    @foreach (var item in DisplayItems)
     {
         <article class="@ItemClass(item)">
             <span class="antdx-notification-icon">
@@ -13,13 +15,17 @@
                 {
                     <span class="antdx-notification-description">@item.Description</span>
                 }
+                @if (!string.IsNullOrWhiteSpace(item.Tag))
+                {
+                    <span class="antdx-notification-tag">@item.Tag</span>
+                }
             </span>
             @if (item.Closable)
             {
                 <button type="button"
                         class="antdx-notification-close"
                         title="Close"
-                        @onclick="() => OnClose.InvokeAsync(item.Key)">
+                        @onclick="() => HandleClose(item.Key)">
                     <XIcon Type="close" />
                 </button>
             }
@@ -28,8 +34,12 @@
 </section>
 
 @code {
+    private IXNotificationService? _service;
+
     [Parameter] public IReadOnlyList<XNotificationItem> Items { get; set; } = Array.Empty<XNotificationItem>();
     [Parameter] public XNotificationPlacement Placement { get; set; }
+    [Parameter] public int? MaxCount { get; set; } = 5;
+    [Parameter] public TimeSpan DefaultDuration { get; set; } = TimeSpan.FromSeconds(4.5);
     [Parameter] public EventCallback<string> OnClose { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
@@ -38,6 +48,86 @@
         "antdx-notification",
         $"antdx-notification-{Placement.ToString().ToLowerInvariant()}",
         Class);
+
+    private IReadOnlyList<XNotificationItem> DisplayItems
+    {
+        get
+        {
+            var merged = new List<XNotificationItem>(Items);
+            if (_service is not null)
+            {
+                merged.AddRange(_service.Items);
+            }
+
+            return merged
+                .GroupBy(item => item.Key)
+                .Select(group => group.Last())
+                .OrderByDescending(item => item.CreatedAt ?? DateTimeOffset.MinValue)
+                .ToArray();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _service = ServiceProvider.GetService(typeof(IXNotificationService)) as IXNotificationService;
+        if (_service is not null)
+        {
+            _service.Changed += HandleServiceChanged;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        _service?.Configure(MaxCount, DefaultDuration);
+    }
+
+    public async Task OpenAsync(XNotificationItem item)
+    {
+        if (_service is null)
+        {
+            return;
+        }
+
+        await _service.OpenAsync(item);
+    }
+
+    public async Task ClearAsync()
+    {
+        if (_service is null)
+        {
+            return;
+        }
+
+        await _service.ClearAsync();
+    }
+
+    public void Dispose()
+    {
+        if (_service is not null)
+        {
+            _service.Changed -= HandleServiceChanged;
+        }
+    }
+
+    private Task HandleClose(string key)
+    {
+        return HandleCloseAsync(key);
+    }
+
+    private async Task HandleCloseAsync(string key)
+    {
+        if (_service is not null && _service.Items.Any(item => item.Key == key))
+        {
+            await _service.CloseAsync(key);
+        }
+
+        await OnClose.InvokeAsync(key);
+    }
+
+    private void HandleServiceChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
 
     private static string ItemClass(XNotificationItem item)
     {

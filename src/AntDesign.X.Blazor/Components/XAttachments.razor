@@ -1,6 +1,8 @@
 @namespace AntDesign.X.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
 
-<section class="@ClassName" style="@Style">
+<section class="@ClassName" style="@Style" @ref="Root">
     @if (HeaderTemplate is not null)
     {
         <div class="antdx-attachments-header">@HeaderTemplate</div>
@@ -21,7 +23,12 @@
         <label class="antdx-attachments-empty">
             @if (UploadEnabled)
             {
-                <InputFile class="antdx-attachments-input" multiple="@Multiple" OnChange="@HandleFiles" />
+                <InputFile class="antdx-attachments-input"
+                           multiple="@Multiple"
+                           disabled="@Disabled"
+                           accept="@Accept"
+                           AdditionalAttributes="@InputAttributes"
+                           OnChange="@HandleFiles" />
             }
             <XIcon Type="inbox" />
             <span>@Placeholder</span>
@@ -43,7 +50,12 @@
     @if (UploadEnabled && Items.Count > 0)
     {
         <label class="antdx-attachments-upload">
-            <InputFile class="antdx-attachments-input" multiple="@Multiple" OnChange="@HandleFiles" />
+            <InputFile class="antdx-attachments-input"
+                       multiple="@Multiple"
+                       disabled="@Disabled"
+                       accept="@Accept"
+                       AdditionalAttributes="@InputAttributes"
+                       OnChange="@HandleFiles" />
             <XIcon Type="paper-clip" />
             <span>@UploadText</span>
         </label>
@@ -51,6 +63,10 @@
 </section>
 
 @code {
+    private IJSObjectReference? _module;
+    private IJSObjectReference? _dropZone;
+    private ElementReference Root;
+
     [Parameter] public IReadOnlyList<XAttachmentItem> Items { get; set; } = Array.Empty<XAttachmentItem>();
     [Parameter] public string? Title { get; set; }
     [Parameter] public string Placeholder { get; set; } = "Drop files here or click to upload";
@@ -59,6 +75,13 @@
     [Parameter] public bool Multiple { get; set; } = true;
     [Parameter] public bool Compact { get; set; }
     [Parameter] public bool Removable { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Directory { get; set; }
+    [Parameter] public bool DragHover { get; set; } = true;
+    [Parameter] public bool Pastable { get; set; } = true;
+    [Parameter] public string? Accept { get; set; }
+    [Parameter] public int? MaxCount { get; set; }
+    [Parameter] public Func<IBrowserFile, ValueTask<bool>>? BeforeUpload { get; set; }
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> OnFilesSelected { get; set; }
     [Parameter] public EventCallback<string> OnRemove { get; set; }
@@ -67,13 +90,74 @@
 
     private string ClassName => XCss.Combine(
         "antdx-attachments",
-        Compact ? "antdx-attachments-compact" : null,
         UploadEnabled ? "antdx-attachments-uploadable" : null,
+        Disabled ? "antdx-attachments-disabled" : null,
+        DragHover ? "antdx-attachments-draghover" : null,
         Class);
 
-    private Task HandleFiles(InputFileChangeEventArgs args)
+    private IDictionary<string, object>? InputAttributes =>
+        Directory
+            ? new Dictionary<string, object>
+            {
+                ["webkitdirectory"] = true,
+                ["directory"] = true,
+            }
+            : null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles();
-        return OnFilesSelected.InvokeAsync(files);
+        if (firstRender && (DragHover || Pastable))
+        {
+            try
+            {
+                _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AntDesign.X.Blazor/js/antdesign-x-module.js");
+                _dropZone = await _module.InvokeAsync<IJSObjectReference>("wireAttachmentDropZone", Root, DragHover, Pastable, Disabled);
+            }
+            catch (JSException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_dropZone is not null)
+        {
+            await _dropZone.DisposeAsync();
+        }
+
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+
+    private async Task HandleFiles(InputFileChangeEventArgs args)
+    {
+        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles(MaxCount ?? 1000);
+
+        if (BeforeUpload is not null)
+        {
+            var accepted = new List<IBrowserFile>();
+            foreach (var file in files)
+            {
+                if (await BeforeUpload(file))
+                {
+                    accepted.Add(file);
+                }
+            }
+
+            files = accepted;
+        }
+
+        if (MaxCount is > 0)
+        {
+            files = files.Take(MaxCount.Value).ToArray();
+        }
+
+        await OnFilesSelected.InvokeAsync(files);
     }
 }

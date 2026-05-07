@@ -16,6 +16,11 @@
         </div>
     }
 
+    @if (SortTemplate is not null)
+    {
+        <div class="antdx-conversations-sort">@SortTemplate</div>
+    }
+
     @foreach (var group in Groups)
     {
         if (Groupable)
@@ -25,48 +30,134 @@
 
         foreach (var item in group)
         {
-            <button type="button"
-                    class="@ItemClass(item)"
-                    disabled="@item.Disabled"
-                    @onclick="() => Select(item.Key)">
-                <span class="antdx-conversation-icon">
-                    <XIcon Type="@item.Icon" />
-                </span>
-                <span class="antdx-conversation-main">
-                    <span class="antdx-conversation-title">@item.Title</span>
-                    @if (!string.IsNullOrWhiteSpace(item.Description))
+            <div class="antdx-conversation-item-wrap">
+                @if (_editingKey == item.Key)
+                {
+                    <div class="@EditingItemClass(item)">
+                        <input class="antdx-conversation-rename"
+                               value="@_editingValue"
+                               autofocus
+                               @oninput="HandleRenameInput"
+                               @onkeydown="HandleRenameKeyDown"
+                               @onblur="CommitRename" />
+                        <div class="antdx-conversation-item-actions">
+                            <button type="button" class="antdx-conversation-item-action" title="Save" @onclick="CommitRename">
+                                <XIcon Type="check" />
+                            </button>
+                            <button type="button" class="antdx-conversation-item-action" title="Cancel" @onclick="CancelRename">
+                                <XIcon Type="close" />
+                            </button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <button type="button"
+                            class="@ItemClass(item)"
+                            disabled="@item.Disabled"
+                            @onclick="() => Select(item.Key)">
+                        <span class="antdx-conversation-icon">
+                            <XIcon Type="@item.Icon" />
+                        </span>
+                        <span class="antdx-conversation-main">
+                            <span class="antdx-conversation-title">@ResolveTitle(item)</span>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <span class="antdx-conversation-description">@item.Description</span>
+                            }
+                        </span>
+                        @if (item.Count is not null)
+                        {
+                            <span class="antdx-conversation-count">@item.Count</span>
+                        }
+                        else if (item.UpdatedAt is not null)
+                        {
+                            <time class="antdx-conversation-time">@item.UpdatedAt.Value.ToLocalTime().ToString(TimeFormat)</time>
+                        }
+                    </button>
+
+                    @if (HasConversationActions(item))
                     {
-                        <span class="antdx-conversation-description">@item.Description</span>
+                        <div class="antdx-conversation-item-actions">
+                            @if (AllowRename)
+                            {
+                                <button type="button"
+                                        class="antdx-conversation-item-action"
+                                        title="Rename"
+                                        disabled="@item.Disabled"
+                                        @onclick="() => BeginRename(item)">
+                                    <XIcon Type="edit" />
+                                </button>
+                            }
+                            @if (AllowDelete)
+                            {
+                                <button type="button"
+                                        class="antdx-conversation-item-action antdx-conversation-item-action-danger"
+                                        title="Delete"
+                                        disabled="@item.Disabled"
+                                        @onclick="() => DeleteConversation(item)">
+                                    <XIcon Type="delete" />
+                                </button>
+                            }
+                            @foreach (var action in ResolveMenuItems(item))
+                            {
+                                <button type="button"
+                                        class="@ActionClass(action)"
+                                        title="@action.Tooltip"
+                                        disabled="@(item.Disabled || action.Disabled)"
+                                        @onclick="() => HandleMenuAction(item, action)">
+                                    @if (!string.IsNullOrWhiteSpace(action.Icon))
+                                    {
+                                        <XIcon Type="@action.Icon" />
+                                    }
+                                </button>
+                            }
+                        </div>
                     }
-                </span>
-                @if (item.Count is not null)
-                {
-                    <span class="antdx-conversation-count">@item.Count</span>
                 }
-                else if (item.UpdatedAt is not null)
-                {
-                    <time class="antdx-conversation-time">@item.UpdatedAt.Value.ToLocalTime().ToString(TimeFormat)</time>
-                }
-            </button>
+            </div>
         }
     }
 </nav>
 
 @code {
+    private string? _editingKey;
+    private string? _editingValue;
+    private bool _activeKeyInitialized;
+
     [Parameter] public IReadOnlyList<XConversationItem> Items { get; set; } = Array.Empty<XConversationItem>();
     [Parameter] public string? ActiveKey { get; set; }
+    [Parameter] public string? DefaultActiveKey { get; set; }
     [Parameter] public string? Title { get; set; }
     [Parameter] public string? Extra { get; set; }
     [Parameter] public bool Groupable { get; set; } = true;
     [Parameter] public string AriaLabel { get; set; } = "Conversations";
     [Parameter] public string TimeFormat { get; set; } = "MM-dd";
+    [Parameter] public bool AllowRename { get; set; } = true;
+    [Parameter] public bool AllowDelete { get; set; } = true;
+    [Parameter] public bool AllowMenu { get; set; } = true;
+    [Parameter] public IReadOnlyList<XActionItem> MenuItems { get; set; } = Array.Empty<XActionItem>();
+    [Parameter] public Func<XConversationItem, IReadOnlyList<XActionItem>>? MenuFactory { get; set; }
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public RenderFragment? SortTemplate { get; set; }
     [Parameter] public EventCallback<string> ActiveKeyChanged { get; set; }
     [Parameter] public EventCallback<XConversationItem> OnSelect { get; set; }
+    [Parameter] public EventCallback<XConversationItem> OnDelete { get; set; }
+    [Parameter] public EventCallback<XConversationRenameRequest> OnRename { get; set; }
+    [Parameter] public EventCallback<XConversationActionRequest> OnMenuAction { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
     private string ClassName => XCss.Combine("antdx-conversations", Class);
+
+    protected override void OnParametersSet()
+    {
+        if (!_activeKeyInitialized && string.IsNullOrWhiteSpace(ActiveKey) && !string.IsNullOrWhiteSpace(DefaultActiveKey))
+        {
+            ActiveKey = DefaultActiveKey;
+            _activeKeyInitialized = true;
+        }
+    }
 
     private IEnumerable<IGrouping<string, XConversationItem>> Groups =>
         Items.GroupBy(item => Groupable ? string.IsNullOrWhiteSpace(item.Group) ? "Recent" : item.Group : string.Empty);
@@ -79,6 +170,27 @@
             item.Disabled ? "antdx-conversation-item-disabled" : null);
     }
 
+    private string EditingItemClass(XConversationItem item)
+    {
+        return XCss.Combine(ItemClass(item), "antdx-conversation-item-editing");
+    }
+
+    private static string ResolveTitle(XConversationItem item)
+    {
+        return item.Label ?? item.Title;
+    }
+
+    private bool HasConversationActions(XConversationItem item)
+    {
+        return AllowMenu && (AllowRename || AllowDelete || ResolveMenuItems(item).Count > 0);
+    }
+
+    private IReadOnlyList<XActionItem> ResolveMenuItems(XConversationItem item)
+    {
+        var resolved = MenuFactory?.Invoke(item) ?? MenuItems;
+        return resolved ?? Array.Empty<XActionItem>();
+    }
+
     private async Task Select(string key)
     {
         var item = Items.FirstOrDefault(value => value.Key == key);
@@ -88,7 +200,109 @@
         }
 
         ActiveKey = key;
+        _editingKey = null;
+        _editingValue = null;
+
         await ActiveKeyChanged.InvokeAsync(key);
         await OnSelect.InvokeAsync(item);
+    }
+
+    private void BeginRename(XConversationItem item)
+    {
+        if (item.Disabled)
+        {
+            return;
+        }
+
+        _editingKey = item.Key;
+        _editingValue = ResolveTitle(item);
+    }
+
+    private Task HandleRenameInput(ChangeEventArgs args)
+    {
+        _editingValue = args.Value?.ToString();
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleRenameKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            await CommitRename();
+        }
+        else if (args.Key == "Escape")
+        {
+            CancelRename();
+        }
+    }
+
+    private async Task CommitRename()
+    {
+        if (string.IsNullOrWhiteSpace(_editingKey))
+        {
+            return;
+        }
+
+        var item = Items.FirstOrDefault(value => value.Key == _editingKey);
+        if (item is null)
+        {
+            CancelRename();
+            return;
+        }
+
+        var title = string.IsNullOrWhiteSpace(_editingValue) ? ResolveTitle(item) : _editingValue!;
+        _editingKey = null;
+        _editingValue = null;
+        await OnRename.InvokeAsync(new XConversationRenameRequest
+        {
+            Key = item.Key,
+            Title = title,
+        });
+    }
+
+    private void CancelRename()
+    {
+        _editingKey = null;
+        _editingValue = null;
+    }
+
+    private async Task DeleteConversation(XConversationItem item)
+    {
+        if (item.Disabled)
+        {
+            return;
+        }
+
+        _editingKey = null;
+        _editingValue = null;
+        await OnDelete.InvokeAsync(item);
+    }
+
+    private async Task HandleMenuAction(XConversationItem item, XActionItem action)
+    {
+        if (string.Equals(action.Key, "rename", StringComparison.OrdinalIgnoreCase))
+        {
+            BeginRename(item);
+            return;
+        }
+
+        if (string.Equals(action.Key, "delete", StringComparison.OrdinalIgnoreCase))
+        {
+            await DeleteConversation(item);
+            return;
+        }
+
+        await OnMenuAction.InvokeAsync(new XConversationActionRequest
+        {
+            ConversationKey = item.Key,
+            ActionKey = action.Key,
+        });
+    }
+
+    private static string ActionClass(XActionItem item)
+    {
+        return XCss.Combine(
+            "antdx-conversation-item-action",
+            item.Danger ? "antdx-conversation-item-action-danger" : null);
     }
 }

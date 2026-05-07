@@ -1,9 +1,26 @@
 @namespace AntDesign.X.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
 
 <section class="@ClassName" style="@Style">
-    @if (HeaderTemplate is not null)
+    @if (HeaderTemplate is not null && HeaderVisible)
     {
-        <div class="antdx-sender-header">@HeaderTemplate</div>
+        <div class="antdx-sender-header">
+            @if (HeaderCollapsible)
+            {
+                <button type="button"
+                        class="antdx-sender-icon-button"
+                        title="Toggle header"
+                        aria-expanded="@HeaderOpen"
+                        @onclick="ToggleHeader">
+                    <XIcon Type="@(HeaderOpen ? "up" : "down")" />
+                </button>
+            }
+            @if (HeaderOpen)
+            {
+                <div class="antdx-sender-header-content">@HeaderTemplate</div>
+            }
+        </div>
     }
 
     <div class="antdx-sender-editor">
@@ -15,6 +32,13 @@
                           Compact="true"
                           Placeholder="@AttachmentsPlaceholder"
                           UploadText="@UploadText"
+                          Disabled="@(Disabled || ReadOnly)"
+                          Directory="@Directory"
+                          Pastable="@AttachmentsPastable"
+                          DragHover="@AttachmentsDragHover"
+                          Accept="@Accept"
+                          MaxCount="@MaxAttachments"
+                          BeforeUpload="@BeforeUpload"
                           OnFilesSelected="@OnFilesSelected"
                           OnRemove="@OnAttachmentRemove" />
         }
@@ -24,122 +48,272 @@
             <div class="antdx-sender-prefix">@PrefixTemplate</div>
         }
 
-        <textarea class="antdx-sender-textarea"
+        <textarea class="@TextareaClass"
                   value="@Value"
                   placeholder="@Placeholder"
                   disabled="@Disabled"
-                  rows="@Rows"
+                  readonly="@ReadOnly"
+                  rows="@ResolvedRows"
+                  @ref="TextArea"
                   @oninput="HandleInput"
                   @onkeydown="HandleKeyDown"></textarea>
 
-        @if (FooterTemplate is not null)
+        @if (SuffixTemplate is not null)
         {
-            <div class="antdx-sender-custom-footer">@FooterTemplate</div>
+            <div class="antdx-sender-suffix">@SuffixTemplate</div>
         }
-        else
+
+        @if (FooterVisible)
         {
-            <div class="antdx-sender-footer">
-                <div class="antdx-sender-tools">
-                    @if (AttachmentsEnabled)
-                    {
-                        <label class="antdx-action">
-                            <InputFile class="antdx-sender-file-input" multiple="@Multiple" OnChange="@HandleFiles" />
-                            <XIcon Type="paper-clip" />
-                            <span>@UploadText</span>
-                        </label>
-                    }
-                    @foreach (var action in Actions)
+            @if (FooterTemplate is not null)
+            {
+                <div class="antdx-sender-custom-footer">
+                    @if (FooterCollapsible)
                     {
                         <button type="button"
-                                class="@SenderActionClass(action)"
-                                title="@action.Tooltip"
-                                disabled="@action.Disabled"
-                                @onclick="() => OnAction.InvokeAsync(action.Key)">
-                            <XIcon Type="@action.Icon" />
-                            @if (!string.IsNullOrWhiteSpace(action.Label))
-                            {
-                                <span>@action.Label</span>
-                            }
+                                class="antdx-sender-icon-button"
+                                title="Toggle footer"
+                                aria-expanded="@FooterOpen"
+                                @onclick="ToggleFooter">
+                            <XIcon Type="@(FooterOpen ? "up" : "down")" />
                         </button>
+                    }
+                    @if (FooterOpen)
+                    {
+                        @FooterTemplate
                     }
                 </div>
-                <div class="antdx-sender-submit">
-                    @if (Loading)
-                    {
+            }
+            else if (FooterOpen)
+            {
+                <div class="antdx-sender-footer">
+                    <div class="antdx-sender-tools">
+                        @if (AttachmentsEnabled)
+                        {
+                            <label class="@ToolActionClass">
+                                <InputFile class="antdx-sender-file-input"
+                                           multiple="@Multiple"
+                                           disabled="@(Disabled || ReadOnly)"
+                                           OnChange="@HandleFiles" />
+                                <XIcon Type="paper-clip" />
+                                <span>@UploadText</span>
+                            </label>
+                        }
+                        @if (Clearable && HasDraft)
+                        {
+                            <button type="button"
+                                    class="antdx-action"
+                                    title="Clear"
+                                    disabled="@(Disabled || ReadOnly || Loading)"
+                                    @onclick="Clear">
+                                <XIcon Type="close-circle" />
+                            </button>
+                        }
+                        @foreach (var action in Actions)
+                        {
+                            <button type="button"
+                                    class="@SenderActionClass(action)"
+                                    title="@action.Tooltip"
+                                    disabled="@action.Disabled"
+                                    @onclick="() => OnAction.InvokeAsync(action.Key)">
+                                <XIcon Type="@action.Icon" />
+                                @if (!string.IsNullOrWhiteSpace(action.Label))
+                                {
+                                    <span>@action.Label</span>
+                                }
+                            </button>
+                        }
+                    </div>
+                    <div class="antdx-sender-submit">
+                        @if (FooterCollapsible)
+                        {
+                            <button type="button"
+                                    class="antdx-sender-icon-button"
+                                    title="Collapse footer"
+                                    aria-expanded="@FooterOpen"
+                                    @onclick="ToggleFooter">
+                                <XIcon Type="up" />
+                            </button>
+                        }
+                        @if (Loading)
+                        {
+                            <button type="button"
+                                    class="antdx-sender-stop"
+                                    @onclick="Cancel">
+                                <XIcon Type="pause-circle" />
+                                <span>@CancelText</span>
+                            </button>
+                        }
                         <button type="button"
-                                class="antdx-sender-stop"
-                                @onclick="Cancel">
-                            <XIcon Type="pause-circle" />
-                            <span>@CancelText</span>
+                                class="antdx-sender-send"
+                                disabled="@SubmitDisabled"
+                                @onclick="Submit">
+                            <XIcon Type="@SubmitIcon" />
+                            <span>@SubmitText</span>
                         </button>
-                    }
+                    </div>
+                </div>
+            }
+            else if (FooterCollapsible)
+            {
+                <div class="antdx-sender-footer antdx-sender-footer-collapsed">
                     <button type="button"
-                            class="antdx-sender-send"
-                            disabled="@SubmitDisabled"
-                            @onclick="Submit">
-                        <XIcon Type="@SubmitIcon" />
-                        <span>@SubmitText</span>
+                            class="antdx-sender-icon-button"
+                            title="Expand footer"
+                            aria-expanded="@FooterOpen"
+                            @onclick="ToggleFooter">
+                        <XIcon Type="down" />
                     </button>
                 </div>
-            </div>
+            }
         }
     </div>
 </section>
 
 @code {
+    private IJSObjectReference? _module;
+    private ElementReference TextArea;
+
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = "Ask or input / use skills";
     [Parameter] public int Rows { get; set; } = 3;
+    [Parameter] public bool AutoSize { get; set; }
+    [Parameter] public int AutoSizeMinRows { get; set; } = 2;
+    [Parameter] public int AutoSizeMaxRows { get; set; } = 8;
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public bool SubmitWhenEmpty { get; set; }
+    [Parameter] public bool Clearable { get; set; } = true;
+    [Parameter] public bool ClearAfterSubmit { get; set; }
     [Parameter] public XSenderSubmitMode SubmitMode { get; set; }
     [Parameter] public string SubmitText { get; set; } = "Send";
     [Parameter] public string SubmitIcon { get; set; } = "send";
     [Parameter] public string CancelText { get; set; } = "Stop";
     [Parameter] public IReadOnlyList<XAttachmentItem> Attachments { get; set; } = Array.Empty<XAttachmentItem>();
     [Parameter] public bool AttachmentsEnabled { get; set; } = true;
+    [Parameter] public bool AttachmentsPastable { get; set; } = true;
+    [Parameter] public bool AttachmentsDragHover { get; set; } = true;
+    [Parameter] public bool Directory { get; set; }
     [Parameter] public bool Multiple { get; set; } = true;
+    [Parameter] public int? MaxAttachments { get; set; }
+    [Parameter] public string? Accept { get; set; }
     [Parameter] public string AttachmentsPlaceholder { get; set; } = "Drop files here or click to upload";
     [Parameter] public string UploadText { get; set; } = "Attach";
     [Parameter] public IReadOnlyList<XActionItem> Actions { get; set; } = Array.Empty<XActionItem>();
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+    [Parameter] public bool HeaderVisible { get; set; } = true;
+    [Parameter] public bool HeaderCollapsible { get; set; }
+    [Parameter] public bool HeaderOpen { get; set; } = true;
+    [Parameter] public EventCallback<bool> HeaderOpenChanged { get; set; }
     [Parameter] public RenderFragment? PrefixTemplate { get; set; }
+    [Parameter] public RenderFragment? SuffixTemplate { get; set; }
     [Parameter] public RenderFragment? FooterTemplate { get; set; }
+    [Parameter] public bool FooterVisible { get; set; } = true;
+    [Parameter] public bool FooterCollapsible { get; set; }
+    [Parameter] public bool FooterOpen { get; set; } = true;
+    [Parameter] public EventCallback<bool> FooterOpenChanged { get; set; }
+    [Parameter] public Func<IBrowserFile, ValueTask<bool>>? BeforeUpload { get; set; }
     [Parameter] public EventCallback<XSenderRequest> OnSubmit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnClear { get; set; }
     [Parameter] public EventCallback<string> OnAction { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> OnFilesSelected { get; set; }
     [Parameter] public EventCallback<string> OnAttachmentRemove { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
-    private string ClassName => XCss.Combine("antdx-sender", Loading ? "antdx-sender-loading" : null, Class);
-    private bool SubmitDisabled => Disabled || Loading || (!SubmitWhenEmpty && string.IsNullOrWhiteSpace(Value) && Attachments.Count == 0);
+    private string ClassName => XCss.Combine(
+        "antdx-sender",
+        Loading ? "antdx-sender-loading" : null,
+        AutoSize ? "antdx-sender-autosize" : null,
+        Class);
+
+    private string TextareaClass => XCss.Combine(
+        "antdx-sender-textarea",
+        AutoSize ? "antdx-sender-textarea-autosize" : null);
+
+    private int ResolvedRows => AutoSize ? Math.Max(1, AutoSizeMinRows) : Rows;
+    private bool HasDraft => !string.IsNullOrWhiteSpace(Value) || Attachments.Count > 0;
+    private bool SubmitDisabled => Disabled || ReadOnly || Loading || (!SubmitWhenEmpty && !HasDraft);
+    private string ToolActionClass => XCss.Combine("antdx-action", Disabled || ReadOnly ? "antdx-action-disabled" : null);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AntDesign.X.Blazor/js/antdesign-x-module.js");
+            }
+            catch (JSException)
+            {
+                return;
+            }
+            catch (InvalidOperationException)
+            {
+                return;
+            }
+        }
+
+        await ResizeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
 
     private async Task HandleInput(ChangeEventArgs args)
     {
         Value = args.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
+        await ResizeAsync();
     }
 
-    private Task HandleFiles(InputFileChangeEventArgs args)
+    private async Task HandleFiles(InputFileChangeEventArgs args)
     {
-        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles();
-        return OnFilesSelected.InvokeAsync(files);
+        IReadOnlyList<IBrowserFile> files = args.GetMultipleFiles(MaxAttachments ?? 1000);
+
+        if (BeforeUpload is not null)
+        {
+            var accepted = new List<IBrowserFile>();
+            foreach (var file in files)
+            {
+                if (await BeforeUpload(file))
+                {
+                    accepted.Add(file);
+                }
+            }
+
+            files = accepted;
+        }
+
+        if (MaxAttachments is > 0)
+        {
+            files = files.Take(MaxAttachments.Value).ToArray();
+        }
+
+        await OnFilesSelected.InvokeAsync(files);
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        if (Disabled || Loading)
+        if (Disabled || ReadOnly || Loading)
         {
             return;
         }
 
-        var shouldSubmit = SubmitMode == XSenderSubmitMode.Enter
-            ? args.Key == "Enter" && !args.ShiftKey
-            : args.Key == "Enter" && (args.CtrlKey || args.MetaKey);
+        var shouldSubmit = SubmitMode switch
+        {
+            XSenderSubmitMode.ShiftEnter => args.Key == "Enter" && args.ShiftKey,
+            XSenderSubmitMode.ModEnter => args.Key == "Enter" && (args.CtrlKey || args.MetaKey),
+            _ => args.Key == "Enter" && !args.ShiftKey,
+        };
 
         if (shouldSubmit && !SubmitDisabled)
         {
@@ -159,11 +333,55 @@
             Text = Value ?? string.Empty,
             Attachments = Attachments,
         });
+
+        if (ClearAfterSubmit)
+        {
+            await Clear();
+        }
     }
 
     private Task Cancel()
     {
         return OnCancel.InvokeAsync();
+    }
+
+    private async Task Clear()
+    {
+        Value = string.Empty;
+        await ValueChanged.InvokeAsync(Value);
+        await OnClear.InvokeAsync();
+        await ResizeAsync();
+    }
+
+    private async Task ToggleHeader()
+    {
+        HeaderOpen = !HeaderOpen;
+        await HeaderOpenChanged.InvokeAsync(HeaderOpen);
+    }
+
+    private async Task ToggleFooter()
+    {
+        FooterOpen = !FooterOpen;
+        await FooterOpenChanged.InvokeAsync(FooterOpen);
+    }
+
+    private async Task ResizeAsync()
+    {
+        if (!AutoSize || _module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _module.InvokeVoidAsync("autoSizeTextarea", TextArea, AutoSizeMinRows, AutoSizeMaxRows);
+        }
+        catch (JSException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 
     private static string SenderActionClass(XActionItem item)

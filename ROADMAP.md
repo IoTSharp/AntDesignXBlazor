@@ -44,15 +44,15 @@ Blazor 实现策略：
 
 ## 里程碑 B：官方 API 对齐
 
-- [ ] 对照官方 2.x 文档补齐每个组件的参数表和命名别名
-- [ ] 为 `XBubble` 增加官方 roles 风格的 role config 映射
-- [ ] 为 `XSender` 增加 header/footer 折叠、clear、autoSize 细节
-- [ ] 为 `XAttachments` 增加 beforeUpload、directory、drag hover、paste file
-- [ ] 为 `XPrompts` 增加 nested prompt 展开体验
-- [ ] 为 `XConversations` 增加菜单动作、重命名、删除、排序 slot
-- [ ] 为 `XNotification` 增加队列、duration、全局 service
-- [ ] 为 `XMarkdown` 增加代码块自动委托给 `XCodeHighlighter`
-- [ ] 为 `XMermaid` 增加主题同步和服务端 prerender 安全策略
+- [x] 对照官方 2.x 文档补齐每个组件的参数表和命名别名
+- [x] 为 `XBubble` 增加官方 roles 风格的 role config 映射
+- [x] 为 `XSender` 增加 header/footer 折叠、clear、autoSize 细节
+- [x] 为 `XAttachments` 增加 beforeUpload、directory、drag hover、paste file
+- [x] 为 `XPrompts` 增加 nested prompt 展开体验
+- [x] 为 `XConversations` 增加菜单动作、重命名、删除、排序 slot
+- [x] 为 `XNotification` 增加队列、duration、全局 service
+- [x] 为 `XMarkdown` 增加代码块自动委托给 `XCodeHighlighter`
+- [x] 为 `XMermaid` 增加主题同步和服务端 prerender安全策略
 
 ## 里程碑 C：Blazor X SDK
 
