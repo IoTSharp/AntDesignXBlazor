@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AntDesign.X</RootNamespace>
+    <AssemblyName>AntDesign.X.Blazor</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>AntDesign.X.Blazor</PackageId>
+    <Description>Ant Design X 视觉与组件在 Blazor 端的实现，与 AntDesign.Blazor 协同。</Description>
+    <Authors>IoTSharp</Authors>
+    <PackageProjectUrl>https://github.com/IoTSharp/AntDesignXBlazor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IoTSharp/AntDesignXBlazor</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Blazor;AntDesign;AntDesignX;AI;Chat</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.5" />
+    <PackageReference Include="AntDesign" Version="1.6.0" />
+  </ItemGroup>
+
+</Project>

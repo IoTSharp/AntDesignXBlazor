@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AntDesign.X.Blazor/AntDesign.X.Blazor.csproj" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="README.md" />
+    <File Path="LICENSE" />
+  </Folder>
+</Solution>

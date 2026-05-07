@@ -1,0 +1,69 @@
+@namespace AntDesign.X.Components
+
+<div class="antdx-bubble antdx-bubble-@(Placement.ToString().ToLowerInvariant())@(Loading ? " antdx-bubble-loading" : "")">
+    @if (AvatarTemplate is not null)
+    {
+        <div class="antdx-bubble-avatar">@AvatarTemplate</div>
+    }
+    else if (!string.IsNullOrEmpty(AvatarIcon))
+    {
+        <div class="antdx-bubble-avatar">
+            <Icon Type="@AvatarIcon" Theme="IconThemeType.Outline" />
+        </div>
+    }
+
+    <div class="antdx-bubble-body">
+        @if (HeaderTemplate is not null)
+        {
+            <div class="antdx-bubble-header">@HeaderTemplate</div>
+        }
+        else if (!string.IsNullOrEmpty(Header))
+        {
+            <div class="antdx-bubble-header">@Header</div>
+        }
+
+        <div class="antdx-bubble-content">
+            @if (Loading)
+            {
+                <div class="antdx-bubble-typing">
+                    <span></span><span></span><span></span>
+                </div>
+            }
+            else
+            {
+                @ContentTemplate
+            }
+        </div>
+
+        @if (FooterTemplate is not null)
+        {
+            <div class="antdx-bubble-footer">@FooterTemplate</div>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Bubble placement: Start (assistant) or End (user).</summary>
+    [Parameter] public XBubblePlacement Placement { get; set; } = XBubblePlacement.Start;
+
+    /// <summary>Avatar icon name (AntDesign Icon Type), e.g. "robot" or "user".</summary>
+    [Parameter] public string? AvatarIcon { get; set; }
+
+    /// <summary>Custom avatar render fragment. Overrides AvatarIcon.</summary>
+    [Parameter] public RenderFragment? AvatarTemplate { get; set; }
+
+    /// <summary>Plain-text header (e.g. role label).</summary>
+    [Parameter] public string? Header { get; set; }
+
+    /// <summary>Custom header render fragment. Overrides Header.</summary>
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+
+    /// <summary>Bubble main content.</summary>
+    [Parameter] public RenderFragment? ContentTemplate { get; set; }
+
+    /// <summary>Optional footer (toolbar / actions).</summary>
+    [Parameter] public RenderFragment? FooterTemplate { get; set; }
+
+    /// <summary>Whether to show typing indicator instead of content.</summary>
+    [Parameter] public bool Loading { get; set; }
+}

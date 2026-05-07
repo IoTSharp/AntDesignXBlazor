@@ -1,0 +1,147 @@
+/*
+ * AntDesign.X.Blazor — Ant Design X 视觉令牌与基础组件样式
+ *
+ * 设计目标：
+ *   1. 与 AntDesign.Blazor (ant-design-blazor.css) 协同：复用其颜色、字体、阴影令牌；
+ *      只在它没有的"对话原语"层补充 X 专属语义类（antdx-*）。
+ *   2. 不污染消费方的命名空间：所有类一律以 `antdx-` 开头。
+ *   3. 支持 Light / Dark：依赖宿主页面在 <html> 上设置 data-theme="dark"
+ *      或使用 prefers-color-scheme；具体由消费方决定。
+ */
+
+/* -------------------------------------------------------------------------- */
+/* 1. 设计令牌                                                                */
+/* -------------------------------------------------------------------------- */
+:root {
+    --antdx-radius-sm: 8px;
+    --antdx-radius-md: 12px;
+    --antdx-radius-lg: 16px;
+
+    --antdx-spacing-xs: 4px;
+    --antdx-spacing-sm: 8px;
+    --antdx-spacing-md: 12px;
+    --antdx-spacing-lg: 16px;
+    --antdx-spacing-xl: 24px;
+
+    --antdx-bubble-bg-start: #f5f5f5;
+    --antdx-bubble-bg-end: #1677ff;
+    --antdx-bubble-fg-start: rgba(0, 0, 0, 0.88);
+    --antdx-bubble-fg-end: #ffffff;
+    --antdx-bubble-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    --antdx-avatar-size: 32px;
+    --antdx-avatar-bg: #1677ff;
+    --antdx-avatar-fg: #ffffff;
+}
+
+[data-theme="dark"],
+.ant-layout-dark {
+    --antdx-bubble-bg-start: #2a2a2a;
+    --antdx-bubble-bg-end: #1668dc;
+    --antdx-bubble-fg-start: rgba(255, 255, 255, 0.88);
+    --antdx-bubble-fg-end: #ffffff;
+    --antdx-bubble-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. XBubble                                                                  */
+/* -------------------------------------------------------------------------- */
+.antdx-bubble {
+    display: flex;
+    gap: var(--antdx-spacing-md);
+    align-items: flex-start;
+    margin: 0 0 var(--antdx-spacing-md) 0;
+}
+
+.antdx-bubble-end {
+    flex-direction: row-reverse;
+}
+
+.antdx-bubble-avatar {
+    flex: 0 0 auto;
+    width: var(--antdx-avatar-size);
+    height: var(--antdx-avatar-size);
+    border-radius: 50%;
+    background: var(--antdx-avatar-bg);
+    color: var(--antdx-avatar-fg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.antdx-bubble-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--antdx-spacing-xs);
+    max-width: min(72ch, 100%);
+}
+
+.antdx-bubble-end .antdx-bubble-body {
+    align-items: flex-end;
+}
+
+.antdx-bubble-header {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .antdx-bubble-header {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.antdx-bubble-content {
+    padding: var(--antdx-spacing-sm) var(--antdx-spacing-md);
+    border-radius: var(--antdx-radius-md);
+    background: var(--antdx-bubble-bg-start);
+    color: var(--antdx-bubble-fg-start);
+    box-shadow: var(--antdx-bubble-shadow);
+    word-break: break-word;
+    line-height: 1.6;
+}
+
+.antdx-bubble-end .antdx-bubble-content {
+    background: var(--antdx-bubble-bg-end);
+    color: var(--antdx-bubble-fg-end);
+}
+
+.antdx-bubble-footer {
+    display: flex;
+    gap: var(--antdx-spacing-xs);
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .antdx-bubble-footer {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Typing indicator */
+.antdx-bubble-typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.antdx-bubble-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+    animation: antdx-typing-blink 1.2s infinite ease-in-out;
+}
+
+.antdx-bubble-typing span:nth-child(2) { animation-delay: 0.2s; }
+.antdx-bubble-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes antdx-typing-blink {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 后续组件占位（XBubbleList / XWelcome / XPrompts / XSender /                 */
+/* XConversations / XThoughtChain / XAttachments / XActions）将逐步在此补齐。  */
+/* -------------------------------------------------------------------------- */
