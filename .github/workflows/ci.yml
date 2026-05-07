@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -48,3 +49,105 @@ jobs:
         with:
           name: nupkg
           path: ./artifacts/*.nupkg
+
+  publish-nuget:
+    name: Publish to NuGet (tag v*)
+    needs: build-test-pack
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version from tag
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved package version: $VERSION"
+
+      - name: Pack with tag version
+        run: |
+          dotnet pack src/AntDesign.X.Blazor/AntDesign.X.Blazor.csproj \
+            --configuration Release \
+            -p:Version=${{ steps.ver.outputs.version }} \
+            -p:ContinuousIntegrationBuild=true \
+            --output ./artifacts
+
+      - name: Push to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error ::Repository/Org secret NUGET_API_KEY is not set."
+            exit 1
+          fi
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+  deploy-pages:
+    name: Deploy demo (AOT) to GitHub Pages
+    needs: build-test-pack
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install wasm-tools workload (AOT)
+        run: dotnet workload install wasm-tools
+
+      - name: Publish Wasm demo (Release + AOT)
+        run: |
+          dotnet publish examples/AntDesign.X.Blazor.Demo.Wasm/AntDesign.X.Blazor.Demo.Wasm.csproj \
+            --configuration Release \
+            -p:RunAOTCompilation=true \
+            -p:WasmStripILAfterAOT=true \
+            --output ./publish
+
+      - name: Rewrite base href + SPA 404 fallback
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          BASE="/${REPO_NAME}/"
+          WWWROOT="./publish/wwwroot"
+          echo "Setting <base href=\"$BASE\"> in $WWWROOT/index.html"
+          sed -i "s#<base href=\"/\" />#<base href=\"$BASE\" />#g" "$WWWROOT/index.html"
+          # GitHub Pages 对 .nojekyll 必须存在，避免 _framework 被忽略
+          touch "$WWWROOT/.nojekyll"
+          # 确保 SPA fallback 存在
+          if [ ! -f "$WWWROOT/404.html" ]; then
+            cp "$WWWROOT/index.html" "$WWWROOT/404.html"
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./publish/wwwroot
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

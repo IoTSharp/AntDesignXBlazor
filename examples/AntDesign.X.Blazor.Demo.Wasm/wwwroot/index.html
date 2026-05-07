@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ant Design X Blazor · Demo</title>
+    <base href="/" />
+    <link rel="stylesheet" href="_content/AntDesign/css/ant-design-blazor.css" />
+    <link rel="stylesheet" href="_content/AntDesign.X.Blazor/css/antdesign-x.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="icon" href="data:," />
+    <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div style="padding:48px;font-family:system-ui,sans-serif;color:#888">
+            正在加载 Ant Design X Blazor Demo（首屏需要下载 .NET WebAssembly 运行时）…
+        </div>
+    </div>
+
+    <div id="blazor-error-ui" style="display:none">
+        发生未处理的错误。
+        <a href="" class="reload">重新加载</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script>
+      // GitHub Pages SPA 路由：把 404.html 写入的查询串还原成真实 URL
+      (function () {
+        var l = window.location;
+        if (l.search.indexOf('?p=') === 0 || l.search.indexOf('&p=') !== -1) {
+          var query = l.search.replace(/(\?|&)p=([^&]+)/, function (_, _sep, p) {
+            return '';
+          });
+          var path = decodeURIComponent(/[?&]p=([^&]+)/.exec(l.search)[1]);
+          window.history.replaceState(null, '', l.pathname.replace(/\/$/, '') + path + (query.length > 1 ? query : '') + l.hash);
+        }
+      })();
+    </script>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

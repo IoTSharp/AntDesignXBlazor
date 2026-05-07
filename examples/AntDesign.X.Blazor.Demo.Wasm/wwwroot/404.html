@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Ant Design X Blazor · Demo</title>
+  <script>
+    // GitHub Pages SPA 兜底：把 /xxx 重定向到 /?p=/xxx，由 index.html 还原。
+    (function () {
+      var l = window.location;
+      var base = '/';
+      // 自动探测：当前 pathname 第一段（如 /AntDesignXBlazor/）作为 base
+      var seg = l.pathname.split('/').filter(Boolean);
+      if (seg.length > 0) {
+        base = '/' + seg[0] + '/';
+      }
+      var rest = l.pathname.substring(base.length);
+      l.replace(base + '?p=/' + rest + l.search.replace(/^\?/, '&') + l.hash);
+    })();
+  </script>
+</head>
+<body></body>
+</html>

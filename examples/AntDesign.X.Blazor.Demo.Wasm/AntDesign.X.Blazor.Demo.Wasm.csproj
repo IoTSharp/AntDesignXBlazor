@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>AntDesign.X.Blazor.Demo</RootNamespace>
+    <AssemblyName>AntDesign.X.Blazor.Demo.Wasm</AssemblyName>
+    <DefineConstants>$(DefineConstants);DEMO_WASM</DefineConstants>
+    <!-- AOT 由 CI 通过 -p:RunAOTCompilation=true 切换；本地 build 默认关闭以提速 -->
+    <BlazorEnableCompression>true</BlazorEnableCompression>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <NoWarn>$(NoWarn);BL0007</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AntDesign.X.Blazor\AntDesign.X.Blazor.csproj" />
+    <PackageReference Include="AntDesign" Version="1.6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+  </ItemGroup>
+
+  <!--
+    复用 Server demo 项目的 ComponentNav / Mock 客户端 / 所有页面与布局，避免双份维护。
+    通过 DEMO_WASM 编译常量将 server 专属内容（DotEnv / DeepSeek live chat）剥离。
+  -->
+  <ItemGroup>
+    <Compile Include="..\AntDesign.X.Blazor.Demo\ComponentNav.cs" Link="ComponentNav.cs" />
+    <Compile Include="..\AntDesign.X.Blazor.Demo\DemoMockXRequestClient.cs" Link="DemoMockXRequestClient.cs" />
+    <!-- 链接 Services 仅为满足 _Imports.razor 的命名空间引用；wasm Program.cs 不会调用它们。 -->
+    <Compile Include="..\AntDesign.X.Blazor.Demo\Services\DeepSeekChatClient.cs" Link="Services\DeepSeekChatClient.cs" />
+    <Compile Include="..\AntDesign.X.Blazor.Demo\Services\DotEnvLoader.cs" Link="Services\DotEnvLoader.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\AntDesign.X.Blazor.Demo\Components\_Imports.razor"
+             Link="Components\_Imports.razor" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\Components\Layout\**\*.razor"
+             Link="Components\Layout\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\Components\Shared\**\*.razor"
+             Link="Components\Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\Components\Pages\**\*.razor"
+             Exclude="..\AntDesign.X.Blazor.Demo\Components\Pages\Components\LiveChatDemo.razor"
+             Link="Components\Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css"
+             Link="wwwroot\app.css"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg"
+             Link="wwwroot\sample-architecture.svg"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

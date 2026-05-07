@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/AntDesign.X.Blazor.Demo/AntDesign.X.Blazor.Demo.csproj" />
+    <Project Path="examples/AntDesign.X.Blazor.Demo.Wasm/AntDesign.X.Blazor.Demo.Wasm.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AntDesign.X.Blazor.Tests/AntDesign.X.Blazor.Tests.csproj" />
