@@ -508,6 +508,10 @@
             }
 
             function loadBootResource(type, name, defaultUri, integrity) {
+                if (type === 'dotnetjs') {
+                    return defaultUri;
+                }
+
                 resourceTotal++;
                 updateProgress('开始下载 ' + labelResource(type, name));
 

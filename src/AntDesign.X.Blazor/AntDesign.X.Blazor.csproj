@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>AntDesign.X</RootNamespace>
     <AssemblyName>AntDesign.X.Blazor</AssemblyName>
+    <StaticWebAssetBasePath>_content/AntDesign.X.Blazor</StaticWebAssetBasePath>
     <IsPackable>true</IsPackable>
     <PackageId>AntDesignX.Blazor</PackageId>
     <Description>Ant Design X 视觉与组件在 Blazor 端的实现，与 AntDesign.Blazor 协同。</Description>
