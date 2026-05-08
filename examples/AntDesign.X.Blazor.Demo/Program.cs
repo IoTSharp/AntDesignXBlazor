@@ -18,6 +18,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddAntDesign();
 builder.Services.AddAntDesignX();
 builder.Services.AddScoped<IXRequestClient, DemoMockXRequestClient>();
+builder.Services.AddScoped<DemoThemeState>();
 
 // DeepSeek 实时对话（API key 从 .env / 环境变量读取，不入库）
 var deepSeekOptions = new DeepSeekOptions

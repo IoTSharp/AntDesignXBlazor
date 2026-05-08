@@ -29,6 +29,9 @@ export async function renderMermaid(element, source, options) {
     const config = options?.config || {};
     window.mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme, ...config });
     const id = `antdx-mermaid-${Math.random().toString(36).slice(2)}`;
+    if (typeof window.mermaid.parse === 'function') {
+      await window.mermaid.parse(source);
+    }
     const result = await window.mermaid.render(id, source);
     element.innerHTML = result.svg;
     element.classList.remove('antdx-mermaid-fallback');
@@ -36,6 +39,7 @@ export async function renderMermaid(element, source, options) {
     element.textContent = source;
     element.classList.add('antdx-mermaid-fallback');
     console.warn('AntDesign.X.Blazor Mermaid render failed', error);
+    throw error;
   }
 }
 

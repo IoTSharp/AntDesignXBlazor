@@ -1,0 +1,65 @@
+@page "/about"
+
+<PageTitle>关于 · AntDesign.X.Blazor</PageTitle>
+
+<section class="demo-about-hero">
+    <div>
+        <div class="demo-kicker">About</div>
+        <h1>项目介绍</h1>
+        <p>AntDesign.X.Blazor 是 Ant Design X 的 Blazor 门面实现，目标是在纯 Blazor + AntDesign.Blazor 中呈现 AI 对话产品常见的交互语义，并提供一套可以直接运行的示例站。</p>
+    </div>
+    <a class="demo-source-link demo-about-source"
+       href="@DemoShellLinks.RepositoryUrl"
+       target="_blank"
+       rel="noopener noreferrer">
+        <Icon Type="github" Theme="IconThemeType.Outline" />
+        <span>项目源码</span>
+    </a>
+</section>
+
+<section class="demo-about-grid">
+    <article class="demo-about-card">
+        <h2>项目概况</h2>
+        <p>示例站统一展示组件矩阵、首页工作台和 About 页面。顶部导航、左侧导航与底部页脚围绕同一套站点骨架组织，便于快速浏览和跳转。</p>
+        <dl class="demo-about-facts">
+            <div>
+                <dt>仓库</dt>
+                <dd><a href="@DemoShellLinks.RepositoryUrl" target="_blank" rel="noopener noreferrer">github.com/IoTSharp/AntDesignXBlazor</a></dd>
+            </div>
+            <div>
+                <dt>技术栈</dt>
+                <dd>Blazor Web App / Blazor WebAssembly / AntDesign.Blazor / Ant Design X</dd>
+            </div>
+            <div>
+                <dt>定位</dt>
+                <dd>AI 对话组件门面与示例站</dd>
+            </div>
+            <div>
+                <dt>内容</dt>
+                <dd>Bubble、Sender、Conversations、Prompts、Think、Sources、Mermaid 等完整示例</dd>
+            </div>
+        </dl>
+    </article>
+
+    <article class="demo-about-card demo-about-qr-card">
+        <div class="demo-card-heading">
+            <h2>企业微信群二维码</h2>
+            <span>扫码加入项目交流群</span>
+        </div>
+        <div class="demo-qr-frame">
+            <img class="demo-qr-image" src="enterprise-wechat-qr.png" alt="企业微信群二维码" />
+        </div>
+        <p class="demo-about-note">这里用于展示企业微信群二维码入口，后续可直接替换为真实二维码图片。</p>
+    </article>
+</section>
+
+<section class="demo-about-grid demo-about-grid-secondary">
+    <article class="demo-about-card">
+        <h2>站点说明</h2>
+        <p>首页保留完整工作台，组件页按分类展示单项能力，About 页集中承载项目背景、源码入口和联络二维码，整体更适合做成一个完整的 demo 演示站。</p>
+    </article>
+    <article class="demo-about-card">
+        <h2>源码链接</h2>
+        <p>仓库地址已经放在顶部导航、侧栏和本页卡片中，方便用户在浏览演示时随时回到代码。</p>
+    </article>
+</section>

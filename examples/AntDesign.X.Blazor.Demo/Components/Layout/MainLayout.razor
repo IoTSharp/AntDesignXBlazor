@@ -1,48 +1,77 @@
 @inherits LayoutComponentBase
+@inject DemoThemeState ThemeState
 
-<XProvider Theme="@Theme" Class="demo-root">
-    <div class="demo-layout">
-        <aside class="demo-sider">
-            <a class="demo-brand" href="/">
+<XProvider Theme="@ThemeState.Theme" Class="demo-root">
+    <div class="demo-shell">
+        <header class="demo-topbar">
+            <a class="demo-brand demo-topbar-brand" href="/">
                 <span class="demo-brand-mark">X</span>
-                <span>
+                <span class="demo-brand-copy">
                     <strong>Ant Design X Blazor</strong>
                     <small>AI components for Blazor</small>
                 </span>
             </a>
-            <nav class="demo-nav">
-                @foreach (var item in Links)
+            <nav class="demo-topbar-nav" aria-label="站点导航">
+                @foreach (var item in DemoShellLinks.PrimaryLinks)
                 {
-                    <a href="@item.Href">@item.Text</a>
+                    <NavLink class="demo-nav-link demo-topbar-nav-link"
+                             href="@item.Href"
+                             Match="@(item.Exact ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+                        <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
+                        <span>@item.Text</span>
+                    </NavLink>
                 }
             </nav>
-            <button type="button" class="demo-theme" @onclick="ToggleTheme">
-                <Icon Type="bulb" Theme="IconThemeType.Outline" />
-                <span>@(Theme == "dark" ? "Light" : "Dark")</span>
-            </button>
+            <div class="demo-topbar-actions">
+                <a class="demo-source-link"
+                   href="@DemoShellLinks.RepositoryUrl"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <Icon Type="github" Theme="IconThemeType.Outline" />
+                    <span>项目源码</span>
+                </a>
+                <button type="button" class="demo-theme-toggle" @onclick="ToggleTheme">
+                    <Icon Type="bulb" Theme="IconThemeType.Outline" />
+                    <span>@(ThemeState.IsDark ? "Light" : "Dark")</span>
+                </button>
+            </div>
+        </header>
+        <aside class="demo-sider">
+            <section class="demo-sider-section">
+                <div class="demo-sider-title">首页目录</div>
+                <nav class="demo-side-nav" aria-label="首页目录">
+                    @foreach (var item in DemoShellLinks.HomeSections)
+                    {
+                        <a class="demo-nav-link demo-side-link" href="@item.Href">
+                            <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
+                            <span>@item.Text</span>
+                        </a>
+                    }
+                </nav>
+            </section>
         </aside>
         <main class="demo-main">
             @Body
         </main>
+        <footer class="demo-footer">
+            <div class="demo-footer-copy">
+                <strong>AntDesign.X.Blazor</strong>
+                <span>纯 Blazor + AntDesign.Blazor 的 AI 对话组件门面</span>
+            </div>
+            <a class="demo-footer-link"
+               href="@DemoShellLinks.RepositoryUrl"
+               target="_blank"
+               rel="noopener noreferrer">
+                <Icon Type="github" Theme="IconThemeType.Outline" />
+                <span>GitHub</span>
+            </a>
+        </footer>
     </div>
 </XProvider>
 
 @code {
-    private string Theme { get; set; } = "light";
-
-    private static readonly (string Href, string Text)[] Links =
-    [
-        ("/components", "🧩 组件库"),
-        ("#experience", "Experience"),
-        ("#display", "Display"),
-        ("#input", "Input"),
-        ("#feedback", "Feedback"),
-        ("#markdown", "Markdown"),
-        ("#code", "Usage")
-    ];
-
     private void ToggleTheme()
     {
-        Theme = Theme == "dark" ? "light" : "dark";
+        ThemeState.Toggle();
     }
 }

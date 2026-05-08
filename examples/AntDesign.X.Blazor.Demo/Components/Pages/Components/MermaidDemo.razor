@@ -37,13 +37,13 @@
 </DemoCard>
 
 @code {
-    private string _streamDef = "flowchart LR\n";
+    private string _streamDef = InitialStreamDefinition;
     private bool _streaming;
     private string? _lastError;
 
     private async Task StartStreamAsync()
     {
-        _streamDef = "flowchart LR\n";
+        _streamDef = InitialStreamDefinition;
         _streaming = true;
         StateHasChanged();
         var lines = new[]
@@ -66,7 +66,7 @@
 
     private void ResetStream()
     {
-        _streamDef = "flowchart LR\n";
+        _streamDef = InitialStreamDefinition;
         _streaming = false;
     }
 
@@ -96,6 +96,11 @@ sequenceDiagram
     private const string InvalidMermaid = """
 flowchart LR
     A -->>>>> B[broken arrow
+""";
+
+    private const string InitialStreamDefinition = """
+flowchart LR
+    Start[Ready]
 """;
 
     private const string FlowSource = """<XMermaid Title="Flow" Definition="@Flow" AllowRenderTypeToggle="true" />""";

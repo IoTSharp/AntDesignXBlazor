@@ -17,5 +17,6 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddAntDesign();
 builder.Services.AddAntDesignX();
 builder.Services.AddScoped<IXRequestClient, DemoMockXRequestClient>();
+builder.Services.AddScoped<DemoThemeState>();
 
 await builder.Build().RunAsync();

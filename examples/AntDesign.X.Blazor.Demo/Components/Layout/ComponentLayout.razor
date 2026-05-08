@@ -1,22 +1,89 @@
 @inherits LayoutComponentBase
+@inject DemoThemeState ThemeState
 
-<div class="demo-component-page">
-    <nav class="demo-component-nav">
-        <a href="components" class="demo-component-nav-home">← 组件总览</a>
-        <div class="demo-component-nav-groups">
-            @foreach (var group in ComponentNav.Groups)
-            {
-                <div class="demo-component-nav-group">
-                    <h4>@group.Title</h4>
-                    @foreach (var item in group.Items)
+<XProvider Theme="@ThemeState.Theme" Class="demo-root">
+    <div class="demo-shell demo-component-shell">
+        <header class="demo-topbar">
+            <a class="demo-brand demo-topbar-brand" href="/">
+                <span class="demo-brand-mark">X</span>
+                <span class="demo-brand-copy">
+                    <strong>Ant Design X Blazor</strong>
+                    <small>AI components for Blazor</small>
+                </span>
+            </a>
+            <nav class="demo-topbar-nav" aria-label="站点导航">
+                @foreach (var item in DemoShellLinks.PrimaryLinks)
+                {
+                    <NavLink class="demo-nav-link demo-topbar-nav-link"
+                             href="@item.Href"
+                             Match="@(item.Exact ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+                        <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
+                        <span>@item.Text</span>
+                    </NavLink>
+                }
+            </nav>
+            <div class="demo-topbar-actions">
+                <a class="demo-source-link"
+                   href="@DemoShellLinks.RepositoryUrl"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <Icon Type="github" Theme="IconThemeType.Outline" />
+                    <span>项目源码</span>
+                </a>
+                <button type="button" class="demo-theme-toggle" @onclick="ToggleTheme">
+                    <Icon Type="bulb" Theme="IconThemeType.Outline" />
+                    <span>@(ThemeState.IsDark ? "Light" : "Dark")</span>
+                </button>
+            </div>
+        </header>
+        <aside class="demo-sider">
+            <section class="demo-sider-section">
+                <div class="demo-sider-title">组件分类</div>
+                <nav class="demo-side-nav" aria-label="组件分类">
+                    <a href="/components" class="demo-nav-link demo-side-link demo-side-link-home">
+                        <Icon Type="appstore" Theme="IconThemeType.Outline" />
+                        <span>组件总览</span>
+                    </a>
+                    @foreach (var group in ComponentNav.Groups)
                     {
-                        <a href="@($"components/{item.Slug}")">@item.Title</a>
+                        <div class="demo-side-group">
+                            <h4>@group.Title</h4>
+                            @foreach (var item in group.Items)
+                            {
+                                <a href="@($"/components/{item.Slug}")" class="demo-nav-link demo-side-link">
+                                    <span>@item.Title</span>
+                                    <small>@item.EnglishTitle</small>
+                                </a>
+                            }
+                        </div>
                     }
-                </div>
-            }
-        </div>
-    </nav>
-    <article class="demo-component-content">
-        @Body
-    </article>
-</div>
+                </nav>
+            </section>
+        </aside>
+        <main class="demo-main">
+            <article class="demo-component-content">
+                @Body
+            </article>
+        </main>
+        <footer class="demo-footer">
+            <div class="demo-footer-copy">
+                <strong>AntDesign.X.Blazor</strong>
+                <span>纯 Blazor + AntDesign.Blazor 的 AI 对话组件门面</span>
+            </div>
+            <a class="demo-footer-link"
+               href="@DemoShellLinks.RepositoryUrl"
+               target="_blank"
+               rel="noopener noreferrer">
+                <Icon Type="github" Theme="IconThemeType.Outline" />
+                <span>GitHub</span>
+            </a>
+        </footer>
+    </div>
+</XProvider>
+
+@code {
+    private void ToggleTheme()
+    {
+        ThemeState.Toggle();
+    }
+}

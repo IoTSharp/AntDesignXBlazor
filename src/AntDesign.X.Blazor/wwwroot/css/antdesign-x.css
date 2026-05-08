@@ -845,9 +845,7 @@
 
 .antdx-thought-chain-item {
     position: relative;
-    display: grid;
-    grid-template-columns: 28px minmax(0, 1fr);
-    gap: 10px;
+    display: block;
     padding-bottom: 14px;
 }
 
@@ -871,6 +869,14 @@
     color: var(--antdx-color-primary);
     background: rgba(22, 119, 255, 0.10);
     border-radius: 50%;
+}
+
+.antdx-thought-chain-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    min-width: 0;
 }
 
 .antdx-thought-chain-item-success .antdx-thought-chain-dot,
