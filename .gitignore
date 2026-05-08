@@ -58,6 +58,13 @@ bld/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
+# WASM demo reuses static assets from the Server demo and syncs them at build time.
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/app.css
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/antdesign-x-blazor-logo.svg
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/favicon.ico
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/sample-architecture.svg
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/enterprise-wechat-qr.png
+
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 

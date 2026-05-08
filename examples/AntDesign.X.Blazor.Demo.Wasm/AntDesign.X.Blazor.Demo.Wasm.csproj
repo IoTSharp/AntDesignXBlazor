@@ -46,21 +46,22 @@
     <Content Include="..\AntDesign.X.Blazor.Demo\Components\Pages\**\*.razor"
              Exclude="..\AntDesign.X.Blazor.Demo\Components\Pages\Components\LiveChatDemo.razor"
              Link="Components\Pages\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css"
-             Link="wwwroot\app.css"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\antdesign-x-blazor-logo.svg"
-             Link="wwwroot\antdesign-x-blazor-logo.svg"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\favicon.ico"
-             Link="wwwroot\favicon.ico"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg"
-             Link="wwwroot\sample-architecture.svg"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\enterprise-wechat-qr.png"
-             Link="wwwroot\enterprise-wechat-qr.png"
-             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <ItemGroup>
+    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css" />
+    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\antdesign-x-blazor-logo.svg" />
+    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\favicon.ico" />
+    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg" />
+    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\enterprise-wechat-qr.png" />
+  </ItemGroup>
+
+  <Target Name="SyncSharedDemoStaticWebAssets" BeforeTargets="ResolveProjectStaticWebAssets">
+    <Copy SourceFiles="@(_SharedDemoStaticWebAsset)"
+          DestinationFiles="@(_SharedDemoStaticWebAsset->'$(MSBuildProjectDirectory)\wwwroot\%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+  </Target>
 
 </Project>

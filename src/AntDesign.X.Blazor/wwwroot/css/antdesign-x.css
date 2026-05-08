@@ -520,7 +520,9 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
     min-height: 0;
+    box-sizing: border-box;
     container-type: inline-size;
 }
 
