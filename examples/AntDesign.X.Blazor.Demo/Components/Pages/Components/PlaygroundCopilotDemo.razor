@@ -1,0 +1,168 @@
+@page "/components/playground-copilot"
+@layout ComponentLayout
+
+<PageTitle>Playground · Copilot · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Copilot Playground</h1>
+    <p>对照官方 <a href="https://ant-design-x.antgroup.com/docs/playground/copilot" target="_blank" rel="noopener">Ant Design X · Copilot</a>，使用 Blazor 复刻：左侧阅读区 + 右侧可折叠 AI Copilot 面板。</p>
+</header>
+
+<div class="playground playground-copilot">
+    <section class="playground-workarea @(_open ? null : "playground-workarea-wide")">
+        <header class="playground-work-header">
+            <div class="playground-work-title">
+                <span class="playground-logo-mark">X</span>
+                <strong>Ant Design X</strong>
+            </div>
+            @if (!_open)
+            {
+                <button type="button" class="playground-copilot-toggle" @onclick="() => _open = true">
+                    ✨ AI Copilot
+                </button>
+            }
+        </header>
+        <article class="playground-work-body">
+            <XMarkdown Content="@ReadingMarkdown" />
+        </article>
+    </section>
+
+    @if (_open)
+    {
+        <aside class="playground-copilot-panel">
+            <header class="playground-copilot-header">
+                <div class="playground-copilot-title">✨ AI Copilot</div>
+                <div class="playground-copilot-actions">
+                    <button type="button" class="playground-icon-btn" title="New session" @onclick="NewSession">
+                        <Icon Type="plus" Theme="IconThemeType.Outline" />
+                    </button>
+                    <button type="button" class="playground-icon-btn" title="History">
+                        <Icon Type="comment" Theme="IconThemeType.Outline" />
+                    </button>
+                    <button type="button" class="playground-icon-btn" title="Close" @onclick="() => _open = false">
+                        <Icon Type="close" Theme="IconThemeType.Outline" />
+                    </button>
+                </div>
+            </header>
+
+            <div class="playground-copilot-list">
+                @if (_messages.Count == 0)
+                {
+                    <XWelcome Title="👋 Hello, I'm Ant Design X"
+                              Description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~"
+                              Compact="true" />
+                    <XPrompts Items="@_qaPrompts"
+                              Vertical="true"
+                              OnSelect="@(p => HandleSubmit(p.Title))" />
+                }
+                else
+                {
+                    <XBubbleList Items="@_messages" RoleConfigs="@_roles" />
+                }
+            </div>
+
+            <footer class="playground-copilot-footer">
+                <div class="playground-prompts-row">
+                    <button type="button" class="playground-prompt-chip" @onclick='() => HandleSubmit("What has Ant Design X upgraded?")'>
+                        <Icon Type="schedule" Theme="IconThemeType.Outline" /><span>Upgrades</span>
+                    </button>
+                    <button type="button" class="playground-prompt-chip" @onclick='() => HandleSubmit("What component assets are available in Ant Design X?")'>
+                        <Icon Type="product" Theme="IconThemeType.Outline" /><span>Components</span>
+                    </button>
+                    <button type="button" class="playground-prompt-chip">
+                        <Icon Type="appstore-add" Theme="IconThemeType.Outline" /><span>More</span>
+                    </button>
+                </div>
+                <XSender @bind-Value="_input"
+                         Placeholder="Ask or input / use skills"
+                         Loading="_loading"
+                         Rows="2"
+                         ClearAfterSubmit="true"
+                         SubmitMode="XSenderSubmitMode.Enter"
+                         OnSubmit="@OnSubmit" />
+            </footer>
+        </aside>
+    }
+</div>
+
+@code {
+    private bool _open = true;
+    private string _input = string.Empty;
+    private bool _loading;
+    private List<XBubbleItem> _messages = new();
+
+    private readonly Dictionary<string, XBubbleRoleConfig> _roles = new()
+    {
+        ["user"] = new() { Placement = XBubblePlacement.End, Variant = XBubbleVariant.Filled, Header = "我" },
+        ["assistant"] = new()
+        {
+            Placement = XBubblePlacement.Start,
+            Variant = XBubbleVariant.Outlined,
+            Header = "Ant Design X",
+            Markdown = true,
+        },
+    };
+
+    private readonly IReadOnlyList<XPromptItem> _qaPrompts =
+    [
+        new() { Title = "What has Ant Design X upgraded?", Description = "Latest changelog highlights" },
+        new() { Title = "What components are in Ant Design X?", Description = "Component map overview" },
+        new() { Title = "How to quickly install and import components?", Description = "Quick-start guide" },
+    ];
+
+    private void NewSession()
+    {
+        _messages = new();
+        _input = string.Empty;
+    }
+
+    private Task HandleSubmit(string text)
+    {
+        _input = text;
+        return OnSubmit(new XSenderRequest { Text = text });
+    }
+
+    private async Task OnSubmit(XSenderRequest req)
+    {
+        var text = (req.Text ?? string.Empty).Trim();
+        if (text.Length == 0 || _loading) return;
+        _messages.Add(new XBubbleItem { Role = "user", Content = text });
+        var reply = new XBubbleItem { Role = "assistant", Content = string.Empty, Streaming = true };
+        _messages.Add(reply);
+        _loading = true;
+        try
+        {
+            var full = $"已收到：**{text}**\n\n这是 Copilot Playground 的本地模拟回复。Ant Design X for Blazor 通过 `XAgentStore` / `XChatStore` 接管流式响应，订阅 `Changed` 事件即可驱动右侧 Copilot 面板。";
+            var sb = new System.Text.StringBuilder();
+            foreach (var ch in full)
+            {
+                sb.Append(ch);
+                _messages[_messages.Count - 1] = reply with { Content = sb.ToString(), Streaming = true };
+                StateHasChanged();
+                await Task.Delay(12);
+            }
+            _messages[_messages.Count - 1] = reply with { Content = sb.ToString(), Streaming = false };
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private const string ReadingMarkdown = """
+## What is the RICH design paradigm?
+
+**RICH** is an AI interface design paradigm we propose, similar to how the **WIMP** paradigm relates to graphical user interfaces.
+
+The ACM SIGCHI 2005 conference defined that the core issues of human-computer interaction can be divided into three levels:
+
+- **Interface Paradigm Layer** — Defines the design elements of human-computer interaction interfaces, guiding designers to focus on core issues.
+- **User Model Layer** — Builds an interface experience evaluation model to measure the quality of the interface experience.
+- **Software Framework Layer** — The underlying support algorithms and data structures for human-computer interfaces, hidden behind the front-end interface.
+
+The interface paradigm is the aspect that designers need to focus on and define the most when a new human-computer interaction technology is born. The interface paradigm defines the design elements that designers should pay attention to, and based on this, it is possible to determine what constitutes good design and how to achieve it.
+
+> 这是 Copilot Playground 的本地静态阅读区。点击右上角 ✨ AI Copilot 可重新打开右侧助手面板。
+""";
+}

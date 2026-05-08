@@ -1,0 +1,182 @@
+@page "/components/playground-ultramodern"
+@layout ComponentLayout
+
+<PageTitle>Playground · Ultramodern · AntDesign.X.Blazor</PageTitle>
+
+<header class="demo-page-header">
+    <h1>Ultramodern Playground</h1>
+    <p>对照官方 <a href="https://ant-design-x.antgroup.com/docs/playground/ultramodern" target="_blank" rel="noopener">Ant Design X · Ultramodern</a>，使用 Blazor 复刻：左侧会话历史 + 右侧聊天工作区 + 底部 Sender。</p>
+</header>
+
+<div class="playground playground-ultramodern">
+    <aside class="playground-side">
+        <div class="playground-logo">
+            <span class="playground-logo-mark">X</span>
+            <span class="playground-logo-text">Ant Design X</span>
+        </div>
+        <button type="button" class="playground-new-chat" @onclick="NewChat">
+            <Icon Type="plus" Theme="IconThemeType.Outline" />
+            <span>New chat</span>
+        </button>
+        <XConversations Items="@_conversations"
+                        ActiveKey="@_activeKey"
+                        ActiveKeyChanged="@OnActiveChanged"
+                        AllowRename="false"
+                        AllowDelete="true"
+                        OnDelete="@OnDelete"
+                        Title="@null"
+                        Class="playground-side-conversations" />
+    </aside>
+    <section class="playground-chat">
+        <header class="playground-chat-header">
+            <Icon Type="open-a-i" Theme="IconThemeType.Outline" />
+            <strong>Ant Design X Assistant</strong>
+        </header>
+        <div class="playground-chat-body">
+            @if (CurrentMessages.Count == 0)
+            {
+                <div class="playground-startpage">
+                    <div class="playground-agent-name">Ant Design X</div>
+                    <p class="demo-muted">问点什么开始一段新对话。</p>
+                </div>
+            }
+            else
+            {
+                <XBubbleList Items="@CurrentMessages" RoleConfigs="@_roles" />
+            }
+        </div>
+        <footer class="playground-chat-footer">
+            <XSender @bind-Value="_input"
+                     Placeholder="向 Ant Design X 提问 ..."
+                     Loading="_loading"
+                     Rows="3"
+                     ClearAfterSubmit="true"
+                     SubmitMode="XSenderSubmitMode.Enter"
+                     OnSubmit="@OnSubmit"
+                     OnCancel="@OnCancel">
+                <FooterTemplate>
+                    <div class="playground-sender-footer">
+                        <button type="button"
+                                class="playground-chip @(_deepThink ? "playground-chip-on" : null)"
+                                @onclick="() => _deepThink = !_deepThink">
+                            <Icon Type="open-a-i" Theme="IconThemeType.Outline" />
+                            <span>Deep Think</span>
+                        </button>
+                    </div>
+                </FooterTemplate>
+            </XSender>
+        </footer>
+    </section>
+</div>
+
+@code {
+    private const string Today = "Today";
+    private const string Yesterday = "Yesterday";
+
+    private readonly Dictionary<string, List<XBubbleItem>> _store = new()
+    {
+        ["c1"] =
+        [
+            new() { Role = "user", Content = "What is Ant Design X?" },
+            new() { Role = "assistant", Content = "Ant Design X 是基于 Ant Design 的 AGI 产品界面解决方案，提供从对话气泡、Sender 输入框到 Conversations 管理的全套 AI 组件。" },
+        ],
+        ["c2"] =
+        [
+            new() { Role = "user", Content = "Please help me introduce the usage of X SDK in Ant Design X." },
+            new() { Role = "assistant", Content = "X SDK 提供 `XAgentStore`、`XChatStore`、`XRequestClient`，将 SSE / 流式响应封装为 Blazor 友好的 `event Action? Changed` 通知模型；订阅事件后从 `Messages` 取快照即可驱动 UI。" },
+        ],
+        ["c3"] = [],
+        ["c4"] = [],
+    };
+
+    private List<XConversationItem> _conversations =
+    [
+        new() { Key = "c1", Title = "What is Ant Design X?", Group = Yesterday },
+        new() { Key = "c2", Title = "How to quickly install and import components?", Group = Yesterday },
+        new() { Key = "c3", Title = "New AGI Hybrid Interface", Group = Today },
+        new() { Key = "c4", Title = "New chat", Group = Today },
+    ];
+
+    private string _activeKey = "c2";
+    private string _input = string.Empty;
+    private bool _loading;
+    private bool _deepThink = true;
+    private CancellationTokenSource? _cts;
+
+    private List<XBubbleItem> CurrentMessages =>
+        _store.TryGetValue(_activeKey, out var list) ? list : new();
+
+    private readonly Dictionary<string, XBubbleRoleConfig> _roles = new()
+    {
+        ["user"] = new() { Placement = XBubblePlacement.End, Variant = XBubbleVariant.Filled, Header = "我" },
+        ["assistant"] = new() { Placement = XBubblePlacement.Start, Variant = XBubbleVariant.Outlined, Header = "Ant Design X", Markdown = true },
+    };
+
+    private void OnActiveChanged(string key)
+    {
+        _activeKey = key;
+    }
+
+    private void NewChat()
+    {
+        var key = "c-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _conversations.Insert(0, new XConversationItem { Key = key, Title = "New chat", Group = Today });
+        _store[key] = new();
+        _activeKey = key;
+    }
+
+    private void OnDelete(XConversationItem item)
+    {
+        _conversations = _conversations.Where(c => c.Key != item.Key).ToList();
+        _store.Remove(item.Key);
+        if (_activeKey == item.Key)
+        {
+            _activeKey = _conversations.FirstOrDefault()?.Key ?? string.Empty;
+        }
+    }
+
+    private async Task OnSubmit(XSenderRequest req)
+    {
+        var text = (req.Text ?? string.Empty).Trim();
+        if (text.Length == 0 || _loading) return;
+        var list = CurrentMessages;
+        list.Add(new XBubbleItem { Role = "user", Content = text });
+        var reply = new XBubbleItem { Role = "assistant", Content = string.Empty, Streaming = true };
+        list.Add(reply);
+        _loading = true;
+        _cts = new CancellationTokenSource();
+
+        try
+        {
+            var full = $"收到你的问题：**{text}**\n\n" +
+                (_deepThink ? "🤔 Deep Think 已开启，正在拆解...\n\n" : string.Empty) +
+                "这是 Ultramodern Playground 的本地模拟回复。要接入真实模型，请参考 `LiveChatDemo` 中的 `DeepSeekChatClient` 实现。";
+            var sb = new System.Text.StringBuilder();
+            foreach (var ch in full)
+            {
+                _cts.Token.ThrowIfCancellationRequested();
+                sb.Append(ch);
+                list[list.Count - 1] = reply with { Content = sb.ToString(), Streaming = true };
+                StateHasChanged();
+                await Task.Delay(15, _cts.Token);
+            }
+            list[list.Count - 1] = reply with { Content = sb.ToString(), Streaming = false };
+        }
+        catch (OperationCanceledException)
+        {
+            list[list.Count - 1] = reply with { Content = "（已停止）", Streaming = false };
+        }
+        finally
+        {
+            _loading = false;
+            _cts?.Dispose();
+            _cts = null;
+            StateHasChanged();
+        }
+    }
+
+    private void OnCancel()
+    {
+        _cts?.Cancel();
+    }
+}

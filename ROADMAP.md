@@ -240,6 +240,30 @@
 - [x] 流式渲染 + 取消 + 错误状态
 - [x] 未配置时页面内提示 `.env` 填写说明
 
+### Playground 实战范例 / Playground
+
+复刻官方 [`/docs/playground/*`](https://ant-design-x.antgroup.com/docs/playground/ultramodern) 三套整页范例，独立路由 + 沿用 mock streaming：
+
+#### Ultramodern — `/components/playground-ultramodern`
+
+- [x] 左侧 Conversations 分组（Today / Yesterday）+ New chat
+- [x] 右侧聊天主区：空态启动页、流式 Bubble.List、可取消
+- [x] Sender 底部 Deep Think 切换 chip
+
+#### Independent — `/components/playground-independent`
+
+- [x] 居中 Welcome（👋 Hello, I'm Ant Design X） + 顶部操作按钮
+- [x] Hot Topics 列表（rank-1/2/3 高亮）
+- [x] Design Guide 四宫格（Intention / Role / Chat / Interface）
+- [x] 底部快捷 prompts + Sender
+
+#### Copilot — `/components/playground-copilot`
+
+- [x] 双栏：左阅读区 (XMarkdown) + 右可折叠 AI Copilot 面板
+- [x] 折叠时正文撑满宽度，提供「✨ AI Copilot」唤回按钮
+- [x] 面板内空态：Welcome (Compact) + 垂直 Prompts；非空态：Bubble.List
+- [x] 面板底部快捷 prompts + Sender，新建会话清空消息
+
 ## 里程碑 E：设计语言（design token）校对
 
 - [x] 比对 [`@ant-design/x` x-provider tokens](https://github.com/ant-design/x/tree/main/components/x-provider) 与本仓库 `wwwroot/css/antdesign-x.css` 中变量
