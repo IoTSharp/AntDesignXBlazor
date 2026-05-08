@@ -178,6 +178,7 @@ jobs:
         run: dotnet workload install wasm-tools
 
       - name: Configure GitHub Pages
+        id: pages
         uses: actions/configure-pages@v5
 
       - name: Publish Wasm demo (Release + AOT)
@@ -190,9 +191,12 @@ jobs:
 
       - name: Rewrite base href + SPA 404 fallback
         run: |
-          REPO_NAME="${GITHUB_REPOSITORY#*/}"
-          BASE="/${REPO_NAME}/"
+          PAGES_BASE_PATH="${{ steps.pages.outputs.base_path }}"
+          BASE="/"
           WWWROOT="./publish/wwwroot"
+          if [ -n "$PAGES_BASE_PATH" ]; then
+            BASE="${PAGES_BASE_PATH%/}/"
+          fi
           echo "Setting <base href=\"$BASE\"> in $WWWROOT/index.html"
           sed -i "s#<base href=\"/\" />#<base href=\"$BASE\" />#g" "$WWWROOT/index.html"
           if [ -f "$WWWROOT/404.html" ]; then

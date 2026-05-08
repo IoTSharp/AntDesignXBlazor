@@ -886,6 +886,34 @@ body {
     min-width: 0;
 }
 
+.demo-project-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    color: var(--antdx-text);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.demo-project-lockup img {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    box-shadow: var(--antdx-shadow-sm);
+}
+
+.demo-project-lockup span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.demo-about-lockup {
+    margin-bottom: 8px;
+}
+
 .demo-kicker {
     color: var(--antdx-color-primary);
     font-size: 13px;

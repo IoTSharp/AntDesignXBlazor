@@ -12,36 +12,553 @@
     <link rel="icon" type="image/svg+xml" href="antdesign-x-blazor-logo.svg" />
     <link rel="icon" href="favicon.ico" sizes="any" />
     <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="vendor/mermaid.min.js"></script>
+    <style>
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background:
+                linear-gradient(135deg, #f5faff 0%, #f7fbf8 50%, #fff8f2 100%);
+            color: #1f2937;
+            font-family:
+                Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        .boot-shell {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 28px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .boot-card {
+            width: min(100%, 560px);
+            padding: 28px;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(22, 119, 255, 0.14);
+            border-radius: 8px;
+            box-shadow: 0 24px 70px rgba(31, 41, 55, 0.12);
+            backdrop-filter: blur(18px);
+            box-sizing: border-box;
+        }
+
+        .boot-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .boot-brand img {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            box-shadow: 0 10px 24px rgba(22, 119, 255, 0.18);
+        }
+
+        .boot-brand strong,
+        .boot-brand span {
+            display: block;
+            line-height: 1.35;
+        }
+
+        .boot-brand strong {
+            color: #111827;
+            font-size: 16px;
+        }
+
+        .boot-brand span {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .boot-visual {
+            position: relative;
+            display: grid;
+            grid-template-columns: 128px minmax(0, 1fr);
+            align-items: center;
+            gap: 24px;
+            margin: 30px 0 26px;
+        }
+
+        .boot-ring {
+            position: relative;
+            width: 128px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background:
+                conic-gradient(from 0deg, #1677ff, #13c2c2, #52c41a, #faad14, #1677ff);
+            animation: boot-spin 1.6s linear infinite;
+        }
+
+        .boot-ring::after {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: inset 0 0 0 1px rgba(22, 119, 255, 0.1);
+        }
+
+        .boot-core {
+            position: absolute;
+            inset: 25px;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            color: #1677ff;
+            background: linear-gradient(180deg, #ffffff, #f4f8ff);
+            border: 1px solid rgba(22, 119, 255, 0.16);
+            border-radius: 50%;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0;
+            box-shadow: 0 12px 30px rgba(22, 119, 255, 0.16);
+            animation: boot-counter-spin 1.6s linear infinite;
+        }
+
+        .boot-stream {
+            display: grid;
+            gap: 10px;
+        }
+
+        .boot-stream span {
+            position: relative;
+            height: 10px;
+            overflow: hidden;
+            background: #edf2f7;
+            border-radius: 999px;
+        }
+
+        .boot-stream span::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            width: 44%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #1677ff, #13c2c2);
+            animation: boot-flow 1.35s ease-in-out infinite;
+        }
+
+        .boot-stream span:nth-child(2)::before {
+            width: 58%;
+            background: linear-gradient(90deg, #13c2c2, #52c41a);
+            animation-delay: 0.15s;
+        }
+
+        .boot-stream span:nth-child(3)::before {
+            width: 34%;
+            background: linear-gradient(90deg, #52c41a, #faad14);
+            animation-delay: 0.3s;
+        }
+
+        .boot-copy h1 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 26px;
+            line-height: 1.2;
+        }
+
+        .boot-copy p {
+            min-height: 24px;
+            margin: 0;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .boot-progress {
+            height: 12px;
+            margin: 22px 0 12px;
+            overflow: hidden;
+            background: #e8eef6;
+            border-radius: 999px;
+        }
+
+        .boot-progress div {
+            width: 0%;
+            height: 100%;
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.35) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0.35) 75%, transparent 75%),
+                linear-gradient(90deg, #1677ff, #13c2c2 55%, #52c41a);
+            background-size: 28px 28px, 100% 100%;
+            border-radius: inherit;
+            transition: width 180ms ease;
+            animation: boot-stripes 1s linear infinite;
+        }
+
+        .boot-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .boot-meta span:last-child {
+            min-width: 0;
+            overflow: hidden;
+            text-align: right;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #blazor-error-ui {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1000;
+            max-width: min(420px, calc(100vw - 32px));
+            padding: 12px 40px 12px 14px;
+            color: #7a2e0e;
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(31, 41, 55, 0.16);
+            font-size: 14px;
+        }
+
+        #blazor-error-ui a {
+            color: #1677ff;
+        }
+
+        #blazor-error-ui .dismiss {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            color: #8c8c8c;
+            text-decoration: none;
+        }
+
+        @keyframes boot-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes boot-counter-spin {
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        @keyframes boot-flow {
+            0% {
+                transform: translateX(-105%);
+            }
+
+            55%,
+            100% {
+                transform: translateX(235%);
+            }
+        }
+
+        @keyframes boot-stripes {
+            to {
+                background-position: 28px 0, 0 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .boot-shell {
+                padding: 18px;
+            }
+
+            .boot-card {
+                padding: 22px;
+            }
+
+            .boot-visual {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                gap: 20px;
+            }
+
+            .boot-stream {
+                width: 100%;
+            }
+
+            .boot-copy h1 {
+                font-size: 22px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .boot-ring,
+            .boot-core,
+            .boot-stream span::before,
+            .boot-progress div {
+                animation: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div id="app">
-        <div style="padding:48px;font-family:system-ui,sans-serif;color:#888">
-            正在加载 Ant Design X Blazor Demo（首屏需要下载 .NET WebAssembly 运行时）…
+        <div class="boot-shell" role="status" aria-live="polite" aria-label="Ant Design X Blazor 正在加载">
+            <div class="boot-card">
+                <div class="boot-brand">
+                    <img src="antdesign-x-blazor-logo.svg" alt="" />
+                    <div>
+                        <strong>Ant Design X Blazor</strong>
+                        <span>WebAssembly Demo</span>
+                    </div>
+                </div>
+
+                <div class="boot-visual" aria-hidden="true">
+                    <div class="boot-ring">
+                        <div class="boot-core">X</div>
+                    </div>
+                    <div class="boot-stream">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="boot-copy">
+                    <h1>正在唤醒智能界面</h1>
+                    <p id="boot-status">准备下载 .NET WebAssembly 运行时…</p>
+                </div>
+
+                <div class="boot-progress" aria-hidden="true">
+                    <div id="boot-progress-bar"></div>
+                </div>
+
+                <div class="boot-meta">
+                    <span id="boot-percent">0%</span>
+                    <span id="boot-detail">等待资源清单</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="blazor-error-ui" style="display:none">
         发生未处理的错误。
         <a href="" class="reload">重新加载</a>
-        <a class="dismiss">🗙</a>
+        <a class="dismiss">×</a>
     </div>
 
     <script>
-      // GitHub Pages SPA 路由：把 404.html 写入的查询串还原成真实 URL
-      (function () {
-        var l = window.location;
-        if (l.search.indexOf('?p=') === 0 || l.search.indexOf('&p=') !== -1) {
-          var query = l.search.replace(/(\?|&)p=([^&]+)/, function (_, _sep, p) {
-            return '';
-          });
-          var path = decodeURIComponent(/[?&]p=([^&]+)/.exec(l.search)[1]);
-          window.history.replaceState(null, '', l.pathname.replace(/\/$/, '') + path + (query.length > 1 ? query : '') + l.hash);
-        }
-      })();
+        // GitHub Pages SPA 路由：把 404.html 写入的查询串还原成真实 URL
+        (function () {
+            var l = window.location;
+            var params = new URLSearchParams(l.search);
+            var path = params.get('p');
+
+            if (!path) {
+                return;
+            }
+
+            params.delete('p');
+
+            var baseElement = document.querySelector('base');
+            var basePath = '/';
+            if (baseElement) {
+                basePath = new URL(baseElement.getAttribute('href') || '/', l.origin).pathname;
+            }
+
+            var normalizedBase = basePath.replace(/\/$/, '');
+            var normalizedPath = path;
+            if (normalizedPath.charAt(0) !== '/') {
+                normalizedPath = '/' + normalizedPath;
+            }
+
+            var query = params.toString();
+            window.history.replaceState(
+                null,
+                '',
+                normalizedBase + normalizedPath + (query ? '?' + query : '') + l.hash);
+        })();
     </script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        (function () {
+            var progressBar = document.getElementById('boot-progress-bar');
+            var percentText = document.getElementById('boot-percent');
+            var statusText = document.getElementById('boot-status');
+            var detailText = document.getElementById('boot-detail');
+            var resourceTotal = 0;
+            var resourceFinished = 0;
+            var expectedBytes = 0;
+            var receivedBytes = 0;
+            var visiblePercent = 0;
+
+            function formatBytes(bytes) {
+                if (!bytes) {
+                    return '0 KB';
+                }
+
+                var units = ['B', 'KB', 'MB', 'GB'];
+                var value = bytes;
+                var unitIndex = 0;
+
+                while (value >= 1024 && unitIndex < units.length - 1) {
+                    value = value / 1024;
+                    unitIndex++;
+                }
+
+                return value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1) + ' ' + units[unitIndex];
+            }
+
+            function setProgress(percent, status, detail) {
+                visiblePercent = Math.max(visiblePercent, Math.min(100, Math.round(percent)));
+
+                if (progressBar) {
+                    progressBar.style.width = visiblePercent + '%';
+                }
+
+                if (percentText) {
+                    percentText.textContent = visiblePercent + '%';
+                }
+
+                if (statusText && status) {
+                    statusText.textContent = status;
+                }
+
+                if (detailText && detail) {
+                    detailText.textContent = detail;
+                }
+            }
+
+            function updateProgress(status) {
+                var fileRatio = resourceTotal > 0 ? resourceFinished / resourceTotal : 0;
+                var byteRatio = expectedBytes > 0 ? receivedBytes / expectedBytes : 0;
+                var ratio = Math.max(fileRatio * 0.86, byteRatio);
+                var percent = resourceTotal > 0 ? 8 + ratio * 84 : 4;
+                var detail = expectedBytes > 0
+                    ? formatBytes(receivedBytes) + ' / ' + formatBytes(expectedBytes)
+                    : resourceFinished + ' / ' + resourceTotal + ' 个资源';
+
+                if (resourceTotal > 0 && resourceFinished < resourceTotal) {
+                    percent = Math.min(percent, 92);
+                }
+
+                setProgress(percent, status || '正在下载运行资源…', detail);
+            }
+
+            function labelResource(type, name) {
+                var labels = {
+                    assembly: '程序集',
+                    configuration: '配置',
+                    dotnetjs: '.NET 引导脚本',
+                    dotnetwasm: '.NET 运行时',
+                    icudata: '全球化数据',
+                    pdb: '调试符号',
+                    satellite: '语言包'
+                };
+
+                var label = labels[type] || type || '资源';
+                return name ? label + '：' + name : label;
+            }
+
+            function trackResponse(response, type, name) {
+                if (!response.ok) {
+                    throw new Error('无法下载 ' + response.url + '，HTTP ' + response.status);
+                }
+
+                var contentLength = Number(response.headers.get('content-length')) || 0;
+                if (contentLength > 0) {
+                    expectedBytes += contentLength;
+                }
+
+                if (!response.body || !window.ReadableStream) {
+                    receivedBytes += contentLength;
+                    resourceFinished++;
+                    updateProgress('已下载 ' + labelResource(type, name));
+                    return response;
+                }
+
+                var reader = response.body.getReader();
+                var stream = new ReadableStream({
+                    start: function (controller) {
+                        function pump() {
+                            return reader.read().then(function (result) {
+                                if (result.done) {
+                                    resourceFinished++;
+                                    updateProgress('已下载 ' + labelResource(type, name));
+                                    controller.close();
+                                    return;
+                                }
+
+                                receivedBytes += result.value.byteLength;
+                                updateProgress('正在下载 ' + labelResource(type, name));
+                                controller.enqueue(result.value);
+                                return pump();
+                            });
+                        }
+
+                        return pump();
+                    }
+                });
+
+                return new Response(stream, {
+                    headers: response.headers,
+                    status: response.status,
+                    statusText: response.statusText
+                });
+            }
+
+            function loadBootResource(type, name, defaultUri, integrity) {
+                resourceTotal++;
+                updateProgress('开始下载 ' + labelResource(type, name));
+
+                var init = integrity ? { integrity: integrity } : undefined;
+                return fetch(defaultUri, init)
+                    .then(function (response) {
+                        return trackResponse(response, type, name);
+                    })
+                    .catch(function (error) {
+                        setProgress(100, '下载失败，请刷新重试。', labelResource(type, name));
+                        throw error;
+                    });
+            }
+
+            setProgress(3, '准备下载 .NET WebAssembly 运行时…', '等待资源清单');
+            window.antDesignXBlazorBoot = {
+                loadBootResource: loadBootResource,
+                beforeStart: function () {
+                    setProgress(96, '资源下载完成，正在启动 .NET Runtime…', resourceFinished + ' / ' + resourceTotal + ' 个资源');
+                },
+                afterStart: function () {
+                    setProgress(100, '启动完成，正在进入 Demo…', '就绪');
+                },
+                fail: function (error) {
+                    var errorUi = document.getElementById('blazor-error-ui');
+                    if (errorUi) {
+                        errorUi.style.display = 'block';
+                    }
+
+                    setProgress(100, '启动失败，请刷新重试。', error && error.message ? error.message : '未知错误');
+                }
+            };
+        })();
+    </script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        (function () {
+            var boot = window.antDesignXBlazorBoot;
+            Blazor.start({
+                loadBootResource: boot.loadBootResource
+            })
+                .then(function () {
+                    boot.beforeStart();
+                    boot.afterStart();
+                })
+                .catch(function (error) {
+                    boot.fail(error);
+                    throw error;
+                });
+        })();
+    </script>
 </body>
 
 </html>

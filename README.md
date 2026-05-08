@@ -1,4 +1,7 @@
-# AntDesign.X.Blazor
+<h1>
+  <img src="https://raw.githubusercontent.com/IoTSharp/AntDesignXBlazor/main/examples/AntDesign.X.Blazor.Demo/wwwroot/antdesign-x-blazor-logo.svg" alt="" width="36" height="36" />
+  AntDesign.X.Blazor
+</h1>
 
 [![NuGet](https://img.shields.io/nuget/v/AntDesign.X.Blazor?label=NuGet)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
 [![Downloads](https://img.shields.io/nuget/dt/AntDesign.X.Blazor?label=Downloads)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
@@ -11,14 +14,14 @@ AntDesign.X.Blazor 是 [Ant Design X](https://x.ant.design/) 在 Blazor 生态�
 
 示例站的 About 页面同步展示 README 摘要、源码地址和企业微信群二维码，适合直接给客户介绍当前项目。
 
-## 你会看到什么
+## 👀 你会看到什么
 
 - 首页完整 AI 工作台：对话列表、欢迎页、提示集、消息流、附件和输入框。
 - 组件总览与单项演示：按 Ant Design X 分类展示每个 Blazor 组件。
 - About 项目介绍：README 摘要、源码地址、企业微信群二维码。
 - 主题与内容渲染：深浅色主题、Markdown、代码高亮、Mermaid、通知和文件卡片。
 
-## 项目原则
+## 🧭 项目原则
 
 1. **协同 AntDesign.Blazor**：基础视觉和通用控件继续使用 AntDesign.Blazor，AntDesign.X.Blazor 只补齐 AI 对话、输入、来源、思考链、文件卡片等 X 语义组件。
 2. **保持原汁原味**：组件命名、交互结构和视觉层级尽量贴近 Ant Design X；Blazor API 使用 C# 事件、`RenderFragment`、强类型模型表达。
@@ -26,7 +29,7 @@ AntDesign.X.Blazor 是 [Ant Design X](https://x.ant.design/) 在 Blazor 生态�
 4. **样式隔离**：CSS 类统一使用 `antdx-` 前缀，降低对宿主应用的污染。
 5. **示例即文档**：`examples/AntDesign.X.Blazor.Demo` 是可演示应用，也是组件使用手册。
 
-## 当前已实现
+## ✅ 当前已实现
 
 - 显示：`XBubble`、`XBubbleList`、`XWelcome`、`XThoughtChain`、`XThink`、`XSources`、`XFolder`
 - 输入：`XSender`、`XAttachments`、`XFileCard`、`XSuggestion`、`XPrompts`
@@ -36,18 +39,18 @@ AntDesign.X.Blazor 是 [Ant Design X](https://x.ant.design/) 在 Blazor 生态�
 - 全局门面：`XProvider`、浅色/深色主题 token、`antdx-` 样式令牌
 - 示例应用：完整 AI 工作台、组件分区展示、代码片段展示、附件选择、通知、暗色主题切换与 mock streaming 闭环
 
-## 源码地址
+## 🔗 源码地址
 
 - GitHub：<https://github.com/IoTSharp/AntDesignXBlazor>
 - Gitee：<https://gitee.com/IoTSharp/AntDesignXBlazor>
 
-## 企业微信群
+## 💬 企业微信群
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/IoTSharp/AntDesignXBlazor/main/examples/AntDesign.X.Blazor.Demo/wwwroot/enterprise-wechat-qr.png" alt="企业微信群二维码" width="240" />
 </p>
 
-## 目录结构
+## 🗂️ 目录结构
 
 ```text
 external/AntDesignXBlazor/
@@ -62,7 +65,7 @@ external/AntDesignXBlazor/
   README.md
 ```
 
-## 在 Blazor 中使用
+## 🚀 在 Blazor 中使用
 
 NuGet 包发布后可以直接安装：
 
@@ -108,7 +111,7 @@ builder.Services.AddAntDesignX();
 </XProvider>
 ```
 
-## 完整输入闭环
+## 🔁 完整输入闭环
 
 ```razor
 <XBubbleList Items="@messages" OnAction="@HandleAction" />
@@ -143,7 +146,7 @@ private Task Submit(XSenderRequest request)
 
 SDK 场景下，示例应用会把这类状态放进 `XChatStore` / `XAgentStore`，并通过 mock streaming service 演示流式更新、重试和中断。
 
-## 示例应用
+## 🧪 示例应用
 
 示例应用位于：
 
@@ -159,7 +162,7 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 
 > 在 Camel.NET 仓库协作规则下，AI 默认不主动执行本机 build/run；用户可在需要时自行运行上述示例命令。子模块本身是独立 Blazor 组件库，不改变 Camel.NET 后端 Docker Compose 验收基线。
 
-## 与官方 Ant Design X 的映射
+## 🧩 与官方 Ant Design X 的映射
 
 | 官方能力 | Blazor 门面 | 当前状态 |
 | --- | --- | --- |
@@ -181,7 +184,7 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 | XProvider | `XProvider` | 已实现主题 token 门面 |
 | XRequest / XStream / useXChat / useXAgent | `IXRequestClient` / `XStreamReader` / `XChatStore` / `XAgentStore` | 已实现 SDK 与示例闭环 |
 
-## React Hooks → C# Store API 对照
+## 🔄 React Hooks → C# Store API 对照
 
 | React Hook 能力 | C# 等价 | 说明 |
 | --- | --- | --- |
@@ -198,6 +201,6 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 
 > 实战示例参见 [`examples/AntDesign.X.Blazor.Demo/Components/Pages/Components/LiveChatDemo.razor`](examples/AntDesign.X.Blazor.Demo/Components/Pages/Components/LiveChatDemo.razor)（DeepSeek SSE 接入）。
 
-## 许可证
+## 📄 许可证
 
 MIT

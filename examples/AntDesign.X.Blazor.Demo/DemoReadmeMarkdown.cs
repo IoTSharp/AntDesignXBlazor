@@ -3,7 +3,10 @@ namespace AntDesign.X.Blazor.Demo;
 public static class DemoReadmeMarkdown
 {
     public const string Content = """
-# AntDesign.X.Blazor
+<h1>
+  <img src="antdesign-x-blazor-logo.svg" alt="" width="36" height="36" />
+  AntDesign.X.Blazor
+</h1>
 
 [![NuGet](https://img.shields.io/nuget/v/AntDesign.X.Blazor?label=NuGet)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
 [![Downloads](https://img.shields.io/nuget/dt/AntDesign.X.Blazor?label=Downloads)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
