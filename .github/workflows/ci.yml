@@ -87,13 +87,63 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
+          set -euo pipefail
+
           if [ -z "$NUGET_API_KEY" ]; then
             echo "::error ::Repository/Org secret NUGET_API_KEY is not set."
             exit 1
           fi
+
           shopt -s nullglob
-          for package in ./artifacts/*.nupkg ./artifacts/*.snupkg; do
+
+          packages=(./artifacts/*.nupkg)
+          symbols=(./artifacts/*.snupkg)
+
+          if [ ${#packages[@]} -eq 0 ]; then
+            echo "::error ::No .nupkg packages found in ./artifacts."
+            exit 1
+          fi
+
+          for package in "${packages[@]}"; do
+            # Upload the package alone first; the symbol package is pushed separately.
             dotnet nuget push "$package" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate \
+              --no-symbols
+          done
+
+          if [ ${#symbols[@]} -eq 0 ]; then
+            echo "No .snupkg symbol packages found in ./artifacts."
+            exit 0
+          fi
+
+          PACKAGE_ID="AntDesign.X.Blazor"
+          PACKAGE_ID_LOWER="${PACKAGE_ID,,}"
+          PACKAGE_FILE_NAME="$(basename "${packages[0]}")"
+          PACKAGE_VERSION_FROM_FILE="${PACKAGE_FILE_NAME#${PACKAGE_ID}.}"
+          PACKAGE_VERSION_FROM_FILE="${PACKAGE_VERSION_FROM_FILE%.nupkg}"
+          PACKAGE_VERSION_LOWER="${PACKAGE_VERSION_FROM_FILE,,}"
+          PACKAGE_URL="https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID_LOWER}/${PACKAGE_VERSION_LOWER}/${PACKAGE_ID_LOWER}.${PACKAGE_VERSION_LOWER}.nupkg"
+
+          # NuGet.org can accept the package before the symbol endpoint recognizes it.
+          echo "Waiting for NuGet.org to index ${PACKAGE_ID} ${PACKAGE_VERSION_FROM_FILE} before pushing symbols..."
+          for attempt in {1..90}; do
+            if curl --fail --silent --location --output /dev/null "$PACKAGE_URL"; then
+              echo "NuGet.org package is visible."
+              break
+            fi
+
+            if [ "$attempt" -eq 90 ]; then
+              echo "::error ::Package ${PACKAGE_ID} ${PACKAGE_VERSION_FROM_FILE} was not visible on NuGet.org after waiting."
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          for symbol_package in "${symbols[@]}"; do
+            dotnet nuget push "$symbol_package" \
               --api-key "$NUGET_API_KEY" \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate

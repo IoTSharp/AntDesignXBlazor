@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "AntDesign.X.Blazor.Demo": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:50633;http://localhost:50634"
+    }
+  }
+}

@@ -7,7 +7,7 @@
     <RootNamespace>AntDesign.X</RootNamespace>
     <AssemblyName>AntDesign.X.Blazor</AssemblyName>
     <IsPackable>true</IsPackable>
-    <PackageId>AntDesign.X.Blazor</PackageId>
+    <PackageId>AntDesignX.Blazor</PackageId>
     <Description>Ant Design X 视觉与组件在 Blazor 端的实现，与 AntDesign.Blazor 协同。</Description>
     <Authors>IoTSharp</Authors>
     <PackageProjectUrl>https://github.com/IoTSharp/AntDesignXBlazor</PackageProjectUrl>
