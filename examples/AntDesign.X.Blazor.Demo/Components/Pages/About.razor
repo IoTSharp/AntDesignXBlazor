@@ -19,26 +19,10 @@
 
 <section class="demo-about-grid">
     <article class="demo-about-card">
-        <h2>项目概况</h2>
-        <p>示例站统一展示组件矩阵、首页工作台和 About 页面。顶部导航、左侧导航与底部页脚围绕同一套站点骨架组织，便于快速浏览和跳转。</p>
-        <dl class="demo-about-facts">
-            <div>
-                <dt>仓库</dt>
-                <dd><a href="@DemoShellLinks.RepositoryUrl" target="_blank" rel="noopener noreferrer">github.com/IoTSharp/AntDesignXBlazor</a></dd>
-            </div>
-            <div>
-                <dt>技术栈</dt>
-                <dd>Blazor Web App / Blazor WebAssembly / AntDesign.Blazor / Ant Design X</dd>
-            </div>
-            <div>
-                <dt>定位</dt>
-                <dd>AI 对话组件门面与示例站</dd>
-            </div>
-            <div>
-                <dt>内容</dt>
-                <dd>Bubble、Sender、Conversations、Prompts、Think、Sources、Mermaid 等完整示例</dd>
-            </div>
-        </dl>
+        <h2>项目介绍</h2>
+        <p>AntDesign.X.Blazor 是 Ant Design X 在 Blazor 生态中的实现，面向 AI 对话、工作台和内容生成类产品。项目目标是在纯 Blazor + AntDesign.Blazor 中复现 Ant Design X 的 AI 产品语义，并提供一套可以直接运行的 demo 站，让用户能逐个查看组件、交互和代码写法。</p>
+        <p>官方 Ant Design X 是面向 React 生态的 AI 组件库，除 UI 组件外也提供接入 AI 服务的 API 方案。本项目对照它的组件矩阵与设计网站，将 Bubble、Conversations、Sender、Prompts、ThoughtChain、Think、Sources、Mermaid、Markdown、XProvider 等能力映射到 Blazor。</p>
+        <p>示例站的 About 页面同步展示 README 摘要、源码地址和企业微信群二维码，适合直接给客户介绍当前项目。</p>
     </article>
 
     <article class="demo-about-card demo-about-qr-card">
@@ -56,10 +40,36 @@
 <section class="demo-about-grid demo-about-grid-secondary">
     <article class="demo-about-card">
         <h2>站点说明</h2>
-        <p>首页保留完整工作台，组件页按分类展示单项能力，About 页集中承载项目背景、源码入口和联络二维码，整体更适合做成一个完整的 demo 演示站。</p>
+        <p>AntDesign.X 的设计网站，首页展示完整工作台，组件页按分类展示单项能力，About 页集中承载项目背景、README 介绍和联络方式。</p>
     </article>
     <article class="demo-about-card">
         <h2>源码链接</h2>
-        <p>仓库地址已经放在顶部导航、侧栏和本页卡片中，方便用户在浏览演示时随时回到代码。</p>
+        <p>项目源码同时托管在 GitHub 与码云，方便国内外用户访问。</p>
+        <div class="demo-about-links">
+            <a class="demo-source-link"
+               href="@DemoShellLinks.GitHubRepositoryUrl"
+               target="_blank"
+               rel="noopener noreferrer">
+                <Icon Type="github" Theme="IconThemeType.Outline" />
+                <span>GitHub 源码</span>
+            </a>
+            <a class="demo-source-link"
+               href="@DemoShellLinks.GiteeRepositoryUrl"
+               target="_blank"
+               rel="noopener noreferrer">
+                <Icon Type="code" Theme="IconThemeType.Outline" />
+                <span>码云源码</span>
+            </a>
+        </div>
+    </article>
+</section>
+
+<section class="demo-about-readme">
+    <article class="demo-about-card">
+        <div class="demo-card-heading">
+            <h2>README 项目介绍</h2>
+            <span>以下内容同步用于向客户介绍当前项目。</span>
+        </div>
+        <XMarkdown Content="@DemoReadmeMarkdown.Content" />
     </article>
 </section>

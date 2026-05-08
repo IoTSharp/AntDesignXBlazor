@@ -1,10 +1,22 @@
 # AntDesign.X.Blazor
 
-[Ant Design X](https://x.ant.design/) 的 Blazor 门面实现。项目目标是在 **纯 Blazor + AntDesign.Blazor** 中复现 Ant Design X 的 AI 对话产品语义，并提供一个可运行的示例应用，让使用者能逐个查看组件、交互和代码写法。
+[![NuGet](https://img.shields.io/nuget/v/AntDesign.X.Blazor?label=NuGet)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
+[![Downloads](https://img.shields.io/nuget/dt/AntDesign.X.Blazor?label=Downloads)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
+[![GitHub](https://img.shields.io/badge/GitHub-IoTSharp%2FAntDesignXBlazor-181717?logo=github)](https://github.com/IoTSharp/AntDesignXBlazor)
+[![Gitee](https://img.shields.io/badge/Gitee-IoTSharp%2FAntDesignXBlazor-C71D23)](https://gitee.com/IoTSharp/AntDesignXBlazor)
 
-官方 Ant Design X 是面向 React 生态的 AI 组件库，除 UI 组件外也提供接入 AI 服务的 API 方案。其组件总览按 Common、Wake、Express、Confirmation、Feedback、Others 分组，覆盖 Bubble、Conversations、Notification、Welcome、Prompts、Attachments、Sender、Suggestion、Think、ThoughtChain、Actions、CodeHighlighter、FileCard、Folder、Mermaid、Sources、XProvider。本项目据此建立 Blazor 映射。
+AntDesign.X.Blazor 是 [Ant Design X](https://x.ant.design/) 在 Blazor 生态中的实现，面向 AI 对话、工作台和内容生成类产品。项目目标是在 **纯 Blazor + AntDesign.Blazor** 中复现 Ant Design X 的 AI 产品语义，并提供一套可以直接运行的 demo 站，让用户能逐个查看组件、交互和代码写法。
 
-> 设计参考：Ant Design X 官方站点当前公开的 2.x 组件矩阵，以及 X SDK 中的 XRequest / XStream / useXChat / useXAgent 方向。
+官方 Ant Design X 是面向 React 生态的 AI 组件库，除 UI 组件外也提供接入 AI 服务的 API 方案。本项目对照它的组件矩阵与设计网站，将 Bubble、Conversations、Sender、Prompts、ThoughtChain、Think、Sources、Mermaid、Markdown、XProvider 等能力映射到 Blazor。
+
+示例站的 About 页面同步展示 README 摘要、源码地址和企业微信群二维码，适合直接给客户介绍当前项目。
+
+## 你会看到什么
+
+- 首页完整 AI 工作台：对话列表、欢迎页、提示集、消息流、附件和输入框。
+- 组件总览与单项演示：按 Ant Design X 分类展示每个 Blazor 组件。
+- About 项目介绍：README 摘要、源码地址、企业微信群二维码。
+- 主题与内容渲染：深浅色主题、Markdown、代码高亮、Mermaid、通知和文件卡片。
 
 ## 项目原则
 
@@ -24,6 +36,17 @@
 - 全局门面：`XProvider`、浅色/深色主题 token、`antdx-` 样式令牌
 - 示例应用：完整 AI 工作台、组件分区展示、代码片段展示、附件选择、通知、暗色主题切换与 mock streaming 闭环
 
+## 源码地址
+
+- GitHub：<https://github.com/IoTSharp/AntDesignXBlazor>
+- Gitee：<https://gitee.com/IoTSharp/AntDesignXBlazor>
+
+## 企业微信群
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/IoTSharp/AntDesignXBlazor/main/examples/AntDesign.X.Blazor.Demo/wwwroot/enterprise-wechat-qr.png" alt="企业微信群二维码" width="240" />
+</p>
+
 ## 目录结构
 
 ```text
@@ -40,6 +63,14 @@ external/AntDesignXBlazor/
 ```
 
 ## 在 Blazor 中使用
+
+NuGet 包发布后可以直接安装：
+
+```powershell
+dotnet add package AntDesign.X.Blazor
+```
+
+本仓库内本地联调也可以使用项目引用：
 
 ```xml
 <ProjectReference Include="external/AntDesignXBlazor/src/AntDesign.X.Blazor/AntDesign.X.Blazor.csproj" />

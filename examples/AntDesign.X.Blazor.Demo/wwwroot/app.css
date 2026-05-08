@@ -609,6 +609,12 @@ body {
     flex: 0 0 auto;
 }
 
+.demo-about-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .demo-about-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -710,6 +716,16 @@ body {
     text-align: center;
     font-size: 13px;
     line-height: 1.6;
+}
+
+.demo-about-readme {
+    max-width: 1120px;
+    margin: 0 auto 20px;
+}
+
+.demo-about-readme .antdx-markdown {
+    width: 100%;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 1024px) {

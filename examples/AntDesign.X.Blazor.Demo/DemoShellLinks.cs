@@ -2,7 +2,9 @@ namespace AntDesign.X.Blazor.Demo;
 
 public static class DemoShellLinks
 {
-    public const string RepositoryUrl = "https://github.com/IoTSharp/AntDesignXBlazor";
+    public const string GitHubRepositoryUrl = "https://github.com/IoTSharp/AntDesignXBlazor";
+    public const string GiteeRepositoryUrl = "https://gitee.com/IoTSharp/AntDesignXBlazor";
+    public const string RepositoryUrl = GitHubRepositoryUrl;
 
     public sealed record NavLinkItem(string Href, string Text, string Icon, bool Exact = false);
 

@@ -28,6 +28,7 @@
   <ItemGroup>
     <Compile Include="..\AntDesign.X.Blazor.Demo\ComponentNav.cs" Link="ComponentNav.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoShellLinks.cs" Link="DemoShellLinks.cs" />
+    <Compile Include="..\AntDesign.X.Blazor.Demo\DemoReadmeMarkdown.cs" Link="DemoReadmeMarkdown.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoThemeState.cs" Link="DemoThemeState.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoMockXRequestClient.cs" Link="DemoMockXRequestClient.cs" />
     <!-- 链接 Services 仅为满足 _Imports.razor 的命名空间引用；wasm Program.cs 不会调用它们。 -->
