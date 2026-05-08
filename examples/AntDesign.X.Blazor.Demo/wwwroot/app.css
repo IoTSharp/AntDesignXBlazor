@@ -370,6 +370,10 @@ body {
     background: var(--antdx-page-bg);
 }
 
+.demo-component-shell-collapsed {
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
 .demo-topbar,
 .demo-sider,
 .demo-footer {
@@ -469,10 +473,60 @@ body {
     overflow: auto;
 }
 
+.demo-component-sider {
+    transition: padding var(--antdx-motion);
+}
+
+.demo-component-sider-collapsed {
+    align-items: center;
+    padding: 12px 10px;
+    overflow: hidden;
+}
+
+.demo-component-sider-collapsed .demo-sider-section {
+    align-items: center;
+}
+
 .demo-sider-section {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.demo-sider-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.demo-sider-collapse,
+.demo-side-group-toggle {
+    display: inline-flex;
+    align-items: center;
+    color: var(--antdx-text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--antdx-radius-sm);
+    font: inherit;
+    cursor: pointer;
+    transition: color var(--antdx-motion), border-color var(--antdx-motion), background var(--antdx-motion);
+}
+
+.demo-sider-collapse {
+    flex: 0 0 auto;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+}
+
+.demo-sider-collapse:hover,
+.demo-side-group-toggle:hover {
+    color: var(--antdx-color-primary);
+    border-color: rgba(22, 119, 255, 0.18);
+    background: rgba(22, 119, 255, 0.08);
 }
 
 .demo-sider-title {
@@ -506,6 +560,34 @@ body {
     flex-direction: column;
     gap: 4px;
     padding-top: 6px;
+}
+
+.demo-side-group-toggle {
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    min-height: 34px;
+    padding: 7px 8px;
+    color: var(--antdx-text-tertiary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.demo-side-group-toggle span {
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.demo-side-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .demo-side-group h4 {

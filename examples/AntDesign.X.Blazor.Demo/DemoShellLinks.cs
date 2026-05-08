@@ -17,12 +17,12 @@ public static class DemoShellLinks
 
     public static readonly IReadOnlyList<NavLinkItem> HomeSections =
     [
-        new("/#experience", "工作台", "message"),
-        new("/#display", "展示", "appstore"),
-        new("/#input", "输入", "paper-clip"),
-        new("/#feedback", "反馈", "bell"),
-        new("/#sdk", "SDK", "robot"),
-        new("/#markdown", "文档", "file-text"),
-        new("/#code", "源码", "code"),
+        new("/#experience", "完整工作台体验", "message"),
+        new("/#display", "展示组件", "appstore"),
+        new("/#input", "输入与建议", "paper-clip"),
+        new("/#feedback", "反馈与状态", "bell"),
+        new("/#sdk", "SDK 闭环", "robot"),
+        new("/#markdown", "Markdown、代码与图", "file-text"),
+        new("/#code", "最小使用代码", "code"),
     ];
 }
