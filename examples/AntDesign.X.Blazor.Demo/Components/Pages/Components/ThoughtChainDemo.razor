@@ -8,21 +8,23 @@
     <p>线性展示 Agent 的推理与工具调用步骤，支持嵌套、折叠与三种尺寸。</p>
 </header>
 
-<DemoCard Title="基本"
-          Description="顺序步骤 + 状态图标。"
-          SourceCode="@BasicSource">
-    <XThoughtChain Title="ThoughtChain" Items="@Items" />
-</DemoCard>
+<div class="demo-thoughtchain-grid">
+    <DemoCard Title="基本"
+              Description="顺序步骤 + 状态图标。"
+              SourceCode="@BasicSource">
+        <XThoughtChain Title="ThoughtChain" Items="@Items" />
+    </DemoCard>
 
-<DemoCard Title="尺寸 Size"
-          Description="small / middle / large。"
-          SourceCode="@SizeSource">
-    <div class="demo-grid demo-grid-3">
-        <XThoughtChain Items="@Items" Size="small" Title="small" />
-        <XThoughtChain Items="@Items" Size="middle" Title="middle" />
-        <XThoughtChain Items="@Items" Size="large" Title="large" />
-    </div>
-</DemoCard>
+    <DemoCard Title="尺寸 Size"
+              Description="small / middle / large。"
+              SourceCode="@SizeSource">
+        <div class="demo-grid demo-grid-3">
+            <XThoughtChain Items="@Items" Size="small" Title="small" />
+            <XThoughtChain Items="@Items" Size="middle" Title="middle" />
+            <XThoughtChain Items="@Items" Size="large" Title="large" />
+        </div>
+    </DemoCard>
+</div>
 
 <DemoCard Title="嵌套 + 折叠"
           Description="带 Children 的节点支持点击折叠。"

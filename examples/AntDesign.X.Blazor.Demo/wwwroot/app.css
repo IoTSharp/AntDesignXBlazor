@@ -36,13 +36,10 @@ body {
 .demo-brand-mark {
     width: 38px;
     height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    background: #1677ff;
+    display: block;
     border-radius: 12px;
-    font-weight: 800;
+    box-shadow: var(--antdx-shadow-sm);
+    object-fit: cover;
 }
 
 .demo-brand strong,
@@ -219,9 +216,25 @@ body {
     gap: 14px;
 }
 
+.demo-thoughtchain-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 16px;
+}
+
+.demo-thoughtchain-grid .demo-card {
+    margin-bottom: 0;
+}
+
 @media (max-width: 900px) {
     .demo-layout,
     .demo-chat {
+        grid-template-columns: 1fr;
+    }
+
+    .demo-thoughtchain-grid {
         grid-template-columns: 1fr;
     }
 
@@ -557,7 +570,6 @@ body {
 }
 
 .demo-side-link > span {
-    flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -646,6 +658,58 @@ body {
     gap: 20px;
     max-width: 1280px;
     margin: 0 auto;
+}
+
+.demo-playground-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.demo-playground-header h2 {
+    margin: 0;
+    color: var(--antdx-text);
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+.demo-playground-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.demo-playground-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 7px 12px;
+    color: var(--antdx-text-secondary);
+    background: transparent;
+    border: 1px solid var(--antdx-border);
+    border-radius: var(--antdx-radius-sm);
+    font: inherit;
+    cursor: pointer;
+    transition: color var(--antdx-motion), border-color var(--antdx-motion), background var(--antdx-motion);
+}
+
+.demo-playground-tab:hover {
+    color: var(--antdx-color-primary);
+    border-color: rgba(22, 119, 255, 0.18);
+    background: rgba(22, 119, 255, 0.08);
+}
+
+.demo-playground-tab.active {
+    color: var(--antdx-color-primary);
+    border-color: rgba(22, 119, 255, 0.25);
+    background: rgba(22, 119, 255, 0.12);
+}
+
+.demo-playground-panel {
+    min-width: 0;
 }
 
 .demo-source-link {

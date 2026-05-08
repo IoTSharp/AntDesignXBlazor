@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Ant Design X Blazor logo">
+  <defs>
+    <linearGradient id="mark-bg" x1="28" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8f2ff"/>
+      <stop offset="1" stop-color="#eef6ff"/>
+    </linearGradient>
+    <linearGradient id="blazor-bolt" x1="61" y1="42" x2="145" y2="213" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9b72ff"/>
+      <stop offset="1" stop-color="#6d4aff"/>
+    </linearGradient>
+    <linearGradient id="antdx-x" x1="155" y1="70" x2="206" y2="186" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1677ff"/>
+      <stop offset="1" stop-color="#4f9cff"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="16" y="16" width="224" height="224" rx="54" fill="url(#mark-bg)" stroke="#d8e4ff" stroke-width="4"/>
+  <path d="M91 42H145L113 104H150L82 214L98 147H62L91 42Z" fill="url(#blazor-bolt)"/>
+  <path d="M158 74L205 182" stroke="url(#antdx-x)" stroke-width="29" stroke-linecap="round"/>
+  <path d="M205 74L158 182" stroke="url(#antdx-x)" stroke-width="29" stroke-linecap="round"/>
+</svg>

@@ -28,8 +28,8 @@ public static class DemoShellLinks
 
     public static readonly IReadOnlyList<NavLinkItem> HomePlaygroundLinks =
     [
-        new("/components/playground-ultramodern", "Ultramodern", "experiment", false, "Ultramodern"),
-        new("/components/playground-independent", "Independent", "experiment", false, "Independent"),
-        new("/components/playground-copilot", "Copilot", "experiment", false, "Copilot"),
+        new("/?playground=ultramodern#playground", "Ultramodern", "experiment", false, "Ultramodern"),
+        new("/?playground=independent#playground", "Independent", "experiment", false, "Independent"),
+        new("/?playground=copilot#playground", "Copilot", "experiment", false, "Copilot"),
     ];
 }

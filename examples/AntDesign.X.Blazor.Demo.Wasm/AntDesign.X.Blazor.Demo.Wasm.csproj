@@ -49,6 +49,12 @@
     <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css"
              Link="wwwroot\app.css"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\antdesign-x-blazor-logo.svg"
+             Link="wwwroot\antdesign-x-blazor-logo.svg"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\favicon.ico"
+             Link="wwwroot\favicon.ico"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg"
              Link="wwwroot\sample-architecture.svg"
              CopyToOutputDirectory="PreserveNewest" />
