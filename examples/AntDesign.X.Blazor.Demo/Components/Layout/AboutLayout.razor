@@ -2,7 +2,7 @@
 @inject DemoThemeState ThemeState
 
 <XProvider Theme="@ThemeState.Theme" Class="demo-root">
-    <div class="demo-shell">
+    <div class="demo-shell demo-about-shell">
         <header class="demo-topbar">
             <a class="demo-brand demo-topbar-brand" href="/">
                 <span class="demo-brand-mark">X</span>
@@ -36,38 +36,7 @@
                 </button>
             </div>
         </header>
-        <aside class="demo-sider">
-            <section class="demo-sider-section">
-                <div class="demo-sider-title">首页目录</div>
-                <nav class="demo-side-nav" aria-label="首页目录">
-                    @foreach (var item in DemoShellLinks.HomeSections)
-                    {
-                        <a class="demo-nav-link demo-side-link" href="@item.Href">
-                            <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                            <span>@item.Text</span>
-                        </a>
-                    }
-
-                    <div class="demo-side-group">
-                        <h4>Playground 实战范例</h4>
-                        <div class="demo-side-group-items">
-                            @foreach (var item in DemoShellLinks.HomePlaygroundLinks)
-                            {
-                                <a class="demo-nav-link demo-side-link" href="@item.Href">
-                                    <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                                    <span>@item.Text</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.EnglishTitle))
-                                    {
-                                        <small>@item.EnglishTitle</small>
-                                    }
-                                </a>
-                            }
-                        </div>
-                    </div>
-                </nav>
-            </section>
-        </aside>
-        <main class="demo-main">
+        <main class="demo-main demo-about-main">
             @Body
         </main>
     </div>

@@ -48,12 +48,6 @@ public static class ComponentNav
             new("icon", "图标", "Icon"),
             new("x-provider", "全局化配置", "XProvider"),
         }),
-        new("Playground 实战范例", new NavItem[]
-        {
-            new("playground-ultramodern", "Ultramodern", "Ultramodern"),
-            new("playground-independent", "Independent", "Independent"),
-            new("playground-copilot", "Copilot", "Copilot"),
-        }),
 #if !DEMO_WASM
         new("实战", new NavItem[]
         {
