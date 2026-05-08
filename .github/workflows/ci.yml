@@ -91,10 +91,13 @@ jobs:
             echo "::error ::Repository/Org secret NUGET_API_KEY is not set."
             exit 1
           fi
-          dotnet nuget push "./artifacts/*.nupkg" \
-            --api-key "$NUGET_API_KEY" \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
+          shopt -s nullglob
+          for package in ./artifacts/*.nupkg ./artifacts/*.snupkg; do
+            dotnet nuget push "$package" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
 
   deploy-pages:
     name: Deploy demo (AOT) to GitHub Pages
