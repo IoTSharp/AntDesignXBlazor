@@ -3,8 +3,8 @@
   AntDesign.X.Blazor
 </h1>
 
-[![NuGet](https://img.shields.io/nuget/v/AntDesign.X.Blazor?label=NuGet)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
-[![Downloads](https://img.shields.io/nuget/dt/AntDesign.X.Blazor?label=Downloads)](https://www.nuget.org/packages/AntDesign.X.Blazor/)
+[![NuGet](https://img.shields.io/nuget/v/AntDesignX.Blazor?label=NuGet)](https://www.nuget.org/packages/AntDesignX.Blazor/)
+[![Downloads](https://img.shields.io/nuget/dt/AntDesignX.Blazor?label=Downloads)](https://www.nuget.org/packages/AntDesignX.Blazor/)
 [![GitHub](https://img.shields.io/badge/GitHub-IoTSharp%2FAntDesignXBlazor-181717?logo=github)](https://github.com/IoTSharp/AntDesignXBlazor)
 [![Gitee](https://img.shields.io/badge/Gitee-IoTSharp%2FAntDesignXBlazor-C71D23)](https://gitee.com/IoTSharp/AntDesignXBlazor)
 
@@ -70,7 +70,7 @@ external/AntDesignXBlazor/
 NuGet 包发布后可以直接安装：
 
 ```powershell
-dotnet add package AntDesign.X.Blazor
+dotnet add package AntDesignX.Blazor
 ```
 
 本仓库内本地联调也可以使用项目引用：
