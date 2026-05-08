@@ -18,14 +18,28 @@
     }
     @{
         var customRenderer = RendererRegistry.Resolve(Language);
+        var codeText = Code ?? string.Empty;
     }
     @if (customRenderer is not null)
     {
-        <div class="antdx-code-custom">@customRenderer(Code ?? string.Empty)</div>
+        <div class="antdx-code-custom">@customRenderer(codeText)</div>
+    }
+    else if (ShowLineNumbers)
+    {
+        var lines = codeText.Length == 0 ? Array.Empty<string>() : codeText.Replace("\r\n", "\n").Split('\n');
+        <pre class="antdx-code-pre"><code><table class="antdx-code-table"><tbody>
+            @for (var i = 0; i < lines.Length; i++)
+            {
+                <tr>
+                    <td class="antdx-code-ln" aria-hidden="true">@(i + 1)</td>
+                    <td class="antdx-code-line">@lines[i]@(Streaming && i == lines.Length - 1 ? (MarkupString)"<span class=\"antdx-code-cursor\">▍</span>" : default)</td>
+                </tr>
+            }
+        </tbody></table></code></pre>
     }
     else
     {
-        <pre><code>@Code</code></pre>
+        <pre><code>@codeText@(Streaming ? (MarkupString)"<span class=\"antdx-code-cursor\">▍</span>" : default)</code></pre>
     }
 </figure>
 
@@ -34,12 +48,22 @@
     [Parameter] public string Language { get; set; } = "text";
     [Parameter] public bool Copyable { get; set; } = true;
     [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public bool ShowLineNumbers { get; set; }
+    /// <summary>
+    /// 流式输出指示，末尾会显示一个闪烁光标。
+    /// </summary>
+    [Parameter] public bool Streaming { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
     private bool Copied { get; set; }
 
-    private string ClassName => XCss.Combine("antdx-code", $"language-{Language}", Class);
+    private string ClassName => XCss.Combine(
+        "antdx-code",
+        $"language-{Language}",
+        ShowLineNumbers ? "antdx-code-numbered" : null,
+        Streaming ? "antdx-code-streaming" : null,
+        Class);
 
     private async Task Copy()
     {

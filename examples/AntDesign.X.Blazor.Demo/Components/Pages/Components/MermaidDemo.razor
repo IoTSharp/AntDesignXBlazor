@@ -16,7 +16,62 @@
     <XMermaid Title="Sequence" Definition="@Seq" />
 </DemoCard>
 
+<DemoCard Title="流式增量"
+          Description="逐行追加图表定义，模拟模型流式输出。"
+          SourceCode="@StreamSource">
+    <XMermaid Title="Streaming" Definition="@_streamDef" />
+    <div class="demo-toolbar">
+        <button class="demo-button" @onclick="StartStreamAsync" disabled="@_streaming">开始增量</button>
+        <button class="demo-button" @onclick="ResetStream">重置</button>
+    </div>
+</DemoCard>
+
+<DemoCard Title="错误回退"
+          Description="非法 Mermaid 语法时显示 OnError 文本与源码回退。"
+          SourceCode="@ErrorSource">
+    <XMermaid Title="Invalid" Definition="@InvalidMermaid" OnError="@OnMermaidError" />
+    @if (!string.IsNullOrEmpty(_lastError))
+    {
+        <p class="demo-tip">已捕获 OnError：<code>@_lastError</code></p>
+    }
+</DemoCard>
+
 @code {
+    private string _streamDef = "flowchart LR\n";
+    private bool _streaming;
+    private string? _lastError;
+
+    private async Task StartStreamAsync()
+    {
+        _streamDef = "flowchart LR\n";
+        _streaming = true;
+        StateHasChanged();
+        var lines = new[]
+        {
+            "    A[User] --> B(Sender)",
+            "    B --> C{Has attachments?}",
+            "    C -->|Yes| D[Upload]",
+            "    C -->|No| E[Submit]",
+            "    D --> E",
+            "    E --> F[Stream response]",
+        };
+        foreach (var line in lines)
+        {
+            _streamDef += line + "\n";
+            StateHasChanged();
+            await Task.Delay(350);
+        }
+        _streaming = false;
+    }
+
+    private void ResetStream()
+    {
+        _streamDef = "flowchart LR\n";
+        _streaming = false;
+    }
+
+    private void OnMermaidError(string message) => _lastError = message;
+
     private const string Flow = """
 flowchart LR
     A[User] --> B(Sender)
@@ -38,6 +93,13 @@ sequenceDiagram
     S-->>U: render bubble
 """;
 
+    private const string InvalidMermaid = """
+flowchart LR
+    A -->>>>> B[broken arrow
+""";
+
     private const string FlowSource = """<XMermaid Title="Flow" Definition="@Flow" AllowRenderTypeToggle="true" />""";
     private const string SeqSource  = """<XMermaid Title="Sequence" Definition="@Seq" />""";
+    private const string StreamSource = """<XMermaid Definition="@buffer" />""";
+    private const string ErrorSource  = """<XMermaid Definition="@invalid" OnError="OnError" />""";
 }

@@ -20,6 +20,18 @@
     <XSources Items="@_items" Compact="true" Title="参考资料" />
 </DemoCard>
 
+<DemoCard Title="两列网格"
+          Description="Columns=2 启用响应式两列布局；窄屏自动回退为单列。"
+          SourceCode="@TwoColSource">
+    <XSources Items="@_items" Columns="2" Title="2 列" />
+</DemoCard>
+
+<DemoCard Title="三列网格"
+          Description="Columns=3 在卡片或宽容器中可读性更好。"
+          SourceCode="@ThreeColSource">
+    <XSources Items="@_items" Columns="3" Title="3 列" />
+</DemoCard>
+
 @code {
     private readonly IReadOnlyList<XSourceItem> _items =
     [
@@ -44,6 +56,27 @@
             Url = "https://github.com/",
             Icon = "github",
         },
+        new()
+        {
+            Title = "Microsoft.Extensions.AI",
+            Description = ".NET 的统一 AI 抽象。",
+            Url = "https://learn.microsoft.com/dotnet/ai/",
+            Icon = "cloud",
+        },
+        new()
+        {
+            Title = "Blazor Web App",
+            Description = "Server + WebAssembly 双模渲染。",
+            Url = "https://learn.microsoft.com/aspnet/core/blazor/",
+            Icon = "code",
+        },
+        new()
+        {
+            Title = "Mermaid",
+            Description = "文本驱动的图表渲染。",
+            Url = "https://mermaid.js.org/",
+            Icon = "node-index",
+        },
     ];
 
     private const string BasicSource = """
@@ -51,5 +84,11 @@
 """;
     private const string CompactSource = """
 <XSources Items="@items" Compact="true" />
+""";
+    private const string TwoColSource = """
+<XSources Items="@items" Columns="2" />
+""";
+    private const string ThreeColSource = """
+<XSources Items="@items" Columns="3" />
 """;
 }

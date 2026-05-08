@@ -19,9 +19,38 @@
     }
 </DemoCard>
 
+<DemoCard Title="嵌套子项"
+          Description="父级条目支持展开/收起；命中查询时展开匹配分支。"
+          SourceCode="@NestedSource">
+    <input class="demo-input" @bind="_nestedQuery" @bind:event="oninput" placeholder="输入关键字过滤嵌套项..." />
+    <XSuggestion Items="@_nested" Query="@_nestedQuery" Open="true" OnSelect="@(p => _nestedPicked = p.Title)" />
+    @if (!string.IsNullOrEmpty(_nestedPicked))
+    {
+        <p class="demo-tip">已选择：@_nestedPicked</p>
+    }
+</DemoCard>
+
+<DemoCard Title="提及触发"
+          Description="在 XSender 中输入 “at” 符号唤起候选人列表。"
+          SourceCode="@MentionSource">
+    <XSender Value="@_senderText"
+             ValueChanged="@OnSenderChanged"
+             Placeholder="输入 at 选择联系人..." />
+    <XSuggestion Items="@_mentions"
+                 Query="@MentionQuery"
+                 Open="@MentionOpen"
+                 OnSelect="@OnMentionSelect" />
+    <p class="demo-tip">当前内容：<code>@_senderText</code></p>
+</DemoCard>
+
 @code {
     private string _query = string.Empty;
     private string? _picked;
+    private string _nestedQuery = string.Empty;
+    private string? _nestedPicked;
+    private string _senderText = string.Empty;
+
+    private void OnSenderChanged(string? v) => _senderText = v ?? string.Empty;
 
     private readonly IReadOnlyList<XPromptItem> _items =
     [
@@ -32,7 +61,71 @@
         new() { Title = "撰写邮件", Description = "正式 / 非正式语气可选" },
     ];
 
+    private readonly IReadOnlyList<XPromptItem> _nested =
+    [
+        new()
+        {
+            Title = "代码助手",
+            Icon = "code",
+            Children = new XPromptItem[]
+            {
+                new() { Title = "解释代码", Description = "理解片段含义" },
+                new() { Title = "重构建议", Description = "面向可读性 / 性能" },
+                new() { Title = "生成单元测试", Description = "xUnit / bUnit" },
+            },
+        },
+        new()
+        {
+            Title = "写作助手",
+            Icon = "edit",
+            Children = new XPromptItem[]
+            {
+                new() { Title = "润色文风" },
+                new() { Title = "翻译为英文" },
+                new() { Title = "缩写为摘要" },
+            },
+        },
+        new() { Title = "查询知识库", Icon = "search" },
+    ];
+
+    private readonly IReadOnlyList<XPromptItem> _mentions =
+    [
+        new() { Title = "Alice", Description = "前端", Icon = "user" },
+        new() { Title = "Bob", Description = "后端", Icon = "user" },
+        new() { Title = "Charlie", Description = "运维", Icon = "user" },
+        new() { Title = "Diana", Description = "设计", Icon = "user" },
+    ];
+
+    private int MentionAtIndex => _senderText.LastIndexOf('@');
+    private bool MentionOpen => MentionAtIndex >= 0;
+    private string MentionQuery => MentionAtIndex >= 0
+        ? _senderText[(MentionAtIndex + 1)..]
+        : string.Empty;
+
+    private void OnMentionSelect(XPromptItem item)
+    {
+        if (MentionAtIndex < 0)
+        {
+            return;
+        }
+
+        _senderText = string.Concat(_senderText.AsSpan(0, MentionAtIndex), "@", item.Title, " ");
+    }
+
     private const string BasicSource = """
 <XSuggestion Items="@items" Query="@query" Open="true" OnSelect="OnSelect" />
+""";
+
+    private const string NestedSource = """
+new XPromptItem
+{
+    Title = "代码助手",
+    Children = new XPromptItem[] { new() { Title = "解释代码" }, ... }
+}
+""";
+
+    private const string MentionSource = """
+<XSender Value="@text" ValueChanged="@(v => text = v)" />
+<XSuggestion Items="@mentions" Query="@QueryAfterAt" Open="@OpenedByAt" OnSelect="OnPick" />
 """;
 }

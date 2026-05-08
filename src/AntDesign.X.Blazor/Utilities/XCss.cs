@@ -69,6 +69,14 @@ internal static class XCss
         Append(builder, "--antdx-motion-ease-in-out", tokens.MotionEaseInOut);
         Append(builder, "--antdx-motion-ease-out", tokens.MotionEaseOut);
         Append(builder, "--antdx-motion-ease-in", tokens.MotionEaseIn);
+        Append(builder, "--antdx-font-family", tokens.FontFamily);
+        Append(builder, "--antdx-font-size", tokens.FontSize);
+        Append(builder, "--antdx-font-size-sm", tokens.FontSizeSm);
+        Append(builder, "--antdx-font-size-lg", tokens.FontSizeLg);
+        Append(builder, "--antdx-font-size-xl", tokens.FontSizeXl);
+        Append(builder, "--antdx-line-height", tokens.LineHeight);
+        Append(builder, "--antdx-line-height-sm", tokens.LineHeightSm);
+        Append(builder, "--antdx-line-height-lg", tokens.LineHeightLg);
         return builder.ToString();
     }
 

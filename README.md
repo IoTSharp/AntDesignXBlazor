@@ -150,6 +150,23 @@ dotnet run --project external/AntDesignXBlazor/examples/AntDesign.X.Blazor.Demo/
 | XProvider | `XProvider` | 已实现主题 token 门面 |
 | XRequest / XStream / useXChat / useXAgent | `IXRequestClient` / `XStreamReader` / `XChatStore` / `XAgentStore` | 已实现 SDK 与示例闭环 |
 
+## React Hooks → C# Store API 对照
+
+| React Hook 能力 | C# 等价 | 说明 |
+| --- | --- | --- |
+| `useXAgent({ baseURL, model, dangerouslyApiKey })` | `services.AddXAgentStore()` + `IXRequestClient` 注入 | 在 `Program.cs` 注册；`XAgentStore` 通过 `IXRequestClient` 适配任何 OpenAI 兼容端点 |
+| `agent.request({ messages, stream }, { onUpdate, onSuccess, onError })` | `XAgentStore.RunAsync(XAgentRequest, ct)` | 内部消费 SSE 流并把增量写入 `Messages` 末尾的 assistant `XBubbleItem`，每次推进通过 `Changed` 事件通知 UI |
+| `agent.isRequesting()` | `XAgentStore.IsRunning`（属性） | 直接绑定到 `XSender.Loading` |
+| `useXChat({ agent, defaultMessages, parser, requestPlaceholder, requestFallback })` | `XChatStore`（构造时注入 `XAgentStore`） | 维护 `Messages`、`Status` 与 user/assistant 消息流转 |
+| `chat.messages` | `XChatStore.Messages`（`IReadOnlyList<XBubbleItem>`） | 直接绑定到 `XBubbleList.Items` |
+| `chat.onRequest(message)` | `XChatStore.SubmitAsync(XSenderRequest, ct)` | 内部追加 user 消息 + 调用 agent，流式回填 assistant |
+| `chat.setMessages(...)` | `XChatStore.ReplaceMessages(messages)` | 完整替换会话或重置 |
+| Abort（`AbortController`） | `XChatStore.AbortAsync()` / `XAgentStore.AbortAsync()` | 取消正在进行的流式请求；同时通过 `CancellationToken` 透传 |
+| Regenerate（手动重发最后一条 user 消息） | `XChatStore.RetryAsync(ct)` / `XAgentStore.RetryAsync(ct)` | 自动剥离最后一个 assistant 回复并重新调用 agent |
+| `onUpdate` 流式回调 | `XAgentStore.Changed` 事件 + `Messages` 末尾 assistant `XBubbleItem.Content` 增量 | 订阅 `Changed` 后读取最新 `Messages` 快照即可驱动打字机渲染 |
+
+> 实战示例参见 [`examples/AntDesign.X.Blazor.Demo/Components/Pages/Components/LiveChatDemo.razor`](examples/AntDesign.X.Blazor.Demo/Components/Pages/Components/LiveChatDemo.razor)（DeepSeek SSE 接入）。
+
 ## 许可证
 
 MIT

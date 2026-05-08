@@ -17,8 +17,8 @@
 | 7 | XAttachments 拖拽 / 粘贴 / 缩略图增强 | ✅ | AttachmentsDemo 覆盖拖拽 / 粘贴 / 缩略图 |
 | 8 | XConversations 分组 / 菜单 / groupable | ✅ | ConversationsDemo 覆盖 group / activeKey / menu |
 | 9 | XThoughtChain 折叠 / 状态图标 / 嵌套 | ✅ | XThoughtChain 重写 + Children + ThoughtChainDemo |
-| 10 | useXAgent / useXChat 等价 .NET API 评估 | 🚀 | XAgentStore / XChatStore 已具 abort / regenerate / streaming chunk 回调 |
-| 11 | 单元 + 快照测试骨架（bUnit + Verify） | 🚀 | bUnit + xUnit 测试项目落地，覆盖 XLocaleService / XRendererRegistry / XCss |
+| 10 | useXAgent / useXChat 等价 .NET API 评估 | ✅ | XAgentStore / XChatStore 提供 abort / regenerate / streaming chunk 回调，README 含 React→C# 对照 |
+| 11 | 单元 + 快照测试骨架（bUnit + Verify） | ✅ | bUnit + xUnit + Verify.Xunit，16 个用例（XLocaleService / XRendererRegistry / XCss + XBubble 快照） |
 | 12 | NuGet 打包元数据 / CI 构建脚本 | ✅ | SourceLink + EnablePackageValidation + GitHub Actions 工作流 |
 | 13 | 14 个组件 demo 页全部接通 | ✅ | Welcome / Prompts / Suggestion / Sources / Folder / Notification / Think / FileCard / Bubble / Sender / Attachments / Conversations / ThoughtChain / Actions |
 | 14 | DeepSeek 实时对话 Demo | ✅ | `/components/live-chat` 真接 OpenAI 兼容 SSE，API key 从 `.env` 读取（已 `.gitignore`） |
@@ -173,8 +173,8 @@
 
 - [x] 基本
 - [x] 自定义触发字符
-- [ ] 多级 children
-- [ ] 与 Sender 联动
+- [x] 多级 children
+- [x] 与 Sender 联动
 
 ### 反馈 / Feedback
 
@@ -188,9 +188,9 @@
 #### CodeHighlighter — `/components/code-highlighter`
 
 - [x] 基本
-- [ ] 流式 streaming
+- [x] 流式 streaming
 - [ ] 多语言语法
-- [ ] 复制 / 行号
+- [x] 复制 / 行号
 
 #### FileCard — `/components/file-card`
 
@@ -205,21 +205,21 @@
 - [x] 基本
 - [x] 卡片 variant
 - [x] 受控 activeKey
-- [ ] 自定义渲染
-- [ ] 状态徽标
+- [x] 自定义渲染
+- [x] 状态徽标
 
 #### Mermaid — `/components/mermaid`
 
 - [x] 基本
 - [ ] 流式 / 增量
 - [ ] 主题跟随
-- [ ] 错误 fallback
+- [x] 错误 fallback
 
 #### Sources — `/components/sources`
 
 - [x] 基本
 - [x] 卡片样式
-- [ ] 多列布局
+- [x] 多列布局
 - [x] 链接打开方式
 
 ### 其他 / Others
@@ -228,8 +228,8 @@
 
 - [x] 基本
 - [x] 主题 token
-- [ ] 暗色模式
-- [ ] 嵌套覆盖
+- [x] 暗色模式
+- [x] 嵌套覆盖
 
 ### 实战 / Live
 
@@ -247,7 +247,7 @@
 - [x] `XThemeTokens` + `XCss.ToCssVariables` 同步扩展，形成 C# API 入口
 - [x] 实现 motion token（duration / easing）并应用于 Bubble 进入、Sender 折叠、Notification 入场
 - [x] 暗色模式 token 覆盖与 `prefers-reduced-motion` 兜底
-- [ ] 字体梯度（fontSize、lineHeight）token 对齐与截图回归
+- [x] 字体梯度（fontSize、lineHeight）token 对齐与截图回归
 
 ## 里程碑 F：质量与发布
 

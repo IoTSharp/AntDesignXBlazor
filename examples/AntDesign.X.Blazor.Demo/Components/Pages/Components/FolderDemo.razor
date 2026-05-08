@@ -30,6 +30,29 @@
     <XFolder Items="@_flat" />
 </DemoCard>
 
+<DemoCard Title="状态徽章"
+          Description="XFolderItem.Status / Badge 渲染右侧色带，常用于标记构建/同步状态。"
+          SourceCode="@BadgeSource">
+    <XFolder Items="@_statusItems" Title="构建状态" />
+</DemoCard>
+
+<DemoCard Title="自定义模板"
+          Description="ItemTemplate 接管单项渲染。"
+          SourceCode="@TemplateSource">
+    <XFolder Items="@_items" Title="自定义">
+        <ItemTemplate>
+            <span class="demo-folder-custom">
+                <XIcon Type="@(string.IsNullOrEmpty(context.Icon) ? "folder" : context.Icon)" />
+                <strong>@context.Name</strong>
+                @if (!string.IsNullOrEmpty(context.Description))
+                {
+                    <em class="demo-folder-desc">— @context.Description</em>
+                }
+            </span>
+        </ItemTemplate>
+    </XFolder>
+</DemoCard>
+
 @code {
     private string? _selected;
 
@@ -41,8 +64,8 @@
             Icon = "folder",
             Children =
             [
-                new() { Name = "README.md", Icon = "file-text" },
-                new() { Name = "ROADMAP.md", Icon = "file-text" },
+                new() { Name = "README.md", Icon = "file-text", Description = "入门指南" },
+                new() { Name = "ROADMAP.md", Icon = "file-text", Description = "路线图" },
             ],
         },
         new()
@@ -63,6 +86,15 @@
         new() { Name = "禁用", Icon = "file", Disabled = true },
     ];
 
+    private readonly IReadOnlyList<XFolderItem> _statusItems =
+    [
+        new() { Name = "build/release", Icon = "deployment-unit", Status = XSemanticStatus.Success },
+        new() { Name = "build/staging", Icon = "deployment-unit", Status = XSemanticStatus.Warning, Badge = "queued" },
+        new() { Name = "build/preview", Icon = "deployment-unit", Status = XSemanticStatus.Error, Badge = "failed" },
+        new() { Name = "build/local",   Icon = "deployment-unit", Status = XSemanticStatus.Processing, Badge = "running" },
+        new() { Name = "build/info",    Icon = "deployment-unit", Status = XSemanticStatus.Default, Badge = "info" },
+    ];
+
     private void OnSelect(XFolderItem item) => _selected = item.Name;
 
     private const string BasicSource = """
@@ -73,5 +105,15 @@
 """;
     private const string FlatSource = """
 new XFolderItem { Name = "...", Disabled = true }
+""";
+    private const string BadgeSource = """
+new XFolderItem { Name = "build/release", Status = XSemanticStatus.Success }
+""";
+    private const string TemplateSource = """
+<XFolder Items="@items">
+    <ItemTemplate>
+        <strong>@context.Name</strong>
+    </ItemTemplate>
+</XFolder>
 """;
 }

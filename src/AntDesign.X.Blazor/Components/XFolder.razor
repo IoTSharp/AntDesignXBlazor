@@ -20,6 +20,10 @@
     [Parameter] public string? ActiveKey { get; set; }
     [Parameter] public EventCallback<string> ActiveKeyChanged { get; set; }
     [Parameter] public EventCallback<XFolderItem> OnSelect { get; set; }
+    /// <summary>
+    /// 自定义条目模板。提供后将替代默认的图标/名称/描述渲染。
+    /// </summary>
+    [Parameter] public RenderFragment<XFolderItem>? ItemTemplate { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
@@ -38,28 +42,43 @@
         builder.AddAttribute(seq++, "disabled", item.Disabled);
         builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => Select(item)));
 
-        builder.OpenElement(seq++, "span");
-        builder.AddAttribute(seq++, "class", "antdx-folder-icon");
-        builder.OpenComponent<XIcon>(seq++);
-        builder.AddAttribute(seq++, "Type", string.IsNullOrWhiteSpace(item.Icon) ? item.Children.Count > 0 ? "folder" : "file" : item.Icon);
-        builder.CloseComponent();
-        builder.CloseElement();
-
-        builder.OpenElement(seq++, "span");
-        builder.AddAttribute(seq++, "class", "antdx-folder-main");
-        builder.OpenElement(seq++, "span");
-        builder.AddAttribute(seq++, "class", "antdx-folder-name");
-        builder.AddContent(seq++, item.Name);
-        builder.CloseElement();
-        if (!string.IsNullOrWhiteSpace(item.Description))
+        if (ItemTemplate is not null)
+        {
+            builder.AddContent(seq++, ItemTemplate(item));
+        }
+        else
         {
             builder.OpenElement(seq++, "span");
-            builder.AddAttribute(seq++, "class", "antdx-folder-description");
-            builder.AddContent(seq++, item.Description);
+            builder.AddAttribute(seq++, "class", "antdx-folder-icon");
+            builder.OpenComponent<XIcon>(seq++);
+            builder.AddAttribute(seq++, "Type", string.IsNullOrWhiteSpace(item.Icon) ? item.Children.Count > 0 ? "folder" : "file" : item.Icon);
+            builder.CloseComponent();
             builder.CloseElement();
+
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-folder-main");
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-folder-name");
+            builder.AddContent(seq++, item.Name);
+            builder.CloseElement();
+            if (!string.IsNullOrWhiteSpace(item.Description))
+            {
+                builder.OpenElement(seq++, "span");
+                builder.AddAttribute(seq++, "class", "antdx-folder-description");
+                builder.AddContent(seq++, item.Description);
+                builder.CloseElement();
+            }
+            builder.CloseElement();
+
+            if (!string.IsNullOrWhiteSpace(item.Badge) || item.Status is not null)
+            {
+                builder.OpenElement(seq++, "span");
+                builder.AddAttribute(seq++, "class", XCss.Combine("antdx-folder-badge", item.Status is null ? null : $"antdx-folder-badge-{item.Status.Value.ToString().ToLowerInvariant()}"));
+                builder.AddContent(seq++, item.Badge ?? item.Status?.ToString());
+                builder.CloseElement();
+            }
         }
 
-        builder.CloseElement();
         builder.CloseElement();
 
         if (item.Children.Count > 0)

@@ -6,7 +6,7 @@
         <div class="antdx-sources-header">@Title</div>
     }
 
-    <div class="antdx-sources-list">
+    <div class="antdx-sources-list" style="@ListStyle">
         @for (var index = 0; index < Items.Count; index++)
         {
             var item = Items[index];
@@ -34,13 +34,23 @@
     [Parameter] public string? Title { get; set; } = "Sources";
     [Parameter] public string Target { get; set; } = "_blank";
     [Parameter] public bool Compact { get; set; }
+    /// <summary>
+    /// 多列布局列数；默认 0 表示自适应（最小 220px）。
+    /// 设置 1 强制单列；&gt;=2 显示固定列数（响应式下小屏会自动收成 1 列）。
+    /// </summary>
+    [Parameter] public int Columns { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
     private string ClassName => XCss.Combine(
         "antdx-sources",
         Compact ? "antdx-sources-compact" : null,
+        Columns > 0 ? $"antdx-sources-cols-{Columns}" : null,
         Class);
+
+    private string? ListStyle => Columns >= 2 && !Compact
+        ? $"grid-template-columns: repeat({Columns}, minmax(0, 1fr));"
+        : null;
 
     private RenderFragment SourceContent(XSourceItem item, int index) => builder =>
     {

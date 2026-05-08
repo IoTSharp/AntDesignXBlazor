@@ -20,7 +20,62 @@
     <XCodeHighlighter Language="json" Code="@JsonCode" ShowHeader="false" />
 </DemoCard>
 
+<DemoCard Title="行号"
+          Description="ShowLineNumbers 启用左侧行号列。"
+          SourceCode="@LineNumbersSource">
+    <XCodeHighlighter Language="@_lnLang" Code="@CurrentLnCode" ShowLineNumbers="true" />
+    <div class="demo-toolbar">
+        @foreach (var lang in _lnLanguages)
+        {
+            <button class="demo-button @(lang == _lnLang ? "demo-button-active" : null)"
+                    @onclick="() => _lnLang = lang">@lang</button>
+        }
+    </div>
+</DemoCard>
+
+<DemoCard Title="流式"
+          Description="Streaming 在末尾追加闪烁光标，可与逐字 push 结合。"
+          SourceCode="@StreamingSource">
+    <XCodeHighlighter Language="csharp" Code="@_streamingCode" Streaming="@_streaming" ShowLineNumbers="true" />
+    <div class="demo-toolbar">
+        <button class="demo-button" @onclick="StartStreamAsync" disabled="@_streaming">开始流式输出</button>
+        <button class="demo-button" @onclick="ResetStream">重置</button>
+    </div>
+</DemoCard>
+
 @code {
+    private string _lnLang = "csharp";
+    private static readonly string[] _lnLanguages = ["csharp", "razor", "json"];
+    private string CurrentLnCode => _lnLang switch
+    {
+        "razor" => RazorCode,
+        "json" => JsonCode,
+        _ => CsharpCode,
+    };
+
+    private string _streamingCode = string.Empty;
+    private bool _streaming;
+
+    private async Task StartStreamAsync()
+    {
+        _streamingCode = string.Empty;
+        _streaming = true;
+        StateHasChanged();
+        foreach (var ch in CsharpCode)
+        {
+            _streamingCode += ch;
+            StateHasChanged();
+            await Task.Delay(15);
+        }
+        _streaming = false;
+    }
+
+    private void ResetStream()
+    {
+        _streaming = false;
+        _streamingCode = string.Empty;
+    }
+
     private const string CsharpCode = """
 using AntDesign.X;
 
@@ -46,4 +101,6 @@ public sealed record Greeting(string Name)
     private const string CsharpSource = """<XCodeHighlighter Language="csharp" Code="@CsharpCode" />""";
     private const string RazorSource  = """<XCodeHighlighter Language="razor"  Code="@RazorCode" />""";
     private const string JsonSource   = """<XCodeHighlighter Language="json"   Code="@JsonCode" ShowHeader="false" />""";
+    private const string LineNumbersSource = """<XCodeHighlighter Language="csharp" Code="@code" ShowLineNumbers="true" />""";
+    private const string StreamingSource = """<XCodeHighlighter Language="csharp" Code="@buffer" Streaming="@isStreaming" ShowLineNumbers="true" />""";
 }

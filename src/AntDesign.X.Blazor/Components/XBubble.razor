@@ -27,7 +27,10 @@
             <div class="antdx-bubble-header">@Header</div>
         }
 
-        <div class="antdx-bubble-content">
+        <div class="antdx-bubble-content"
+             aria-live="@(Streaming == true ? "polite" : null)"
+             aria-atomic="@(Streaming == true ? "false" : null)"
+             aria-busy="@(IsLoading || Streaming == true ? "true" : null)">
             @if (IsLoading)
             {
                 if (LoadingTemplate is not null)

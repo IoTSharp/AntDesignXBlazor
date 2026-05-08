@@ -21,16 +21,41 @@
     </XProvider>
 </DemoCard>
 
-<section class="demo-todo">
-    <h2>待补 demo</h2>
-    <ul>
-        <li>Locale 切换</li>
-        <li>嵌套 Provider 覆盖</li>
-        <li>SyncTheme 与系统暗色</li>
-    </ul>
-</section>
+<DemoCard Title="字号梯度"
+          Description="FontSize / FontSizeSm / FontSizeLg / LineHeight 等 token 同步生效。"
+          SourceCode="@FontSource">
+    <XProvider Tokens="@FontTokens">
+        <XBubble Header="Large body" AvatarIcon="font-size"
+                 Placement="XBubblePlacement.Start"
+                 Content="正文字号 18px / 行高 1.7。" />
+    </XProvider>
+</DemoCard>
+
+<DemoCard Title="暗色模式 + 嵌套覆盖"
+          Description="顶层 IsDark 切换；内部 XProvider 可再次覆盖局部 token。"
+          SourceCode="@DarkSource">
+    <div class="demo-toolbar">
+        <button class="demo-button" @onclick="() => _dark = !_dark">@((_dark ? "切换到浅色" : "切换到暗色"))</button>
+    </div>
+    <XProvider Theme="@(_dark ? "dark" : "light")" Tokens="@OuterTokens">
+        <div class="demo-stack">
+            <XBubble Header="Outer assistant" AvatarIcon="robot"
+                     Placement="XBubblePlacement.Start"
+                     Content="@OuterDescription" />
+            <XProvider Tokens="@InnerTokens">
+                <XBubble Header="Inner assistant" AvatarIcon="experiment"
+                         Placement="XBubblePlacement.Start"
+                         Variant="XBubbleVariant.Filled"
+                         Content="内层 Provider：覆盖为粉色主题、保留外层暗/亮。" />
+            </XProvider>
+        </div>
+    </XProvider>
+</DemoCard>
 
 @code {
+    private bool _dark;
+    private string OuterDescription => $"外层 Provider：{(_dark ? "暗色" : "浅色")} + 蓝色主题。";
+
     private XThemeTokens Tokens { get; } = new()
     {
         PrimaryColor = "#722ed1",
@@ -39,9 +64,47 @@
         BubbleEndBackground = "#722ed1",
     };
 
+    private XThemeTokens FontTokens { get; } = new()
+    {
+        FontSize = "18px",
+        FontSizeSm = "14px",
+        FontSizeLg = "20px",
+        FontSizeXl = "26px",
+        LineHeight = "1.7",
+        LineHeightSm = "1.5",
+        LineHeightLg = "1.8",
+    };
+
+    private XThemeTokens OuterTokens { get; } = new()
+    {
+        PrimaryColor = "#1677ff",
+        BorderRadius = "10px",
+    };
+
+    private XThemeTokens InnerTokens { get; } = new()
+    {
+        PrimaryColor = "#eb2f96",
+        BorderRadius = "20px",
+        BubbleStartBackground = "rgba(235, 47, 150, 0.12)",
+    };
+
     private const string TokensSource = """
 <XProvider Tokens="@(new XThemeTokens { PrimaryColor = "#722ed1", BorderRadius = "12px" })">
     <XBubble Content="主题色与圆角已被覆盖。" />
+</XProvider>
+""";
+
+    private const string FontSource = """
+<XProvider Tokens="@(new XThemeTokens { FontSize = "18px", LineHeight = "1.7" })">
+    <XBubble Content="正文字号 18px / 行高 1.7。" />
+</XProvider>
+""";
+
+    private const string DarkSource = """
+<XProvider Theme="dark" Tokens="@outer">
+    <XProvider Tokens="@inner">
+        <XBubble Content="嵌套覆盖" />
+    </XProvider>
 </XProvider>
 """;
 }

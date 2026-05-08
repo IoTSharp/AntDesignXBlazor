@@ -128,6 +128,8 @@ public sealed record XFolderItem
     public string? Description { get; init; }
     public string? Icon { get; init; }
     public bool Disabled { get; init; }
+    public XSemanticStatus? Status { get; init; }
+    public string? Badge { get; init; }
     public IReadOnlyList<XFolderItem> Children { get; init; } = Array.Empty<XFolderItem>();
 }
 
@@ -192,4 +194,14 @@ public sealed record XThemeTokens
     public string? MotionEaseInOut { get; init; }
     public string? MotionEaseOut { get; init; }
     public string? MotionEaseIn { get; init; }
+
+    // font scale token —— 与 antd 5 fontSize 梯度对齐
+    public string? FontFamily { get; init; }
+    public string? FontSize { get; init; }
+    public string? FontSizeSm { get; init; }
+    public string? FontSizeLg { get; init; }
+    public string? FontSizeXl { get; init; }
+    public string? LineHeight { get; init; }
+    public string? LineHeightSm { get; init; }
+    public string? LineHeightLg { get; init; }
 }

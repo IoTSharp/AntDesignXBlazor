@@ -8,22 +8,7 @@
     <div class="antdx-suggestion-list" role="listbox">
         @foreach (var item in FilteredItems)
         {
-            <button type="button"
-                    class="antdx-suggestion-item"
-                    role="option"
-                    disabled="@item.Disabled"
-                    @onclick="() => Select(item)">
-                <span class="antdx-suggestion-icon">
-                    <XIcon Type="@item.Icon" />
-                </span>
-                <span class="antdx-suggestion-main">
-                    <span>@item.Title</span>
-                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                    {
-                        <small>@item.Description</small>
-                    }
-                </span>
-            </button>
+            @RenderItem(item, 0)
         }
     </div>
 </div>
@@ -37,16 +22,111 @@
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
+    private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+
     private string ClassName => XCss.Combine("antdx-suggestion", Open ? "antdx-suggestion-open" : null, Class);
 
     private IEnumerable<XPromptItem> FilteredItems => string.IsNullOrWhiteSpace(Query)
         ? Items
-        : Items.Where(item =>
-            item.Title.Contains(Query, StringComparison.OrdinalIgnoreCase) ||
-            (item.Description?.Contains(Query, StringComparison.OrdinalIgnoreCase) ?? false));
+        : Items.Where(MatchesQuery);
 
-    private Task Select(XPromptItem item)
+    private bool MatchesQuery(XPromptItem item)
     {
-        return item.Disabled ? Task.CompletedTask : OnSelect.InvokeAsync(item);
+        var q = Query!;
+        if (item.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+            (item.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false))
+        {
+            return true;
+        }
+
+        return item.Children.Count > 0 && item.Children.Any(MatchesQuery);
+    }
+
+    private RenderFragment RenderItem(XPromptItem item, int level) => builder =>
+    {
+        var hasChildren = item.Children.Count > 0;
+        var expanded = hasChildren && (!string.IsNullOrWhiteSpace(Query) || _expanded.Contains(item.Key));
+        var seq = 0;
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "antdx-suggestion-row");
+
+        builder.OpenElement(seq++, "button");
+        builder.AddAttribute(seq++, "type", "button");
+        builder.AddAttribute(seq++, "class", "antdx-suggestion-item");
+        builder.AddAttribute(seq++, "role", "option");
+        builder.AddAttribute(seq++, "disabled", item.Disabled);
+        builder.AddAttribute(seq++, "style", $"--antdx-suggestion-indent:{level * 14}px");
+        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, () => OnItemClick(item, hasChildren)));
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-suggestion-icon");
+        builder.OpenComponent<XIcon>(seq++);
+        builder.AddAttribute(seq++, "Type", string.IsNullOrWhiteSpace(item.Icon) ? (hasChildren ? "appstore" : "thunderbolt") : item.Icon);
+        builder.CloseComponent();
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "antdx-suggestion-main");
+        builder.OpenElement(seq++, "span");
+        builder.AddContent(seq++, item.Title);
+        builder.CloseElement();
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            builder.OpenElement(seq++, "small");
+            builder.AddContent(seq++, item.Description);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+
+        if (hasChildren)
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "antdx-suggestion-chevron");
+            builder.OpenComponent<XIcon>(seq++);
+            builder.AddAttribute(seq++, "Type", expanded ? "down" : "right");
+            builder.CloseComponent();
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+
+        if (expanded)
+        {
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "antdx-suggestion-children");
+            foreach (var child in item.Children)
+            {
+                if (string.IsNullOrWhiteSpace(Query) || MatchesQuery(child))
+                {
+                    builder.AddContent(seq++, RenderItem(child, level + 1));
+                }
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+    };
+
+    private Task OnItemClick(XPromptItem item, bool hasChildren)
+    {
+        if (item.Disabled)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (hasChildren && string.IsNullOrWhiteSpace(Query))
+        {
+            if (!_expanded.Add(item.Key))
+            {
+                _expanded.Remove(item.Key);
+            }
+
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        return OnSelect.InvokeAsync(item);
     }
 }
