@@ -4,7 +4,7 @@
 <XProvider Theme="@ThemeState.Theme" Class="demo-root">
     <div class="@ShellClass">
         <header class="demo-topbar">
-            <a class="demo-brand demo-topbar-brand" href="/">
+            <a class="demo-brand demo-topbar-brand" href="">
                 <img class="demo-brand-mark"
                      src="antdesign-x-blazor-logo.svg"
                      alt=""
@@ -58,7 +58,7 @@
                 @if (!_componentNavCollapsed)
                 {
                     <nav class="demo-side-nav" aria-label="组件分类">
-                        <a href="/components" class="demo-nav-link demo-side-link demo-side-link-home">
+                        <a href="components" class="demo-nav-link demo-side-link demo-side-link-home">
                             <Icon Type="appstore" Theme="IconThemeType.Outline" />
                             <span>组件总览</span>
                         </a>
@@ -78,7 +78,7 @@
                                     <div class="demo-side-group-items">
                                         @foreach (var item in group.Items)
                                         {
-                                            <a href="@($"/components/{item.Slug}")" class="demo-nav-link demo-side-link">
+                                            <a href="@($"components/{item.Slug}")" class="demo-nav-link demo-side-link">
                                                 <span>@item.Title</span>
                                                 <small>@item.EnglishTitle</small>
                                             </a>

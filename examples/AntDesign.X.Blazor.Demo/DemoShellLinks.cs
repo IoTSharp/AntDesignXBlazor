@@ -10,26 +10,29 @@ public static class DemoShellLinks
 
     public static readonly IReadOnlyList<NavLinkItem> PrimaryLinks =
     [
-        new("/", "首页", "home", true),
-        new("/components", "组件总览", "appstore"),
-        new("/about", "关于", "info-circle"),
+        new("", "首页", "home", true),
+        new("components", "组件介绍", "appstore"),
+        new("about", "关于", "info-circle"),
     ];
 
     public static readonly IReadOnlyList<NavLinkItem> HomeSections =
     [
-        new("/#experience", "完整工作台体验", "message"),
-        new("/#display", "展示组件", "appstore"),
-        new("/#input", "输入与建议", "paper-clip"),
-        new("/#feedback", "反馈与状态", "bell"),
-        new("/#sdk", "SDK 闭环", "robot"),
-        new("/#markdown", "Markdown、代码与图", "file-text"),
-        new("/#code", "最小使用代码", "code"),
+        new("#rich", "RICH 范式", "bulb"),
+        new("#scenarios", "场景范例", "desktop"),
+        new("#components", "组件矩阵", "appstore"),
+        new("#experience", "完整工作台体验", "message"),
+        new("#display", "展示组件", "appstore"),
+        new("#input", "输入与建议", "paper-clip"),
+        new("#feedback", "反馈与状态", "bell"),
+        new("#sdk", "SDK 闭环", "robot"),
+        new("#markdown", "Markdown、代码与图", "file-text"),
+        new("#code", "最小使用代码", "code"),
     ];
 
     public static readonly IReadOnlyList<NavLinkItem> PlaygroundLinks =
     [
-        new("/components/playground-ultramodern", "Ultramodern", "experiment"),
-        new("/components/playground-independent", "Independent", "experiment"),
-        new("/components/playground-copilot", "Copilot", "experiment"),
+        new("components/playground-ultramodern", "Ultramodern", "experiment"),
+        new("components/playground-independent", "Independent", "experiment"),
+        new("components/playground-copilot", "Copilot", "experiment"),
     ];
 }

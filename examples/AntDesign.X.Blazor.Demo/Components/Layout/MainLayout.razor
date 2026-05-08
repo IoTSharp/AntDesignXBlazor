@@ -2,9 +2,9 @@
 @inject DemoThemeState ThemeState
 
 <XProvider Theme="@ThemeState.Theme" Class="demo-root">
-    <div class="demo-shell">
+    <div class="demo-shell demo-home-shell">
         <header class="demo-topbar">
-            <a class="demo-brand demo-topbar-brand" href="/">
+            <a class="demo-brand demo-topbar-brand" href="">
                 <img class="demo-brand-mark"
                      src="antdesign-x-blazor-logo.svg"
                      alt=""
@@ -39,33 +39,7 @@
                 </button>
             </div>
         </header>
-        <aside class="demo-sider">
-            <section class="demo-sider-section">
-                <div class="demo-sider-title">首页锚点</div>
-                <nav class="demo-side-nav" aria-label="首页锚点">
-                    @foreach (var item in DemoShellLinks.HomeSections)
-                    {
-                        <a class="demo-nav-link demo-side-link" href="@item.Href">
-                            <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                            <span>@item.Text</span>
-                        </a>
-                    }
-                </nav>
-            </section>
-            <section class="demo-sider-section">
-                <div class="demo-sider-title">Playground 实战范例</div>
-                <nav class="demo-side-nav" aria-label="Playground 实战范例">
-                    @foreach (var item in DemoShellLinks.PlaygroundLinks)
-                    {
-                        <a class="demo-nav-link demo-side-link" href="@item.Href">
-                            <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                            <span>@item.Text</span>
-                        </a>
-                    }
-                </nav>
-            </section>
-        </aside>
-        <main class="demo-main">
+        <main class="demo-main demo-home-main">
             @Body
         </main>
     </div>

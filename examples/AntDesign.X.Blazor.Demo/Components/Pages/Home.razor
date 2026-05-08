@@ -6,14 +6,178 @@
 
 <PageTitle>首页 · AntDesign.X.Blazor</PageTitle>
 
-<section class="demo-hero">
-    <div class="demo-kicker">Ant Design X 2.x for Blazor</div>
-    <h1>面向 AI 对话产品的 Blazor 组件门面</h1>
-    <p>这个示例应用覆盖 Bubble、Conversations、Sender、Attachments、Prompts、ThoughtChain、Think、Suggestion、Sources、FileCard、Folder、Notification、Markdown、CodeHighlighter 与 Mermaid。每块都展示真实交互和可复制的写法。</p>
+<section class="demo-home-hero">
+    <div class="demo-hero-copy">
+        <div class="demo-kicker">Ant Design X 2.x for Blazor</div>
+        <h1>新一代 Blazor AI 界面解决方案</h1>
+        <p>参考 Ant Design X 的 RICH 范式与组件组织，把唤醒、表达、确认、反馈四个阶段映射到纯 Blazor + AntDesign.Blazor。这里不是静态首页，而是一套可直接试用的 AI 工作台样板。</p>
+        <div class="demo-hero-actions">
+            <a class="demo-primary-button" href="components/introduce-cn">
+                <Icon Type="rocket" Theme="IconThemeType.Outline" />
+                <span>开始使用</span>
+            </a>
+            <a class="demo-ghost-button" href="components">
+                <Icon Type="appstore" Theme="IconThemeType.Outline" />
+                <span>查看组件</span>
+            </a>
+        </div>
+        <dl class="demo-hero-metrics" aria-label="能力概览">
+            <div>
+                <dt>18+</dt>
+                <dd>X 语义组件</dd>
+            </div>
+            <div>
+                <dt>4</dt>
+                <dd>RICH 阶段</dd>
+            </div>
+            <div>
+                <dt>3</dt>
+                <dd>Playground 模式</dd>
+            </div>
+        </dl>
+    </div>
+    <div class="demo-hero-stage" aria-label="AI 工作台预览">
+        <div class="demo-stage-toolbar">
+            <span>Ant Design X Blazor Workspace</span>
+            <div class="demo-stage-status">
+                <i></i><i></i><i></i>
+            </div>
+        </div>
+        <XWelcome Title="Ant Design X Blazor"
+                  Description="从欢迎、提示词、消息流到输入框，首页首屏就呈现真实的 AI 产品界面。"
+                  Icon="robot">
+            <XPrompts Items="@Prompts.Take(3).ToArray()"
+                      Wrap="true"
+                      OnItemClick="@UsePrompt" />
+        </XWelcome>
+        <div class="demo-stage-chat">
+            <XBubbleList Items="@Messages.TakeLast(4).ToArray()"
+                         RoleConfigs="@BubbleRoleConfigs"
+                         Loading="@ChatStore.IsLoading"
+                         OnAction="@HandleMessageAction" />
+        </div>
+        <XSender @bind-Value="@Draft"
+                 Attachments="@DraftAttachments"
+                 Actions="@SenderActions"
+                 Loading="@ChatStore.IsLoading"
+                 AutoSize="true"
+                 AutoSizeMaxRows="4"
+                 ClearAfterSubmit="true"
+                 Clearable="true"
+                 HeaderVisible="false"
+                 SubmitMode="XSenderSubmitMode.Enter"
+                 AttachmentsPastable="true"
+                 AttachmentsDragHover="true"
+                 Placeholder="Ask Ant Design X Blazor anything"
+                 BeforeUpload="@BeforeUpload"
+                 OnSubmit="@Submit"
+                 OnCancel="@Stop"
+                 OnClear="@ClearDraft"
+                 OnAction="@HandleSenderAction"
+                 OnFilesSelected="@AddFiles"
+                 OnAttachmentRemove="@RemoveAttachment" />
+    </div>
 </section>
 
-<section id="experience" class="demo-section">
-    <h2>完整工作台体验</h2>
+<section id="rich" class="demo-home-section">
+    <header class="demo-section-heading">
+        <div class="demo-kicker">AI Design Paradigm</div>
+        <h2>围绕 RICH 范式组织页面，而不是堆组件</h2>
+        <p>官方站的思路是先解释 AI 界面范式，再把组件放回用户旅程。这个示例站也按“唤醒、表达、确认、反馈”组织首页，让访问者先理解组合方式，再进入组件明细。</p>
+    </header>
+    <div class="demo-rich-grid">
+        <article class="demo-rich-card">
+            <Icon Type="bulb" Theme="IconThemeType.Outline" />
+            <strong>Awaken 唤醒</strong>
+            <p>用 Welcome 与 Prompts 帮用户快速理解 AI 能做什么。</p>
+            <a href="components/welcome">Start with Awaken</a>
+        </article>
+        <article class="demo-rich-card">
+            <Icon Type="edit" Theme="IconThemeType.Outline" />
+            <strong>Express 表达</strong>
+            <p>用 Sender、Attachments、Suggestion 降低输入成本。</p>
+            <a href="components/sender">Start with Express</a>
+        </article>
+        <article class="demo-rich-card">
+            <Icon Type="control" Theme="IconThemeType.Outline" />
+            <strong>Confirm 确认</strong>
+            <p>用 Think 与 ThoughtChain 展示过程，缓解等待焦虑。</p>
+            <a href="components/thought-chain">Start with Confirm</a>
+        </article>
+        <article class="demo-rich-card">
+            <Icon Type="check-circle" Theme="IconThemeType.Outline" />
+            <strong>Feedback 反馈</strong>
+            <p>用 Sources、Actions、Notification 建立结果可信度。</p>
+            <a href="components/sources">Start with Feedback</a>
+        </article>
+    </div>
+</section>
+
+<section id="scenarios" class="demo-home-section demo-scenario-section">
+    <div class="demo-scenario-copy">
+        <div class="demo-kicker">Multiple AI Scenario Experiences</div>
+        <h2>从独立对话，到 Copilot，再到嵌入式工作台</h2>
+        <p>首页参考官方站的场景叙事，展示多种 AI 产品形态。组件页则保留更细的 demo card，方便开发时复制代码。</p>
+        <div class="demo-scenario-links">
+            @foreach (var item in DemoShellLinks.PlaygroundLinks)
+            {
+                <a class="demo-scenario-link" href="@item.Href">
+                    <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
+                    <span>@item.Text</span>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="demo-scenario-preview">
+        <div class="demo-scenario-tabs" aria-hidden="true">
+            <span class="active">Web - Independent</span>
+            <span>Web - Assistant</span>
+            <span>Web - Nest</span>
+        </div>
+        <div class="demo-scenario-window">
+            <div class="demo-scenario-sidebar">
+                <XConversations Items="@Conversations.Take(3).ToArray()"
+                                ActiveKey="@ActiveConversation"
+                                ActiveKeyChanged="@SetActiveConversation"
+                                Title="Chats" />
+            </div>
+            <div class="demo-scenario-main">
+                <XThoughtChain Title="Agent progress"
+                               Items="@Thoughts" />
+                <XSources Items="@Sources" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="components" class="demo-home-section">
+    <header class="demo-section-heading">
+        <div class="demo-kicker">Components Rich, Easy to Use</div>
+        <h2>组件丰富，但入口要清晰</h2>
+        <p>首页只展示组件能力的组合效果；组件页再按官方分类提供“介绍、总览、单项 demo”的文档式路径。</p>
+    </header>
+    <div class="demo-home-component-grid">
+        @foreach (var group in ComponentNav.Groups.Take(6))
+        {
+            <article class="demo-home-component-card">
+                <h3>@group.Title</h3>
+                <div>
+                    @foreach (var item in group.Items.Take(4))
+                    {
+                        <a href="@($"components/{item.Slug}")">@item.EnglishTitle</a>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<section id="experience" class="demo-home-section demo-workbench-section">
+    <header class="demo-section-heading">
+        <div class="demo-kicker">Live Workspace</div>
+        <h2>完整工作台体验</h2>
+        <p>这一块保留真实交互，用来验证 Conversations、BubbleList、Sender、Attachments 和 Prompts 的组合是否顺手。</p>
+    </header>
     <div class="demo-chat">
         <XConversations Items="@Conversations"
                         ActiveKey="@ActiveConversation"
@@ -65,8 +229,11 @@
     </div>
 </section>
 
-<section id="display" class="demo-section">
-    <h2>展示组件</h2>
+<section id="display" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>展示组件</h2>
+        <p>把思考过程、引用来源和文件结构放在同一个界面语言里。</p>
+    </header>
     <div class="demo-grid">
         <XThoughtChain Title="ThoughtChain"
                        Items="@Thoughts" />
@@ -85,8 +252,11 @@
     </div>
 </section>
 
-<section id="input" class="demo-section">
-    <h2>输入与建议</h2>
+<section id="input" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>输入与建议</h2>
+        <p>表达阶段重点展示附件、提示集和快捷指令。</p>
+    </header>
     <div class="demo-grid">
         <XAttachments Title="Attachments"
                       Items="@DraftAttachments"
@@ -102,8 +272,11 @@
     </div>
 </section>
 
-<section id="feedback" class="demo-section">
-    <h2>反馈与状态</h2>
+<section id="feedback" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>反馈与状态</h2>
+        <p>结果阶段需要清晰的文件状态、快捷操作和系统通知。</p>
+    </header>
     <div class="demo-grid">
         <XFileCard Item="@UploadingFile" />
         <XFileCard Item="@DoneFile" />
@@ -117,8 +290,11 @@
                    OnClose="@CloseNotification" />
 </section>
 
-<section id="sdk" class="demo-section">
-    <h2>SDK 闭环</h2>
+<section id="sdk" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>SDK 闭环</h2>
+        <p>把流式消息、工具调用、来源引用和思考链串起来，模拟真实智能体运行过程。</p>
+    </header>
     <div class="demo-grid">
         <div class="demo-agent-panel">
             <div class="demo-sender-header">
@@ -164,8 +340,11 @@
     </div>
 </section>
 
-<section id="markdown" class="demo-section">
-    <h2>Markdown、代码与图</h2>
+<section id="markdown" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>Markdown、代码与图</h2>
+        <p>面向 AI 输出的内容渲染能力集中放在反馈之后。</p>
+    </header>
     <div class="demo-code-grid">
         <XMarkdown Content="@MarkdownSample" />
         <XCodeHighlighter Language="razor"
@@ -174,8 +353,11 @@
     </div>
 </section>
 
-<section id="code" class="demo-section">
-    <h2>最小使用代码</h2>
+<section id="code" class="demo-home-section">
+    <header class="demo-section-heading demo-section-heading-compact">
+        <h2>最小使用代码</h2>
+        <p>首页只给最短路径，完整 API 和示例进入组件文档页查看。</p>
+    </header>
     <XCodeHighlighter Language="razor"
                       Code="@SenderCode" />
 </section>
