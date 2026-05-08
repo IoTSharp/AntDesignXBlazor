@@ -660,58 +660,6 @@ body {
     margin: 0 auto;
 }
 
-.demo-playground-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.demo-playground-header h2 {
-    margin: 0;
-    color: var(--antdx-text);
-    font-size: 18px;
-    line-height: 1.35;
-}
-
-.demo-playground-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.demo-playground-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 34px;
-    padding: 7px 12px;
-    color: var(--antdx-text-secondary);
-    background: transparent;
-    border: 1px solid var(--antdx-border);
-    border-radius: var(--antdx-radius-sm);
-    font: inherit;
-    cursor: pointer;
-    transition: color var(--antdx-motion), border-color var(--antdx-motion), background var(--antdx-motion);
-}
-
-.demo-playground-tab:hover {
-    color: var(--antdx-color-primary);
-    border-color: rgba(22, 119, 255, 0.18);
-    background: rgba(22, 119, 255, 0.08);
-}
-
-.demo-playground-tab.active {
-    color: var(--antdx-color-primary);
-    border-color: rgba(22, 119, 255, 0.25);
-    background: rgba(22, 119, 255, 0.12);
-}
-
-.demo-playground-panel {
-    min-width: 0;
-}
-
 .demo-source-link {
     color: var(--antdx-text-secondary);
 }

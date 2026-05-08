@@ -41,8 +41,8 @@
         </header>
         <aside class="demo-sider">
             <section class="demo-sider-section">
-                <div class="demo-sider-title">首页目录</div>
-                <nav class="demo-side-nav" aria-label="首页目录">
+                <div class="demo-sider-title">首页锚点</div>
+                <nav class="demo-side-nav" aria-label="首页锚点">
                     @foreach (var item in DemoShellLinks.HomeSections)
                     {
                         <a class="demo-nav-link demo-side-link" href="@item.Href">
@@ -50,23 +50,18 @@
                             <span>@item.Text</span>
                         </a>
                     }
-
-                    <div class="demo-side-group">
-                        <h4>Playground 实战范例</h4>
-                        <div class="demo-side-group-items">
-                            @foreach (var item in DemoShellLinks.HomePlaygroundLinks)
-                            {
-                                <a class="demo-nav-link demo-side-link" href="@item.Href">
-                                    <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                                    <span>@item.Text</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.EnglishTitle))
-                                    {
-                                        <small>@item.EnglishTitle</small>
-                                    }
-                                </a>
-                            }
-                        </div>
-                    </div>
+                </nav>
+            </section>
+            <section class="demo-sider-section">
+                <div class="demo-sider-title">Playground 实战范例</div>
+                <nav class="demo-side-nav" aria-label="Playground 实战范例">
+                    @foreach (var item in DemoShellLinks.PlaygroundLinks)
+                    {
+                        <a class="demo-nav-link demo-side-link" href="@item.Href">
+                            <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
+                            <span>@item.Text</span>
+                        </a>
+                    }
                 </nav>
             </section>
         </aside>

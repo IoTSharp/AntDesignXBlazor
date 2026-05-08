@@ -26,10 +26,10 @@ public static class DemoShellLinks
         new("/#code", "最小使用代码", "code"),
     ];
 
-    public static readonly IReadOnlyList<NavLinkItem> HomePlaygroundLinks =
+    public static readonly IReadOnlyList<NavLinkItem> PlaygroundLinks =
     [
-        new("/?playground=ultramodern#playground", "Ultramodern", "experiment", false, "Ultramodern"),
-        new("/?playground=independent#playground", "Independent", "experiment", false, "Independent"),
-        new("/?playground=copilot#playground", "Copilot", "experiment", false, "Copilot"),
+        new("/components/playground-ultramodern", "Ultramodern", "experiment"),
+        new("/components/playground-independent", "Independent", "experiment"),
+        new("/components/playground-copilot", "Copilot", "experiment"),
     ];
 }

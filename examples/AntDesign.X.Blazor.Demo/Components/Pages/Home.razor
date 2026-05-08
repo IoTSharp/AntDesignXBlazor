@@ -3,7 +3,6 @@
 @inject IXNotificationService NotificationService
 @inject XChatStore ChatStore
 @inject XAgentStore AgentStore
-@inject NavigationManager Nav
 
 <PageTitle>首页 · AntDesign.X.Blazor</PageTitle>
 
@@ -118,39 +117,6 @@
                    OnClose="@CloseNotification" />
 </section>
 
-<section id="playground" class="demo-section">
-    <div class="demo-playground-header">
-        <div>
-            <h2>Playground 实战范例</h2>
-        </div>
-        <div class="demo-playground-tabs" role="tablist" aria-label="Playground 实战范例">
-            @foreach (var item in PlaygroundOptions)
-            {
-                <button type="button"
-                        class="demo-playground-tab @(IsPlaygroundActive(item.Key) ? "active" : null)"
-                        @onclick="() => SelectPlayground(item.Key)">
-                    <Icon Type="@item.Icon" Theme="IconThemeType.Outline" />
-                    <span>@item.Title</span>
-                </button>
-            }
-        </div>
-    </div>
-    <div class="demo-playground-panel">
-        @switch (SelectedPlaygroundKey)
-        {
-            case PlaygroundIndependentKey:
-                <PlaygroundIndependentDemo />
-                break;
-            case PlaygroundCopilotKey:
-                <PlaygroundCopilotDemo />
-                break;
-            default:
-                <PlaygroundUltramodernDemo />
-                break;
-        }
-    </div>
-</section>
-
 <section id="sdk" class="demo-section">
     <h2>SDK 闭环</h2>
     <div class="demo-grid">
@@ -215,22 +181,10 @@
 </section>
 
 @code {
-    private const string PlaygroundUltramodernKey = "ultramodern";
-    private const string PlaygroundIndependentKey = "independent";
-    private const string PlaygroundCopilotKey = "copilot";
-
     private string ActiveConversation { get; set; } = "intro";
     private string ActiveFolder { get; set; } = "components";
     private string? Draft { get; set; }
     private bool ConversationSortDescending { get; set; } = true;
-    private string SelectedPlaygroundKey { get; set; } = PlaygroundUltramodernKey;
-
-    private readonly IReadOnlyList<(string Key, string Title, string Icon)> PlaygroundOptions =
-    [
-        (PlaygroundUltramodernKey, "Ultramodern", "experiment"),
-        (PlaygroundIndependentKey, "Independent", "experiment"),
-        (PlaygroundCopilotKey, "Copilot", "experiment"),
-    ];
 
     private readonly List<XAttachmentItem> DraftAttachments = [];
     private readonly List<XNotificationItem> Notifications =
@@ -405,27 +359,6 @@
         AgentStore.Reset();
     }
 
-    protected override void OnParametersSet()
-    {
-        var uri = Nav.ToAbsoluteUri(Nav.Uri);
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-
-        if (query.TryGetValue("playground", out var value))
-        {
-            var key = value.ToString().Trim().ToLowerInvariant();
-            SelectedPlaygroundKey = key switch
-            {
-                PlaygroundIndependentKey => PlaygroundIndependentKey,
-                PlaygroundCopilotKey => PlaygroundCopilotKey,
-                _ => PlaygroundUltramodernKey,
-            };
-        }
-        else if (string.IsNullOrWhiteSpace(SelectedPlaygroundKey))
-        {
-            SelectedPlaygroundKey = PlaygroundUltramodernKey;
-        }
-    }
-
     public void Dispose()
     {
         ChatStore.Changed -= HandleStoresChanged;
@@ -435,16 +368,6 @@
     private void HandleStoresChanged()
     {
         _ = InvokeAsync(StateHasChanged);
-    }
-
-    private void SelectPlayground(string key)
-    {
-        Nav.NavigateTo($"/?playground={key}#playground");
-    }
-
-    private bool IsPlaygroundActive(string key)
-    {
-        return string.Equals(SelectedPlaygroundKey, key, StringComparison.OrdinalIgnoreCase);
     }
 
     private IReadOnlyList<XBubbleItem> SeedMessages() =>
