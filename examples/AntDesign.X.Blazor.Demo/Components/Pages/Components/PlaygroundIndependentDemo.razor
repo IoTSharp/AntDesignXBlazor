@@ -4,113 +4,193 @@
 
 <PageTitle>Playground · Independent · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Independent Playground</h1>
-    <p>对照官方 <a href="https://ant-design-x.antgroup.com/docs/playground/independent" target="_blank" rel="noopener">Ant Design X · Independent</a>，使用 Blazor 复刻：居中欢迎页 + Hot Topics + Design Guide + 底部 Sender。</p>
+<header class="demo-page-header demo-page-header-official">
+    <h1><span>#</span> 独立式</h1>
 </header>
 
-<div class="playground playground-independent">
-    @if (_messages.Count == 0)
-    {
-        <div class="playground-independent-welcome">
-            <XWelcome Title="👋 Hello, I'm Ant Design X"
-                      Description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~">
-                <ExtraTemplate>
-                    <div class="playground-welcome-extra">
-                        <button type="button" class="playground-icon-btn" title="Share">
-                            <Icon Type="share-alt" Theme="IconThemeType.Outline" />
-                        </button>
-                        <button type="button" class="playground-icon-btn" title="More">
-                            <Icon Type="ellipsis" Theme="IconThemeType.Outline" />
-                        </button>
-                    </div>
-                </ExtraTemplate>
-            </XWelcome>
-
-            <section class="playground-section">
-                <header class="playground-section-header">
-                    <Icon Type="fire" Theme="IconThemeType.Outline" />
-                    <strong>Hot Topics</strong>
-                </header>
-                <ol class="playground-hot-list">
-                    @{ var i = 0; }
-                    @foreach (var topic in _hotTopics)
-                    {
-                        i++;
-                        var rank = i;
-                        <li>
-                            <span class="playground-rank rank-@(rank <= 3 ? rank.ToString() : "n")">@rank</span>
-                            <button type="button" class="playground-link" @onclick="() => HandleTopic(topic)">@topic</button>
-                        </li>
-                    }
-                </ol>
-            </section>
-
-            <section class="playground-section">
-                <header class="playground-section-header">
-                    <Icon Type="read" Theme="IconThemeType.Outline" />
-                    <strong>Design Guide</strong>
-                </header>
-                <div class="playground-guide-grid">
-                    @foreach (var g in _guide)
-                    {
-                        <button type="button" class="playground-guide-card" @onclick="() => HandleTopic(g.Title)">
-                            <Icon Type="@g.Icon" Theme="IconThemeType.Outline" />
-                            <h4>@g.Title</h4>
-                            <p>@g.Description</p>
-                        </button>
-                    }
-                </div>
-            </section>
+<div class="playground playground-independent playground-independent-official">
+    <aside class="playground-independent-sider">
+        <div class="playground-independent-logo">
+            <DocsStatusLogo Selected="true"
+                            Spinning="@_loading"
+                            Compact="true"
+                            Title="@(_loading ? "Ant Design X is responding" : "Ant Design X")" />
+            <span>Ant Design X</span>
         </div>
-    }
-    else
-    {
-        <div class="playground-independent-chat">
-            <XBubbleList Items="@_messages" RoleConfigs="@_roles" />
-        </div>
-    }
 
-    <footer class="playground-bottom">
-        <div class="playground-prompts-row">
-            @foreach (var p in _bottomPrompts)
+        <button type="button" class="playground-independent-new" @onclick="NewConversation">
+            <Icon Type="plus" Theme="IconThemeType.Outline" />
+            <span>New Conversation</span>
+        </button>
+
+        <XConversations Items="@_conversations"
+                        ActiveKey="@_activeKey"
+                        ActiveKeyChanged="@OnActiveChanged"
+                        AllowRename="false"
+                        AllowDelete="false"
+                        AllowMenu="true"
+                        MenuFactory="@MakeMenu"
+                        OnDelete="@OnDelete"
+                        OnRename="@OnRename"
+                        OnMenuAction="@OnMenuAction"
+                        Title="@null"
+                        Class="playground-independent-conversations" />
+
+        <footer class="playground-independent-sider-footer">
+            <span class="playground-independent-user"></span>
+            <button type="button" class="playground-icon-btn" title="Help">
+                <Icon Type="question-circle" Theme="IconThemeType.Outline" />
+            </button>
+        </footer>
+    </aside>
+
+    <section class="playground-independent-main">
+        <div class="playground-independent-scroll">
+            @if (CurrentMessages.Count == 0)
             {
-                <button type="button" class="playground-prompt-chip" @onclick="() => HandleTopic(p.Title)">
-                    <Icon Type="@p.Icon" Theme="IconThemeType.Outline" />
-                    <span>@p.Title</span>
-                </button>
+                <div class="playground-independent-placeholder">
+                    <XWelcome Title="Hello, I'm Ant Design X"
+                              Description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~"
+                              Class="playground-independent-welcome-card">
+                        <IconTemplate>
+                            <img class="playground-independent-welcome-avatar"
+                                 src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+                                 alt="Ant Design X" />
+                        </IconTemplate>
+                        <ExtraTemplate>
+                            <div class="playground-welcome-extra">
+                                <button type="button" class="playground-icon-btn" title="Share">
+                                    <Icon Type="share-alt" Theme="IconThemeType.Outline" />
+                                </button>
+                                <button type="button" class="playground-icon-btn" title="More">
+                                    <Icon Type="ellipsis" Theme="IconThemeType.Outline" />
+                                </button>
+                            </div>
+                        </ExtraTemplate>
+                    </XWelcome>
+
+                    <div class="playground-independent-prompt-grid">
+                        <section class="playground-section playground-section-gradient playground-hot-panel">
+                            <header class="playground-section-header">
+                                <Icon Type="fire" Theme="IconThemeType.Outline" />
+                                <strong>Hot Topics</strong>
+                            </header>
+                            <ol class="playground-hot-list">
+                                @{ var i = 0; }
+                                @foreach (var topic in _hotTopics)
+                                {
+                                    i++;
+                                    var rank = i;
+                                    <li>
+                                        <span class="playground-rank rank-@(rank <= 3 ? rank.ToString() : "n")">@rank</span>
+                                        <button type="button" class="playground-link" @onclick="() => HandleTopic(topic)">@topic</button>
+                                    </li>
+                                }
+                            </ol>
+                        </section>
+
+                        <section class="playground-section playground-section-gradient playground-guide-panel">
+                            <header class="playground-section-header">
+                                <Icon Type="read" Theme="IconThemeType.Outline" />
+                                <strong>Design Guide</strong>
+                            </header>
+                            <div class="playground-guide-list">
+                                @foreach (var g in _guide)
+                                {
+                                    <button type="button" class="playground-guide-card" @onclick="() => HandleTopic(g.Title)">
+                                        <Icon Type="@g.Icon" Theme="IconThemeType.Outline" />
+                                        <span>@g.Title</span>
+                                        <p>@g.Description</p>
+                                    </button>
+                                }
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="playground-independent-chat">
+                    <XBubbleList Items="@CurrentMessages" RoleConfigs="@_roles" />
+                </div>
             }
         </div>
-        <XSender @bind-Value="_input"
-                 Placeholder="Ask or input / use skills"
-                 Loading="_loading"
-                 Rows="2"
-                 ClearAfterSubmit="true"
-                 SubmitMode="XSenderSubmitMode.Enter"
-                 OnSubmit="@OnSubmit" />
-    </footer>
+
+        <footer class="playground-independent-sender">
+            <div class="playground-prompts-row">
+                @foreach (var p in _bottomPrompts)
+                {
+                    <button type="button" class="playground-prompt-chip" @onclick="() => HandleTopic(p.Title)">
+                        <Icon Type="@p.Icon" Theme="IconThemeType.Outline" />
+                        <span>@p.Title</span>
+                    </button>
+                }
+            </div>
+
+            <XSender @bind-Value="_input"
+                     Placeholder="Ask or input / use skills"
+                     Loading="_loading"
+                     Rows="2"
+                     ClearAfterSubmit="true"
+                     SubmitMode="XSenderSubmitMode.Enter"
+                     OnSubmit="@OnSubmit"
+                     OnCancel="@OnCancel" />
+        </footer>
+    </section>
 </div>
 
 @code {
+    private const string Today = "Today";
+    private const string Yesterday = "Yesterday";
+
+    private string _activeKey = "default-0";
     private string _input = string.Empty;
     private bool _loading;
-    private List<XBubbleItem> _messages = new();
+    private CancellationTokenSource? _cts;
+
+    private List<XConversationItem> _conversations =
+    [
+        new() { Key = "default-0", Title = "What is Ant Design X?", Group = Today },
+        new() { Key = "default-1", Title = "How to quickly install and import components?", Group = Today },
+        new() { Key = "default-2", Title = "New AGI Hybrid Interface", Group = Yesterday },
+    ];
+
+    private readonly Dictionary<string, List<XBubbleItem>> _store = new()
+    {
+        ["default-0"] = [],
+        ["default-1"] = [],
+        ["default-2"] = [],
+    };
+
+    private List<XBubbleItem> CurrentMessages
+    {
+        get
+        {
+            if (!_store.TryGetValue(_activeKey, out var messages))
+            {
+                messages = [];
+                _store[_activeKey] = messages;
+            }
+
+            return messages;
+        }
+    }
 
     private readonly string[] _hotTopics =
     [
-        "What components are in Ant Design X?",
+        "What has Ant Design X upgraded?",
         "New AGI Hybrid Interface",
-        "What is Ant Design X?",
+        "What components are in Ant Design X?",
         "Come and discover the new design paradigm of the AI era.",
         "How to quickly install and import components?",
     ];
 
     private readonly (string Icon, string Title, string Description)[] _guide =
     [
-        ("heart",       "Intention", "AI understands user needs and provides solutions."),
-        ("smile",       "Role",      "AI's public persona and image."),
-        ("comment",     "Chat",      "How AI Can Express Itself in a Way Users Understand."),
-        ("paper-clip",  "Interface", "AI balances 'Provide Solutions' with 'Display Solutions'."),
+        ("heart",      "Intention", "AI understands user needs and provides solutions."),
+        ("smile",      "Role",      "AI's public persona and image"),
+        ("comment",    "Chat",      "How AI Can Express Itself in a Way Users Understand"),
+        ("paper-clip", "Interface", "AI balances \"chat\" & \"do\" behaviors."),
     ];
 
     private readonly (string Icon, string Title)[] _bottomPrompts =
@@ -127,6 +207,68 @@
         ["assistant"] = new() { Placement = XBubblePlacement.Start, Variant = XBubbleVariant.Outlined, Header = "Ant Design X", Markdown = true },
     };
 
+    private IReadOnlyList<XActionItem> MakeMenu(XConversationItem item) =>
+    [
+        new() { Key = "rename", Icon = "edit", Tooltip = "Rename" },
+        new() { Key = "delete", Icon = "delete", Tooltip = "Delete", Danger = true },
+    ];
+
+    private void OnActiveChanged(string key)
+    {
+        _cts?.Cancel();
+        _activeKey = key;
+        _input = string.Empty;
+    }
+
+    private void NewConversation()
+    {
+        if (_loading)
+        {
+            return;
+        }
+
+        var key = "conversation-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _conversations.Insert(0, new XConversationItem
+        {
+            Key = key,
+            Title = $"New Conversation {_conversations.Count + 1}",
+            Group = Today,
+        });
+        _store[key] = [];
+        _activeKey = key;
+        _input = string.Empty;
+    }
+
+    private void OnRename(XConversationRenameRequest req)
+    {
+        _conversations = _conversations
+            .Select(item => item.Key == req.Key ? item with { Title = req.Title, Label = req.Title } : item)
+            .ToList();
+    }
+
+    private void OnDelete(XConversationItem item)
+    {
+        _conversations = _conversations.Where(value => value.Key != item.Key).ToList();
+        _store.Remove(item.Key);
+
+        if (_activeKey == item.Key)
+        {
+            _activeKey = _conversations.FirstOrDefault()?.Key ?? string.Empty;
+        }
+    }
+
+    private void OnMenuAction(XConversationActionRequest req)
+    {
+        if (string.Equals(req.ActionKey, "delete", StringComparison.OrdinalIgnoreCase))
+        {
+            var item = _conversations.FirstOrDefault(value => value.Key == req.ConversationKey);
+            if (item is not null)
+            {
+                OnDelete(item);
+            }
+        }
+    }
+
     private Task HandleTopic(string text)
     {
         _input = text;
@@ -136,28 +278,55 @@
     private async Task OnSubmit(XSenderRequest req)
     {
         var text = (req.Text ?? string.Empty).Trim();
-        if (text.Length == 0 || _loading) return;
-        _messages.Add(new XBubbleItem { Role = "user", Content = text });
+        if (text.Length == 0 || _loading || string.IsNullOrWhiteSpace(_activeKey)) return;
+
+        var list = CurrentMessages;
+        list.Add(new XBubbleItem { Role = "user", Content = text });
+
+        var current = _conversations.FirstOrDefault(item => item.Key == _activeKey);
+        if (current is not null && current.Title.StartsWith("New Conversation", StringComparison.OrdinalIgnoreCase))
+        {
+            _conversations = _conversations
+                .Select(item => item.Key == _activeKey ? item with { Title = text.Length > 28 ? text[..28] + "..." : text } : item)
+                .ToList();
+        }
+
         var reply = new XBubbleItem { Role = "assistant", Content = string.Empty, Streaming = true };
-        _messages.Add(reply);
+        list.Add(reply);
         _loading = true;
+        _cts = new CancellationTokenSource();
+
         try
         {
-            var full = $"已收到：**{text}**\n\nAnt Design X for Blazor 提供 20+ 个 AI 体验组件。这是 Independent Playground 的本地模拟回复。";
+            var full = $"已收到：**{text}**\n\nAnt Design X for Blazor 提供会话管理、Prompts、Bubble 与 Sender。当前 Independent Playground 已按会话保存消息，并复刻官方独立式布局。";
             var sb = new System.Text.StringBuilder();
             foreach (var ch in full)
             {
+                _cts.Token.ThrowIfCancellationRequested();
                 sb.Append(ch);
-                _messages[_messages.Count - 1] = reply with { Content = sb.ToString(), Streaming = true };
+                list[^1] = reply with { Content = sb.ToString(), Streaming = true };
                 StateHasChanged();
-                await Task.Delay(12);
+                await Task.Delay(12, _cts.Token);
             }
-            _messages[_messages.Count - 1] = reply with { Content = sb.ToString(), Streaming = false };
+            list[^1] = reply with { Content = sb.ToString(), Streaming = false };
+        }
+        catch (OperationCanceledException)
+        {
+            if (list.Count > 0 && list[^1].Streaming == true)
+            {
+                list[^1] = reply with { Content = "Request is aborted", Streaming = false };
+            }
         }
         finally
         {
             _loading = false;
+            _cts = null;
             StateHasChanged();
         }
+    }
+
+    private void OnCancel()
+    {
+        _cts?.Cancel();
     }
 }

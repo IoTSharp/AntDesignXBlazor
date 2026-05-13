@@ -25,23 +25,32 @@
     }
 
     <div class="antdx-sender-editor">
-        @if (Attachments.Count > 0 || AttachmentsEnabled)
+        @if (ShowAttachmentsPanel)
         {
-            <XAttachments Items="@Attachments"
-                          UploadEnabled="@AttachmentsEnabled"
-                          Multiple="@Multiple"
-                          Compact="true"
-                          Placeholder="@ResolvedAttachmentsPlaceholder"
-                          UploadText="@ResolvedUploadText"
-                          Disabled="@(Disabled || ReadOnly)"
-                          Directory="@Directory"
-                          Pastable="@AttachmentsPastable"
-                          DragHover="@AttachmentsDragHover"
-                          Accept="@Accept"
-                          MaxCount="@MaxAttachments"
-                          BeforeUpload="@BeforeUpload"
-                          OnFilesSelected="@OnFilesSelected"
-                          OnRemove="@OnAttachmentRemove" />
+            <div class="antdx-sender-attachments-panel">
+                <button type="button"
+                        class="antdx-sender-attachments-close"
+                        title="Close attachments"
+                        aria-label="Close attachments"
+                        @onclick="CloseAttachmentsPanel">
+                    <XIcon Type="close" />
+                </button>
+                <XAttachments Items="@Attachments"
+                              UploadEnabled="@AttachmentsEnabled"
+                              Multiple="@Multiple"
+                              Compact="true"
+                              Placeholder="@ResolvedAttachmentsPlaceholder"
+                              UploadText="@ResolvedUploadText"
+                              Disabled="@(Disabled || ReadOnly)"
+                              Directory="@Directory"
+                              Pastable="@AttachmentsPastable"
+                              DragHover="@AttachmentsDragHover"
+                              Accept="@Accept"
+                              MaxCount="@MaxAttachments"
+                              BeforeUpload="@BeforeUpload"
+                              OnFilesSelected="@OnFilesSelected"
+                              OnRemove="@OnAttachmentRemove" />
+            </div>
         }
 
         @if (PrefixTemplate is not null)
@@ -91,14 +100,14 @@
                     <div class="antdx-sender-tools">
                         @if (AttachmentsEnabled)
                         {
-                            <label class="@ToolActionClass">
-                                <InputFile class="antdx-sender-file-input"
-                                           multiple="@Multiple"
-                                           disabled="@(Disabled || ReadOnly)"
-                                           OnChange="@HandleFiles" />
+                            <button type="button"
+                                    class="@ToolActionClass"
+                                    aria-pressed="@ShowAttachmentsPanel"
+                                    disabled="@(Disabled || ReadOnly)"
+                                    @onclick="ToggleAttachmentsPanel">
                                 <XIcon Type="paper-clip" />
                                 <span>@ResolvedUploadText</span>
-                            </label>
+                            </button>
                         }
                         @if (AllowSpeech)
                         {
@@ -263,6 +272,9 @@
 
     private int ResolvedRows => AutoSize ? Math.Max(1, AutoSizeMinRows) : Rows;
     private bool HasDraft => !string.IsNullOrWhiteSpace(Value) || Attachments.Count > 0;
+    private bool _attachmentsPanelOpen;
+    private bool _attachmentsPanelTouched;
+    private bool ShowAttachmentsPanel => _attachmentsPanelOpen || (!_attachmentsPanelTouched && Attachments.Count > 0);
     private bool SubmitDisabled => Disabled || ReadOnly || Loading || (!SubmitWhenEmpty && !HasDraft);
     private string ToolActionClass => XCss.Combine("antdx-action", Disabled || ReadOnly ? "antdx-action-disabled" : null);
     private string SpeechButtonClass => XCss.Combine("antdx-action", IsRecording ? "antdx-action-recording" : null);
@@ -489,6 +501,23 @@
     private Task Cancel()
     {
         return OnCancel.InvokeAsync();
+    }
+
+    private void ToggleAttachmentsPanel()
+    {
+        if (Disabled || ReadOnly || !AttachmentsEnabled)
+        {
+            return;
+        }
+
+        _attachmentsPanelTouched = true;
+        _attachmentsPanelOpen = !ShowAttachmentsPanel;
+    }
+
+    private void CloseAttachmentsPanel()
+    {
+        _attachmentsPanelTouched = true;
+        _attachmentsPanelOpen = false;
     }
 
     private async Task Clear()

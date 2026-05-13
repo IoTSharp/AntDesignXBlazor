@@ -1,4 +1,5 @@
 @page "/components/playground-ultramodern"
+@page "/playground/ultramodern"
 @layout ComponentLayout
 
 <PageTitle>Playground · Ultramodern · AntDesign.X.Blazor</PageTitle>
@@ -11,7 +12,10 @@
 <div class="playground playground-ultramodern">
     <aside class="playground-side">
         <div class="playground-logo">
-            <span class="playground-logo-mark">X</span>
+            <DocsStatusLogo Selected="true"
+                            Spinning="@_loading"
+                            Compact="true"
+                            Title="@(_loading ? "Ant Design X is responding" : "Ant Design X")" />
             <span class="playground-logo-text">Ant Design X</span>
         </div>
         <button type="button" class="playground-new-chat" @onclick="NewChat">
@@ -29,7 +33,10 @@
     </aside>
     <section class="playground-chat">
         <header class="playground-chat-header">
-            <Icon Type="open-a-i" Theme="IconThemeType.Outline" />
+            <DocsStatusLogo Selected="true"
+                            Spinning="@_loading"
+                            Compact="true"
+                            Title="@(_loading ? "Ant Design X is responding" : "Ant Design X Assistant")" />
             <strong>Ant Design X Assistant</strong>
         </header>
         <div class="playground-chat-body">
@@ -61,6 +68,14 @@
                                 @onclick="() => _deepThink = !_deepThink">
                             <Icon Type="open-a-i" Theme="IconThemeType.Outline" />
                             <span>Deep Think</span>
+                        </button>
+                        <button type="button"
+                                class="playground-ultra-send"
+                                title="Send"
+                                aria-label="Send"
+                                disabled="@SubmitDisabled"
+                                @onclick="SubmitCurrentInput">
+                            <Icon Type="arrow-up" Theme="IconThemeType.Outline" />
                         </button>
                     </div>
                 </FooterTemplate>
@@ -102,6 +117,7 @@
     private bool _loading;
     private bool _deepThink = true;
     private CancellationTokenSource? _cts;
+    private bool SubmitDisabled => _loading || string.IsNullOrWhiteSpace(_input);
 
     private List<XBubbleItem> CurrentMessages =>
         _store.TryGetValue(_activeKey, out var list) ? list : new();
@@ -178,5 +194,17 @@
     private void OnCancel()
     {
         _cts?.Cancel();
+    }
+
+    private Task SubmitCurrentInput()
+    {
+        if (SubmitDisabled)
+        {
+            return Task.CompletedTask;
+        }
+
+        var text = _input;
+        _input = string.Empty;
+        return OnSubmit(new XSenderRequest { Text = text });
     }
 }

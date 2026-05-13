@@ -13,7 +13,10 @@
     <section class="playground-workarea @(_open ? null : "playground-workarea-wide")">
         <header class="playground-work-header">
             <div class="playground-work-title">
-                <span class="playground-logo-mark">X</span>
+                <DocsStatusLogo Selected="true"
+                                Spinning="@_loading"
+                                Compact="true"
+                                Title="@(_loading ? "Ant Design X is responding" : "Ant Design X")" />
                 <strong>Ant Design X</strong>
             </div>
             @if (!_open)

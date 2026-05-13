@@ -1,0 +1,48 @@
+<span @attributes="AdditionalAttributes"
+      class="@ClassName"
+      style="@Style"
+      title="@Title"
+      role="img"
+      aria-label="@Title">
+    <span class="docs-status-logo-halo" aria-hidden="true"></span>
+    <img class="docs-status-logo-img"
+         src="@LogoUrl"
+         alt=""
+         draggable="false" />
+</span>
+
+@code {
+    private const string LogoUrl = "https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original";
+
+    [Parameter] public bool Selected { get; set; }
+
+    [Parameter] public bool Spinning { get; set; }
+
+    [Parameter] public bool Disconnected { get; set; }
+
+    [Parameter] public bool Reconnecting { get; set; }
+
+    [Parameter] public bool Compact { get; set; }
+
+    [Parameter] public string Title { get; set; } = "Ant Design X";
+
+    [Parameter] public string? Class { get; set; }
+
+    [Parameter] public string? Style { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool ShouldSpin => Spinning || Disconnected || Reconnecting;
+
+    private string ClassName => string.Join(" ", new[]
+    {
+        "docs-status-logo",
+        Selected ? "docs-status-logo-selected" : null,
+        ShouldSpin ? "docs-status-logo-spinning" : null,
+        Disconnected ? "docs-status-logo-disconnected" : null,
+        Reconnecting ? "docs-status-logo-reconnecting" : null,
+        Compact ? "docs-status-logo-compact" : null,
+        Class,
+    }.Where(value => !string.IsNullOrWhiteSpace(value)));
+}

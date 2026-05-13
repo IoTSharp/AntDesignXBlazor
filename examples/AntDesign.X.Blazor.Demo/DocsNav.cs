@@ -72,6 +72,7 @@ public static class DocsNav
         [
             new("独立式", "playground/independent"),
             new("助手式", "playground/copilot"),
+            new("超现代", "playground/ultramodern"),
         ]),
     ];
 

@@ -34,5 +34,6 @@ public static class DemoShellLinks
     [
         new("playground/independent", "Independent", "experiment"),
         new("playground/copilot", "Copilot", "experiment"),
+        new("playground/ultramodern", "Ultramodern", "experiment"),
     ];
 }
