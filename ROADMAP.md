@@ -22,6 +22,7 @@
 | 12 | NuGet 打包元数据 / CI 构建脚本 | ✅ | SourceLink + EnablePackageValidation + GitHub Actions 工作流 |
 | 13 | 14 个组件 demo 页全部接通 | ✅ | Welcome / Prompts / Suggestion / Sources / Folder / Notification / Think / FileCard / Bubble / Sender / Attachments / Conversations / ThoughtChain / Actions |
 | 14 | DeepSeek 实时对话 Demo | ✅ | `/components/live-chat` 真接 OpenAI 兼容 SSE，API key 从 `.env` 读取（已 `.gitignore`） |
+| 15 | AG-UI 协议适配 | 🚀 | 准备接入 [AG-UI](https://github.com/ag-ui-protocol/ag-ui) 事件协议，先做可选 adapter，再映射到现有 X 组件与 Store |
 
 ## 与官方 2.x 的差异核对（最新一次审计）
 
@@ -290,6 +291,83 @@
 - [x] i18n：`IXLocaleService`，内置 zh-CN / en-US / ja-JP，`XProvider.Locale` 联动
 - [ ] 可访问性 audit（aria-live / 键盘导航完整覆盖）
 - [ ] 与 Camel.NET AI 工作台逐步替换式接入
+
+## 里程碑 H：AG-UI 协议适配（准备开始）
+
+[AG-UI](https://github.com/ag-ui-protocol/ag-ui) 是面向 Agent 后端与前端应用的事件协议，重点覆盖 agent run 生命周期、流式文本、工具调用、共享状态、activity、reasoning 与 custom events。AntDesign.X.Blazor 的适配目标不是引入另一套 UI，而是在现有 `XBubbleList`、`XSender`、`XThoughtChain`、`XSources`、`XActions`、`XChatStore`、`XAgentStore` 之上增加一层可选协议 adapter。
+
+设计边界：
+
+- 保持组件层稳定：不让 AG-UI 事件类型渗透到 `XBubble` / `XSender` 等基础组件参数。
+- 保持纯 Blazor / C#：第一阶段不依赖 React、CopilotKit 前端包或 TypeScript runtime。
+- 优先使用现有 `IXRequestClient`、`XStreamReader`、`XAgentStore` 能力，避免重复实现通用 SSE/HTTP streaming。
+- AG-UI .NET SDK 稳定前，先在本库内定义最小 C# 模型与 mapper；后续可桥接官方 SDK。
+- adapter 允许与 OpenAI 兼容 SSE、DeepSeek demo 并存，用户按 endpoint/protocol 选择。
+
+### H0：协议审计与范围锁定
+
+- [ ] 对照 AG-UI docs 的 Events / Messages / Tools / State / Reasoning，整理本库第一版必须支持的事件清单。
+- [ ] 明确首版传输只支持 HTTP + SSE；WebSocket、webhook、binary/protobuf 放到后续。
+- [ ] 确认 AG-UI input payload 与当前 `XAgentRequestPayload` / `XChatRequestPayload` 的差异。
+- [ ] 建立事件命名策略：保持 AG-UI 原始 `type` 字符串，同时提供 C# enum/常量便于消费。
+- [ ] 写一份 `docs/ag-ui-adapter.md` 草案，记录事件映射、限制与示例 payload。
+
+### H1：Core 模型与事件解析
+
+- [ ] 新增 `Models/AgUi/` 或 `Services/AgUi/` 命名空间，放置协议最小模型。
+- [ ] 定义 `XAgUiEvent` 基类/record：`Type`、`Timestamp`、`RawEvent`、`Metadata`。
+- [ ] 覆盖 lifecycle：`RUN_STARTED`、`RUN_FINISHED`、`RUN_ERROR`、`STEP_STARTED`、`STEP_FINISHED`。
+- [ ] 覆盖 message：`TEXT_MESSAGE_START`、`TEXT_MESSAGE_CONTENT`、`TEXT_MESSAGE_END`、`TEXT_MESSAGE_CHUNK`。
+- [ ] 覆盖 tool call：`TOOL_CALL_START`、`TOOL_CALL_ARGS`、`TOOL_CALL_END`、`TOOL_CALL_RESULT`。
+- [ ] 覆盖 state：`STATE_SNAPSHOT`、`STATE_DELTA`。
+- [ ] 覆盖 activity / reasoning / custom events 的通用 fallback，未知事件必须保留 raw JSON。
+- [ ] 为 `XStreamReader` 增加 AG-UI 解析辅助，或新增 `XAgUiStreamReader` 包装现有 `XStreamChunk`。
+
+### H2：事件到 X 语义模型映射
+
+- [ ] 新增 `XAgUiEventMapper`，把 AG-UI 事件映射为本库已有 UI 模型。
+- [ ] `TEXT_MESSAGE_*` → `XBubbleItem` assistant 内容增量、loading、streaming、success/error 状态。
+- [ ] `REASONING_*` → `XThoughtItem` / `XThink`，只展示 summary/content，不暴露 encrypted reasoning 原文。
+- [ ] `TOOL_CALL_*` → `XAgentToolCallItem` + `XActionItem`，支持参数流式拼接、结果回填和失败状态。
+- [ ] `STATE_SNAPSHOT` / `STATE_DELTA` → `XAgentEventItem.Metadata` 或可选 shared state 字典。
+- [ ] `RUN_*` / `STEP_*` → `XAgentEventItem`，驱动整体运行状态、进度和错误提示。
+- [ ] `CUSTOM` / 未知事件 → `XAgentEventItem`，允许 demo 页以原始事件列表展示。
+
+### H3：Client 与 Store 集成
+
+- [ ] 新增 `IXAgUiClient` / `XAgUiClient`，封装 AG-UI HTTP endpoint、headers、session/thread id、abort。
+- [ ] 新增 `XAgUiClientOptions`，支持 `BaseAddress`、`RunPath`、`DefaultHeaders`、`UseCredentials`、`ProtocolVersion`。
+- [ ] 提供 DI 扩展：`services.AddAntDesignXAgUi(...)` 或 `services.AddAntDesignX(options => options.UseAgUi(...))`。
+- [ ] 在 `XAgentStore` 增加可选运行入口，或新增 `XAgUiAgentStore`，避免破坏现有 OpenAI 兼容路径。
+- [ ] 支持把当前 `XBubbleItem` 历史消息转换为 AG-UI messages input。
+- [ ] 支持 abort/retry/regenerate，与现有 `XSender.Loading` / stop 按钮一致。
+- [ ] 支持多会话：`ConversationKey` / `AgentKey` 映射到 AG-UI thread/session/run metadata。
+
+### H4：Demo 与文档
+
+- [ ] 新增 demo 路由 `/components/ag-ui-agent`。
+- [ ] 页面布局：左侧 Conversations，中间 `XBubbleList` + `XSender`，右侧 trace 面板展示 events / tool calls / state。
+- [ ] 提供 mock AG-UI SSE 服务，避免 demo 依赖外部 token。
+- [ ] 支持用户配置真实 AG-UI endpoint，通过 `.env` / 环境变量读取。
+- [ ] README 增加 “AG-UI adapter” 小节，说明它是可选协议层。
+- [ ] Roadmap 与组件导航中加入 AG-UI demo 入口。
+
+### H5：测试与兼容性验收
+
+- [ ] 单元测试：事件 JSON 反序列化、未知事件 fallback、timestamp/rawEvent 保留。
+- [ ] 单元测试：message/tool/reasoning/state 映射到 X 模型的增量行为。
+- [ ] bUnit 测试：`XAgUiAgentStore` 推动 `XBubbleList` 流式更新。
+- [ ] 快照测试：AG-UI demo 的空态、运行中、完成、错误状态。
+- [ ] CI 覆盖 `dotnet test`，保证 adapter 不影响现有 OpenAI 兼容 demo。
+- [ ] 发布前验收：mock SSE、真实 AG-UI endpoint、abort/retry、工具调用、reasoning、state delta 均有最小闭环。
+
+首版交付标准：
+
+- [ ] 可以连接一个 AG-UI HTTP SSE endpoint，并驱动 Blazor UI 流式显示 assistant 消息。
+- [ ] 可以展示 run lifecycle、tool calls、reasoning summary、state snapshot/delta。
+- [ ] 可以中断运行，并保持 Store 状态一致。
+- [ ] 没有 AG-UI endpoint 时，demo 使用本地 mock 仍可完整演示。
+- [ ] 不破坏当前 `XChatStore`、`XAgentStore`、DeepSeek LiveChat 与 NuGet API 兼容性。
 
 ## 贡献指引
 
