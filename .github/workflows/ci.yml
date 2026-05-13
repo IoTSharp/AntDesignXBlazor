@@ -13,12 +13,8 @@ permissions:
 
 jobs:
   build-test-pack:
-    name: build-test-pack (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: build-test-pack
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -40,11 +36,9 @@ jobs:
         run: dotnet test AntDesignXBlazor.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
 
       - name: Pack
-        if: matrix.os == 'ubuntu-latest'
         run: dotnet pack src/AntDesign.X.Blazor/AntDesign.X.Blazor.csproj --configuration Release --no-build --output ./artifacts
 
       - name: Upload artifacts
-        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: nupkg
