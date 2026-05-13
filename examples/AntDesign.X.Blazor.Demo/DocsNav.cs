@@ -15,6 +15,7 @@ public static class DocsNav
         new("研发", "development/introduce"),
         new("组件", "component/overview"),
         new("演示", "playground/independent"),
+        new("关于", "about", Exact: true),
     ];
 
     public static readonly IReadOnlyList<TopNavItem> MoreLinks =

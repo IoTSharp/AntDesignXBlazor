@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>路径 30</title>
+    <defs>
+        <linearGradient x1="8.41918945%" y1="6.10805778%" x2="50%" y2="91.870685%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.6" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
+        <path d="M2.71303633,1.3177605 L16.20069,7.86890655 C16.6974746,8.11020195 16.9045895,8.70853403 16.6632942,9.20531867 C16.5687416,9.39998563 16.4135891,9.55872559 16.221134,9.65770251 L2.78849688,16.5659159 C2.29735679,16.8185022 1.6944474,16.6251162 1.44186107,16.1339761 C1.2937054,15.8458956 1.29427683,15.5038947 1.44339434,15.2163109 L3.78905762,10.6925317 C3.92298938,10.4342348 4.16277639,10.2470773 4.44586624,10.1798823 L9.26842615,9.03518676 C9.4027648,9.00329978 9.48581829,8.86854729 9.45393132,8.73420863 C9.43052215,8.63558667 9.34988031,8.56086018 9.24976392,8.54501759 L4.4989326,7.79323769 C4.18518919,7.74359038 3.91369354,7.54783754 3.76747505,7.26584475 L1.38837784,2.67758583 C1.13415169,2.18729254 1.32552191,1.58374028 1.8158152,1.32951413 C2.09624578,1.18410568 2.42889292,1.17974799 2.71303633,1.3177605 Z" id="path-2"></path>
+        <filter x="1.5%" y="1.2%" width="97.2%" height="97.0%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="0.5" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 1   0 0 0 0 1   0 0 0 0 1  0 0 0 1 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1360-1440" transform="translate(-1176, -4678)">
+            <g id="编组-86备份" transform="translate(886, 4492)">
+                <g id="编组-14" transform="translate(32, 48)">
+                    <g id="路径-30" transform="translate(257, 137)">
+                        <use fill="url(#linearGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+                        <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

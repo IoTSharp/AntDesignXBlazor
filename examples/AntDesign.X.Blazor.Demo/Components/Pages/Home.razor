@@ -6,7 +6,7 @@
     <div class="container">
         <div class="main">
             <h1 class="name">
-                <span class="clip">Ant Design X Blazor</span>
+                Ant Des<span class="hero-brand-i">I<span></span></span>gn X
             </h1>
             <p class="text">AI 体验新秩序</p>
             <p class="tagline">Ant Design X For Blazor。基于 RICH 设计范式，打造卓越 AI 界面解决方案，引领智能新体验。</p>
@@ -16,7 +16,7 @@
                     <a class="VPButton brand" href="component/overview">开始使用</a>
                 </div>
                 <div class="action">
-                    <a class="VPButton alt" href="https://x.ant.design/docs/spec/introduce-cn" target="_blank" rel="noopener noreferrer">设计语言</a>
+                    <a class="VPButton alt" href="development/introduce">关于项目</a>
                 </div>
             </div>
         </div>
@@ -30,21 +30,359 @@
     </div>
 </section>
 
-<section class="VPFeatures">
-    <div class="container">
-        <div class="items">
-            <article class="VPFeature">
-                <h2>AI 设计范式 - RICH</h2>
-                <p>创造卓越 AI 产品体验</p>
-            </article>
-            <article class="VPFeature">
-                <h2>AI 界面解决方案</h2>
-                <p>基于 RICH，全新 AGI 混合界面（Hybrid-UI）解决方案，完美融合 GUI 和自然会话交互。</p>
-            </article>
-            <article class="VPFeature">
-                <h2>组件丰富，选用自如</h2>
-                <p>Ant Design X Blazor 全新 AI 组件，大量实用组件满足你的需求，灵活定制与拓展。</p>
-            </article>
+<section class="VPHomeSection home-rich-intro">
+    <div class="home-container">
+        <h2>AI 设计范式 - RICH</h2>
+        <p>我们致力于构建 AI 设计理论，并在 Blazor 产品实践中持续迭代。在此过程中，RICH 设计范式应运而生：角色（Role）、意图（Intention）、会话（Conversation）和混合界面（Hybrid UI）。</p>
+
+        <div class="home-rich-map" aria-hidden="true">
+            <div class="home-rich-orbit orbit-one"></div>
+            <div class="home-rich-orbit orbit-two"></div>
+            <div class="home-rich-core">
+                <img src="assets/mdn/a-eco6RrQhxbMAAAAAAAAAAAAADgCCAQ.svg" alt="" />
+                <span>RICH</span>
+            </div>
+            @foreach (var item in RichNodes)
+            {
+                <div class="home-rich-node @item.Class">
+                    <strong>@item.Code</strong>
+                    <span>@item.Text</span>
+                </div>
+            }
         </div>
     </div>
 </section>
+
+<section class="VPHomeSection home-solution-section">
+    <div class="home-container">
+        <h2>AI 界面解决方案</h2>
+        <p>基于 RICH，延续熟悉的 Ant Design 设计语言，全新 AGI 混合界面（Hybrid-UI）解决方案，完美融合 GUI 和自然会话交互。从唤醒到表达，从过程到反馈，合适的组件恰当的呈现在所有的人机互动过程中。</p>
+
+        <div class="home-solution-track">
+            @foreach (var item in SolutionItems)
+            {
+                <article class="home-solution-card">
+                    <div class="solution-visual">
+                        <img src="@item.Icon" alt="" loading="lazy" />
+                        <img src="@item.Icon" alt="" loading="lazy" aria-hidden="true" />
+                        <span style="@item.LineStyle"></span>
+                    </div>
+                    <div class="solution-copy">
+                        <div class="solution-index"><span>@item.Index.</span>@item.Name</div>
+                        <h3>
+                            <span>@item.Prefix</span>
+                            <span style="@item.GradientStyle">@item.Highlight</span>
+                            <span>@item.Suffix</span>
+                        </h3>
+                        <p>@item.Description</p>
+                        <a class="home-text-button" href="@item.Href">从@item.Name开始</a>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="VPHomeSection home-playground-section">
+    <div class="home-container home-playground-container">
+        <h2>试一试 , 多种 AI 场景体验</h2>
+        <p>提供多场景解决方案 , 帮助用户提高与 AI 协作效率</p>
+        <img class="home-playground-bg" src="assets/mdn/a-aSLTSr53DPAAAAAAAAAAAAAADsR-AQ.svg" alt="" loading="lazy" />
+
+        <div class="home-playground-shell">
+            <div class="home-scenario-tabs">
+                @foreach (var item in ScenarioTabs)
+                {
+                    <button type="button" class="home-scenario-tab @(item.Disabled ? "is-disabled" : item.Active ? "is-active" : null)" disabled="@item.Disabled">
+                        <h3>@item.Title</h3>
+                        <p>@item.Description</p>
+                    </button>
+                }
+            </div>
+
+            <div class="home-scenario-preview">
+                <div class="home-scenario-device">
+                    <div class="home-scenario-chat">
+                        <XBubbleList Items="@ScenarioMessages" RoleConfigs="@ScenarioRoles" AutoScroll="false" Class="home-scenario-bubbles" />
+                    </div>
+
+                    <XSender Placeholder="Ant Design X 全新升级了什么?"
+                             Value=""
+                             Rows="1"
+                             SubmitWhenEmpty="true"
+                             AttachmentsEnabled="false"
+                             Clearable="false"
+                             FooterVisible="false"
+                             SuffixTemplate="@ScenarioSendTemplate"
+                             Class="home-scenario-sender" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="VPHomeSection home-components-section">
+    <div class="home-container">
+        <h2>组件丰富 , 选用自如</h2>
+        <p>Ant Design X Blazor 全新 AI 组件 , 大量实用组件满足你的需求 , 灵活定制与拓展</p>
+
+        <div class="home-card-grid">
+            @foreach (var item in ComponentCards)
+            {
+                <article class="home-feature-card">
+                    <div class="home-feature-visual">
+                        @item.Visual
+                    </div>
+                    <div class="home-feature-copy">
+                        <h3>@item.Title<span style="@item.GradientStyle">@item.Tag</span></h3>
+                        <p>@item.Description</p>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="VPHomeSection home-ecosystem-section">
+    <div class="home-container">
+        <h2>AI 设计语言与研发框架</h2>
+        <p>配套生态 , 让你快速搭建网站应用</p>
+
+        <div class="home-card-grid home-ecosystem-grid">
+            @foreach (var item in EcosystemCards)
+            {
+                <a class="home-feature-card home-ecosystem-card" href="@item.Href" target="@item.Target" rel="@item.Rel">
+                    <div class="home-feature-visual">
+                        <img src="@item.Image" alt="" loading="lazy" style="@item.ImageStyle" />
+                    </div>
+                    <div class="home-feature-copy">
+                        <h3>@item.Title</h3>
+                        <p>@item.Description</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private const string LogoUrl = "assets/mdn/a-s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ.webp";
+    private const string SendIconUrl = "assets/mdn/a-4e5sTY9lU3sAAAAAAAAAAAAADgCCAQ.svg";
+
+    private static readonly IReadOnlyList<RichNode> RichNodes =
+    [
+        new("R", "Role", "角色", "node-role"),
+        new("I", "Intention", "意图", "node-intention"),
+        new("C", "Conversation", "会话", "node-conversation"),
+        new("H", "Hybrid UI", "混合界面", "node-hybrid"),
+    ];
+
+    private static readonly IReadOnlyList<SolutionItem> SolutionItems =
+    [
+        new("1", "唤醒", "轻松", "唤醒", " , 即刻吸引", "可以让首次接触的用户快速理解AI能做什么, 告知用户AI可实现的意图范围, 降低用户成本",
+            "assets/mdn/f14LTKOFxRsAAAAAQbAAAAgADtFMAQFr.png",
+            "background:linear-gradient(127deg, #6fb3e2 23%, #6c57ff 100%);-webkit-background-clip:text;color:transparent",
+            "background-image:linear-gradient(180deg, #6fb3e200 0%, #6fb3e2 25%, #6c57ff 75%, #6c57ff00 100%)",
+            "component/welcome"),
+        new("2", "表达", "简单", "表达", " , 随时反馈", "让用户知道如何快捷且正确的表达意图, 减少AI的不理解风险, 看清自己发送的内容",
+            "assets/mdn/dGfqSaM9ZxoAAAAAQaAAAAgADtFMAQFr.png",
+            "background:linear-gradient(127deg, #6dd6f5 23%, #108c44 100%);-webkit-background-clip:text;color:transparent",
+            "background-image:linear-gradient(180deg, #6dd6f500 0%, #6dd6f5 25%, #108c44 75%, #108c4400 100%)",
+            "component/sender"),
+        new("3", "确认", "过程", "确认", " , 尽在掌握", "让用户知道该任务的AI执行运转情况, 缓解用户等待焦虑, 有掌控感",
+            "assets/mdn/BQaCTIUU-CkAAAAAQZAAAAgADtFMAQFr.png",
+            "background:linear-gradient(127deg, #ba2cb8 23%, #6c37e8 100%);-webkit-background-clip:text;color:transparent",
+            "background-image:linear-gradient(180deg, #ba2cb800 0%, #ba2cb8 25%, #6c37e8 75%, #6c37e800 100%)",
+            "component/thought-chain"),
+        new("4", "反馈", "结果", "反馈", " , 谁能不信", "让用户清晰看到并信任AI任务完成的情况, 并快速应用AI生成结果",
+            "assets/mdn/r-DuSZG-9NIAAAAAQdAAAAgADtFMAQFr.png",
+            "background:linear-gradient(127deg, #f7c348 23%, #f75972 100%);-webkit-background-clip:text;color:transparent",
+            "background-image:linear-gradient(180deg, #f7c34800 0%, #f7c348 25%, #f75972 75%, #f7597200 100%)",
+            "component/bubble"),
+    ];
+
+    private static readonly IReadOnlyList<ScenarioTab> ScenarioTabs =
+    [
+        new("Web 独立式", "自然语言为主 , 几乎没有界面操作", true),
+        new("Web 助手式", "自然语言和界面操作均衡配合使用"),
+        new("Web 嵌入式", "界面操作为主 , 偶尔唤起AI指令"),
+        new("App 端", "疯狂研发中 , 敬请期待", Disabled: true),
+    ];
+
+    private static readonly IReadOnlyList<XBubbleItem> ScenarioMessages =
+    [
+        new()
+        {
+            Role = "assistant",
+            Variant = XBubbleVariant.Borderless,
+            ContentTemplate = @<div class="home-scenario-welcome">
+                <XWelcome Title="你好, 我是全新 AI 产品创造助手"
+                          Description="基于 Ant Design 的 AGI 产品智能解决方案, 创造更美好的智能视界"
+                          Class="home-scenario-welcome-card">
+                    <IconTemplate>
+                        <img src="@LogoUrl" alt="Ant Design X" />
+                    </IconTemplate>
+                </XWelcome>
+                <XPrompts Title="我可以帮您:"
+                          Items="@ScenarioPrompts"
+                          Vertical="false"
+                          Expandable="false"
+                          Class="home-scenario-prompts" />
+            </div>
+        },
+    ];
+
+    private static readonly IReadOnlyDictionary<string, XBubbleRoleConfig> ScenarioRoles =
+        new Dictionary<string, XBubbleRoleConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["assistant"] = new()
+            {
+                Placement = XBubblePlacement.Start,
+                Variant = XBubbleVariant.Borderless,
+                AvatarIcon = null,
+                Markdown = false,
+            },
+        };
+
+    private static readonly IReadOnlyList<XPromptItem> ScenarioPrompts =
+    [
+        new()
+        {
+            Title = "热门话题",
+            Children =
+            [
+                new() { Title = "Ant Design X 全新升级了什么?", Tag = "1" },
+                new() { Title = "Ant Design X 推出全新 RICH 设计规范", Tag = "2" },
+                new() { Title = "Ant Design X 组件资产有哪些?", Tag = "3" },
+                new() { Title = "快来了解全新AI时代的设计范式!", Tag = "4" },
+            ],
+        },
+        new()
+        {
+            Title = "Rich 设计指南",
+            Children =
+            [
+                new() { Title = "AI 理解用户诉求并解决", Tag = "1" },
+                new() { Title = "AI 对外的人设及形象", Tag = "2" },
+                new() { Title = "AI 如何表达用户能听懂", Tag = "3" },
+                new() { Title = "AI 兼顾“chat” & “do” 行为", Tag = "4" },
+            ],
+        },
+    ];
+
+    private RenderFragment ScenarioSendTemplate => @<button type="button" class="home-send-button" aria-label="发送">
+        <img src="@SendIconUrl" alt="" loading="lazy" />
+    </button>;
+
+    private IReadOnlyList<HomeComponentCard> ComponentCards => new[]
+    {
+        new HomeComponentCard(
+            "欢迎组件",
+            "唤醒",
+            "开箱即用、易于配置、极致体验的通用图表库",
+            "background:linear-gradient(127deg, #6fb3e2 23%, #6c57ff 100%);-webkit-background-clip:text;color:transparent",
+            @<XWelcome Title="你好, 我是 Ant Design X"
+                       Description="基于 Ant Design 的 AGI 产品智能解决方案, 创造更美好的智能视界"
+                       Class="home-component-welcome">
+                <IconTemplate><img src="@LogoUrl" alt="icon" /></IconTemplate>
+            </XWelcome>),
+        new HomeComponentCard(
+            "用户推荐",
+            "唤醒",
+            "让首次接触AI产品的用户快速理解AI能做什么",
+            "background:linear-gradient(127deg, #6fb3e2 23%, #6c57ff 100%);-webkit-background-clip:text;color:transparent",
+            @<XPrompts Items="@ComponentPromptPreview"
+                       Expandable="false"
+                       Class="home-component-prompts" />),
+        new HomeComponentCard(
+            "快捷命令",
+            "表达",
+            "开箱即用、易于配置、极致体验的通用图表库",
+            "background:linear-gradient(127deg, #6dd6f5 23%, #108c44 100%);-webkit-background-clip:text;color:transparent",
+            @<img class="home-component-image wide" src="assets/mdn/a--c6EQ7U4-4oAAAAAAAAAAAAADsR-AQ.avif" alt="快捷命令" loading="lazy" />),
+        new HomeComponentCard(
+            "进度加载",
+            "确认",
+            "开箱即用、易于配置、极致体验的通用图表库",
+            "background:linear-gradient(127deg, #ba2cb8 23%, #6c37e8 100%);-webkit-background-clip:text;color:transparent",
+            @<img class="home-component-image narrow" src="assets/mdn/a-WxlPTYGnviYAAAAAAAAAAAAADsR-AQ.avif" alt="进度加载" loading="lazy" />),
+        new HomeComponentCard(
+            "结果操作",
+            "反馈",
+            "开箱即用、易于配置、极致体验的通用图表库",
+            "background:linear-gradient(127deg, #f7c348 23%, #f75972 100%);-webkit-background-clip:text;color:transparent",
+            @<XBubble Content="Ant Design X 全新升级了什么?"
+                      Actions="@BubbleActions"
+                      FooterPlacement="XBubbleFooterPlacement.OuterStart"
+                      Class="home-component-bubble" />),
+        new HomeComponentCard(
+            "管理对话",
+            "通用",
+            "开箱即用、易于配置、极致体验的通用图表库",
+            "background:linear-gradient(127deg, #d857ff 23%, #8594ff 100%);-webkit-background-clip:text;color:transparent",
+            @<img class="home-component-image wide" src="assets/mdn/a-7nVeT7Qg-QoAAAAAAAAAAAAADsR-AQ.avif" alt="管理对话" loading="lazy" />),
+    };
+
+    private static readonly IReadOnlyList<XPromptItem> ComponentPromptPreview =
+    [
+        new()
+        {
+            Title = "🎉 你好, 我是全新 AI 产品创造助手",
+            Description = "基于 Ant Design 的 AGI 产品智能解决方案, 创造更美好的智能视界",
+            Children =
+            [
+                new() { Title = "Ant Design X 全新升级了什么?" },
+                new() { Title = "快来了解全新AI时代的设计范式!" },
+            ],
+        },
+    ];
+
+    private static readonly IReadOnlyList<XActionItem> BubbleActions =
+    [
+        new() { Key = "edit", Icon = "edit", Tooltip = "编辑" },
+        new() { Key = "delete", Icon = "delete", Tooltip = "删除" },
+        new() { Key = "enter", Icon = "enter", Tooltip = "应用" },
+    ];
+
+    private static readonly IReadOnlyList<EcosystemCard> EcosystemCards =
+    [
+        new("RICH 设计指南", "意图、角色、会话、混合 UI", "assets/mdn/a-poTnSZrI7-oAAAAAAAAAAAAADgCCAQ.webp", "development/introduce", "width:261px"),
+        new("组件设计指引", "全局样式、设计模式", "assets/mdn/a-Off_QYoo0GIAAAAAAAAAAAAADgCCAQ.webp", "development/compatible-style", "width:184px"),
+        new("组件库", "Ant Design Blazor / Ant Design X Blazor", "assets/mdn/a-AhrTT6K2vU0AAAAAAAAAAAAADgCCAQ.webp", "component/overview", "width:227px"),
+        new("Ant Design", "企业级 UI 设计语言和 React 组件库", "assets/mdn/a-dUzuRJes4pUAAAAAAAAAAAAADgCCAQ.svg", "https://ant.design/", "width:42px", "_blank", "noopener noreferrer"),
+        new("Ant Design Mobile", "Ant Design移动端 UI 组件库", "assets/mdn/a-rzh3RoWC9zAAAAAAAAAAAAAADgCCAQ.svg", "https://mobile.ant.design/", "width:42px", "_blank", "noopener noreferrer"),
+        new("AntV", "全新一代数据可视化解决方案", "assets/mdn/a-9MFyQ77L6E4AAAAAAAAAAAAADgCCAQ.webp", "https://antv.vision/", "width:42px", "_blank", "noopener noreferrer"),
+    ];
+
+    private sealed record RichNode(string Code, string Text, string Label, string Class);
+
+    private sealed record SolutionItem(
+        string Index,
+        string Name,
+        string Prefix,
+        string Highlight,
+        string Suffix,
+        string Description,
+        string Icon,
+        string GradientStyle,
+        string LineStyle,
+        string Href);
+
+    private sealed record ScenarioTab(string Title, string Description, bool Active = false, bool Disabled = false);
+
+    private sealed record HomeComponentCard(
+        string Title,
+        string Tag,
+        string Description,
+        string GradientStyle,
+        RenderFragment Visual);
+
+    private sealed record EcosystemCard(
+        string Title,
+        string Description,
+        string Image,
+        string Href,
+        string ImageStyle,
+        string? Target = null,
+        string? Rel = null);
+}

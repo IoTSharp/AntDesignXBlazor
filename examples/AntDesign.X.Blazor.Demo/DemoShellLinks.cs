@@ -11,7 +11,7 @@ public static class DemoShellLinks
     public static readonly IReadOnlyList<NavLinkItem> PrimaryLinks =
     [
         new("", "首页", "home", true),
-        new("development/introduce", "研发", "code"),
+        new("development/introduce", "介绍", "code"),
         new("component/overview", "组件", "appstore"),
         new("playground/independent", "演示", "experiment"),
     ];

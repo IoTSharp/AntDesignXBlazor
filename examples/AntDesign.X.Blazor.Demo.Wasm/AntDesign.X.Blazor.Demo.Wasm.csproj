@@ -28,6 +28,7 @@
   <ItemGroup>
     <Compile Include="..\AntDesign.X.Blazor.Demo\ComponentNav.cs" Link="ComponentNav.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoShellLinks.cs" Link="DemoShellLinks.cs" />
+    <Compile Include="..\AntDesign.X.Blazor.Demo\DocsNav.cs" Link="DocsNav.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoReadmeMarkdown.cs" Link="DemoReadmeMarkdown.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoThemeState.cs" Link="DemoThemeState.cs" />
     <Compile Include="..\AntDesign.X.Blazor.Demo\DemoMockXRequestClient.cs" Link="DemoMockXRequestClient.cs" />
@@ -49,16 +50,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css" />
-    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\antdesign-x-blazor-logo.svg" />
-    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\favicon.ico" />
-    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg" />
-    <_SharedDemoStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\enterprise-wechat-qr.png" />
+    <_SharedDemoRootStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\app.css" />
+    <_SharedDemoRootStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\antdesign-x-blazor-logo.svg" />
+    <_SharedDemoRootStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\favicon.ico" />
+    <_SharedDemoRootStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\sample-architecture.svg" />
+    <_SharedDemoRootStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\enterprise-wechat-qr.png" />
+    <_SharedDemoMdnStaticWebAsset Include="..\AntDesign.X.Blazor.Demo\wwwroot\assets\mdn\**\*.*" />
   </ItemGroup>
 
   <Target Name="SyncSharedDemoStaticWebAssets" BeforeTargets="ResolveProjectStaticWebAssets">
-    <Copy SourceFiles="@(_SharedDemoStaticWebAsset)"
-          DestinationFiles="@(_SharedDemoStaticWebAsset->'$(MSBuildProjectDirectory)\wwwroot\%(Filename)%(Extension)')"
+    <Copy SourceFiles="@(_SharedDemoRootStaticWebAsset)"
+          DestinationFiles="@(_SharedDemoRootStaticWebAsset->'$(MSBuildProjectDirectory)\wwwroot\%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+    <Copy SourceFiles="@(_SharedDemoMdnStaticWebAsset)"
+          DestinationFiles="@(_SharedDemoMdnStaticWebAsset->'$(MSBuildProjectDirectory)\wwwroot\assets\mdn\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true">
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>

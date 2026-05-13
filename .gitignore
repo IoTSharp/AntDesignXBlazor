@@ -64,6 +64,7 @@ examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/antdesign-x-blazor-logo.svg
 examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/favicon.ico
 examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/sample-architecture.svg
 examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/enterprise-wechat-qr.png
+examples/AntDesign.X.Blazor.Demo.Wasm/wwwroot/assets/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
