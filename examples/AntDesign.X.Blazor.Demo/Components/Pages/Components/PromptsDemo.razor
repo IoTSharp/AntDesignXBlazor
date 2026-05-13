@@ -1,12 +1,16 @@
 @page "/components/prompts"
+@page "/component/prompts"
 @layout ComponentLayout
 
 <PageTitle>Prompts 提示集 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Prompts 提示集</h1>
-    <p>常用提示卡片，支持图标、标签、子项嵌套。</p>
-</header>
+<h1>Prompts 提示集</h1>
+<p>常用提示卡片，支持图标、标签、子项嵌套。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>用于展示一组快捷提示，帮助用户快速选择常见任务或组合指令。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基础"
           Description="水平排列的提示卡片。"
@@ -35,6 +39,12 @@
           SourceCode="@DisabledSource">
     <XPrompts Items="@_disabled" />
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XPrompts</code> 通过 <code>Items</code> 渲染提示集合，支持 <code>Vertical</code>、<code>Wrap</code> 与 <code>OnSelect</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string? _selected;

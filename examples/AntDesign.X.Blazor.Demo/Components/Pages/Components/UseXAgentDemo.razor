@@ -1,0 +1,42 @@
+@page "/component/use-x-agent"
+@layout ComponentLayout
+
+<PageTitle>useXAgent 模型调度 · AntDesign.X.Blazor</PageTitle>
+
+<h1>useXAgent 模型调度</h1>
+
+<h2 id="when-to-use">何时使用</h2>
+<p><code>useXAgent</code> 在 Blazor 中映射为 <code>XAgentStore</code>，适合封装模型调用、工具事件、思考链和来源。</p>
+
+<h2 id="examples">代码演示</h2>
+
+<DocsDemo Title="预设请求" SourceCode="@PresetSource">
+    <XCodeHighlighter Language="razor" Code="@PresetSource" />
+</DocsDemo>
+
+<DocsDemo Title="模型接入" SourceCode="@ModelSource">
+    <XCodeHighlighter Language="csharp" Code="@ModelSource" />
+</DocsDemo>
+
+<h2 id="api">API</h2>
+<p><code>XAgentStore</code> 暴露 <code>Messages</code>、<code>Thoughts</code>、<code>Sources</code>、<code>RunAsync</code>、<code>AbortAsync</code> 与 <code>RetryAsync</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
+
+@code {
+    private const string PresetSource = """
+@inject XAgentStore AgentStore
+
+<XBubbleList Items="@AgentStore.Messages" />
+<XThoughtChain Items="@AgentStore.Thoughts" />
+<XSources Items="@AgentStore.Sources" />
+""";
+
+    private const string ModelSource = """
+await AgentStore.RunAsync(new XAgentRequest
+{
+    Prompt = "Explain Ant Design X Blazor",
+});
+""";
+}

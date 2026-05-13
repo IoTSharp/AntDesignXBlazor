@@ -1,0 +1,40 @@
+@page "/development/compatible-style"
+@layout ComponentLayout
+
+<PageTitle>StyleProvider 样式兼容 · AntDesign.X.Blazor</PageTitle>
+
+<h1>StyleProvider 样式兼容</h1>
+
+<h2 id="usage">使用说明</h2>
+
+<p>Blazor 版本通过 AntDesign.Blazor 的基础样式与 <code>XProvider</code> 暴露的 CSS 变量协同工作。推荐在根组件包裹 <code>XProvider</code>，并统一引入 AntDesign 与 AntDesign.X 的样式文件。</p>
+
+<XCodeHighlighter Language="html" Code="@HeadCode" />
+
+<DocsDemo Title="局部 token 覆盖" SourceCode="@TokenCode">
+    <XProvider Tokens="@Tokens">
+        <XWelcome Title="Scoped Theme"
+                  Description="这里的主题变量只影响当前 XProvider 内的 AntDesignXBlazor 组件。"
+                  Icon="experiment" />
+    </XProvider>
+</DocsDemo>
+
+@code {
+    private readonly XThemeTokens Tokens = new()
+    {
+        PrimaryColor = "#722ed1",
+        BorderRadius = "14px",
+        BubbleStartBackground = "#f9f0ff",
+    };
+
+    private const string HeadCode = """
+<link rel="stylesheet" href="_content/AntDesign/css/ant-design-blazor.css" />
+<link rel="stylesheet" href="_content/AntDesign.X.Blazor/css/antdesign-x.css" />
+""";
+
+    private const string TokenCode = """
+<XProvider Tokens="@tokens">
+    <XWelcome Title="Scoped Theme" Description="Local token override" />
+</XProvider>
+""";
+}

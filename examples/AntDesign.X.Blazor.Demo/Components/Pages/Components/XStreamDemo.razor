@@ -1,0 +1,46 @@
+@page "/component/x-stream"
+@layout ComponentLayout
+
+<PageTitle>XStream 流 · AntDesign.X.Blazor</PageTitle>
+
+<h1>XStream 流</h1>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当你需要消费 SSE 或逐行文本流，并把增量内容推给 Blazor UI 时使用。</p>
+
+<h2 id="examples">代码演示</h2>
+
+<DocsDemo Title="默认协议 - SSE" SourceCode="@SseSource">
+    <XCodeHighlighter Language="csharp" Code="@SseSource" />
+</DocsDemo>
+
+<DocsDemo Title="自定义协议" SourceCode="@LineSource">
+    <XCodeHighlighter Language="csharp" Code="@LineSource" />
+</DocsDemo>
+
+<h2 id="api">API</h2>
+<p><code>XStreamReader.ReadAsync(Stream, XStreamReaderOptions)</code> 返回 <code>IAsyncEnumerable&lt;XStreamChunk&gt;</code>，可配合 <code>TryReadOpenAiContent</code> 读取 OpenAI 兼容增量。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
+
+@code {
+    private const string SseSource = """
+await foreach (var chunk in XStreamReader.ReadAsync(stream,
+    new XStreamReaderOptions { Mode = XStreamReadMode.Sse }))
+{
+    if (XStreamReader.TryReadOpenAiContent(chunk, out var content))
+    {
+        builder.Append(content);
+    }
+}
+""";
+
+    private const string LineSource = """
+await foreach (var chunk in XStreamReader.ReadAsync(stream,
+    new XStreamReaderOptions { Mode = XStreamReadMode.Line }))
+{
+    Console.WriteLine(chunk.Data);
+}
+""";
+}

@@ -1,0 +1,39 @@
+@page "/component/use-x-chat"
+@layout ComponentLayout
+
+<PageTitle>useXChat 数据管理 · AntDesign.X.Blazor</PageTitle>
+
+<h1>useXChat 数据管理</h1>
+
+<h2 id="when-to-use">何时使用</h2>
+<p><code>useXChat</code> 在 Blazor 中映射为 <code>XChatStore</code>，适合管理消息列表、提交、重试、中断和流式更新。</p>
+
+<h2 id="examples">代码演示</h2>
+
+<DocsDemo Title="基本" SourceCode="@BasicSource">
+    <XCodeHighlighter Language="razor" Code="@BasicSource" />
+</DocsDemo>
+
+<DocsDemo Title="流式输出" SourceCode="@StreamSource">
+    <XCodeHighlighter Language="csharp" Code="@StreamSource" />
+</DocsDemo>
+
+<h2 id="api">API</h2>
+<p><code>XChatStore</code> 暴露 <code>Messages</code>、<code>SubmitAsync</code>、<code>AbortAsync</code>、<code>RetryAsync</code> 与 <code>ReplaceMessages</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
+
+@code {
+    private const string BasicSource = """
+@inject XChatStore ChatStore
+
+<XBubbleList Items="@ChatStore.Messages" Loading="@ChatStore.IsLoading" />
+<XSender Loading="@ChatStore.IsLoading" OnSubmit="@ChatStore.SubmitAsync" />
+""";
+
+    private const string StreamSource = """
+ChatStore.Changed += () => InvokeAsync(StateHasChanged);
+await ChatStore.SubmitAsync(request);
+""";
+}

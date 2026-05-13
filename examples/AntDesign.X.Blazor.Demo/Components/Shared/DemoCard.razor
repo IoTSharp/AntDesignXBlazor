@@ -1,32 +1,58 @@
-@* 统一的演示卡片：参考 ant-design-x 站点 demo card 风格 *@
+@* VitePress demo block inspired by ant-design-x-vue docs, implemented with Blazor components. *@
 
-<article class="demo-card">
-    <header class="demo-card-header">
-        <div>
-            <h3>@Title</h3>
-            @if (!string.IsNullOrWhiteSpace(Description))
-            {
-                <p>@Description</p>
-            }
-        </div>
-        @if (HeaderExtra is not null)
-        {
-            <div class="demo-card-extra">@HeaderExtra</div>
-        }
-    </header>
+<section class="vp-demo-section">
+    <h3>@Title</h3>
 
-    <div class="demo-card-body">
-        @ChildContent
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(SourceCode))
+    @if (!string.IsNullOrWhiteSpace(Description))
     {
-        <details class="demo-card-source">
-            <summary>查看源代码</summary>
-            <XCodeHighlighter Language="@Language" Code="@SourceCode" />
-        </details>
+        <p class="vp-demo-description">@Description</p>
     }
-</article>
+
+    <div class="example">
+        <div class="example-showcase">
+            <div class="example-content">
+                @ChildContent
+            </div>
+        </div>
+
+        <div class="example-divider"></div>
+
+        <div class="op-btns">
+            @if (HeaderExtra is not null)
+            {
+                <div class="example-extra">@HeaderExtra</div>
+            }
+            <button type="button"
+                    class="op-btn"
+                    title="在 Stackblitz 中打开"
+                    aria-label="在 Stackblitz 中打开">
+                <Icon Type="thunderbolt" Theme="IconThemeType.Outline" />
+            </button>
+            <button type="button"
+                    class="op-btn"
+                    title="查看源代码"
+                    aria-label="@(_sourceVisible ? "隐藏源代码" : "查看源代码")"
+                    disabled="@string.IsNullOrWhiteSpace(SourceCode)"
+                    @onclick="ToggleSource">
+                <Icon Type="function" Theme="IconThemeType.Outline" />
+            </button>
+        </div>
+
+        @if (_sourceVisible && !string.IsNullOrWhiteSpace(SourceCode))
+        {
+            <div class="example-source-wrapper">
+                <XCodeHighlighter Language="@Language"
+                                  Code="@SourceCode"
+                                  ShowHeader="false"
+                                  Copyable="true" />
+            </div>
+            <button type="button" class="example-float-control" @onclick="ToggleSource">
+                <Icon Type="caret-up" Theme="IconThemeType.Outline" />
+                <span>隐藏源代码</span>
+            </button>
+        }
+    </div>
+</section>
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
@@ -35,4 +61,11 @@
     [Parameter] public RenderFragment? HeaderExtra { get; set; }
     [Parameter] public string? SourceCode { get; set; }
     [Parameter] public string Language { get; set; } = "razor";
+
+    private bool _sourceVisible;
+
+    private void ToggleSource()
+    {
+        _sourceVisible = !_sourceVisible;
+    }
 }

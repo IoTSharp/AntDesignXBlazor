@@ -1,0 +1,16 @@
+<DemoCard Title="@Title"
+          Description="@Description"
+          HeaderExtra="@HeaderExtra"
+          SourceCode="@SourceCode"
+          Language="@Language">
+    @ChildContent
+</DemoCard>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? HeaderExtra { get; set; }
+    [Parameter] public string? SourceCode { get; set; }
+    [Parameter] public string Language { get; set; } = "razor";
+}

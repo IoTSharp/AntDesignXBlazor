@@ -1,4 +1,5 @@
 @page "/components/playground-copilot"
+@page "/playground/copilot"
 @layout ComponentLayout
 
 <PageTitle>Playground · Copilot · AntDesign.X.Blazor</PageTitle>
@@ -23,6 +24,12 @@
             }
         </header>
         <article class="playground-work-body">
+            <div class="playground-rich-hero">
+                <Image Src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*48RLR41kwHIAAAAAAAAAAAAADgCCAQ/fmt.webp"
+                       Alt="RICH design paradigm"
+                       Preview="@false"
+                       Style="width: 100%;" />
+            </div>
             <XMarkdown Content="@ReadingMarkdown" />
         </article>
     </section>
@@ -151,7 +158,7 @@
     }
 
     private const string ReadingMarkdown = """
-## What is the RICH design paradigm?
+#### What is the RICH design paradigm?
 
 **RICH** is an AI interface design paradigm we propose, similar to how the **WIMP** paradigm relates to graphical user interfaces.
 

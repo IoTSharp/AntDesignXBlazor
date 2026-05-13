@@ -1,13 +1,17 @@
 @page "/components/sender"
+@page "/component/sender"
 @layout ComponentLayout
 @implements IAsyncDisposable
 
 <PageTitle>Sender 输入框 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Sender 输入框</h1>
-    <p>对话产品的输入区，支持附件、动作、提交模式、停止/清空、语音、Header/Footer 折叠、编程式聚焦。</p>
-</header>
+<h1>Sender 输入框</h1>
+<p>对话产品的输入区，支持附件、动作、提交模式、停止/清空、语音、Header/Footer 折叠、编程式聚焦。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>用于 AI 对话、Copilot 或智能表单中的消息输入和提交。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基本"
           Description="双向绑定 + Enter 提交。"
@@ -135,6 +139,12 @@
         <XSender Value="禁用状态" Disabled="true" />
     </div>
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XSender</code> 支持 <code>Value</code>、<code>OnSubmit</code>、<code>Loading</code>、<code>Attachments</code>、<code>Actions</code>、<code>HeaderTemplate</code> 和 <code>FooterTemplate</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string _text = string.Empty;

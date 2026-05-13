@@ -1,0 +1,78 @@
+@page "/development/introduce"
+@layout ComponentLayout
+
+<PageTitle>Ant Design X of Blazor · AntDesign.X.Blazor</PageTitle>
+
+<h1>Ant Design X of Blazor</h1>
+
+<p><code>AntDesign.X.Blazor</code> 是遵循 Ant Design 设计体系的 Blazor UI 组件库，用于构建由 AI 驱动的界面，一键接入智能对话组件与 API 服务。</p>
+
+<div class="docs-logo-pair">
+    <img width="150" src="antdesign-x-blazor-logo.svg" alt="Ant Design X Blazor" />
+    <span>+</span>
+    <strong>Blazor</strong>
+</div>
+
+<h2 id="features">特性</h2>
+
+<ul>
+    <li>基于 RICH 交互范式，提供卓越的 AI 交互体验。</li>
+    <li>覆盖 AI 对话、Copilot、附件输入、思考过程和引用来源等常见场景。</li>
+    <li>轻松对接符合 OpenAI 标准的模型推理服务。</li>
+    <li>提供 <code>XChatStore</code>、<code>XAgentStore</code>、<code>XStreamReader</code> 等数据流管理能力。</li>
+    <li>使用 Razor、强类型模型和 RenderFragment，贴合 Blazor 开发体验。</li>
+</ul>
+
+<h2 id="install">安装</h2>
+
+<p>在 Blazor 项目中引用 AntDesign.Blazor 与 AntDesign.X.Blazor，并在入口处注册服务。</p>
+
+<XCodeHighlighter Language="powershell" Code="@InstallCode" />
+
+<XCodeHighlighter Language="csharp" Code="@ProgramCode" />
+
+<h2 id="components">原子组件</h2>
+
+<p>我们基于 RICH 交互范式，在不同的交互阶段提供原子组件，帮助你灵活搭建 AI 对话应用。</p>
+
+<ul>
+    <li>通用：<code>Bubble</code> 消息气泡、<code>Conversations</code> 会话管理。</li>
+    <li>唤醒：<code>Welcome</code> 欢迎、<code>Prompts</code> 提示集。</li>
+    <li>表达：<code>Sender</code> 发送框、<code>Attachments</code> 附件、<code>Suggestion</code> 快捷指令。</li>
+    <li>确认：<code>ThoughtChain</code> 思维链。</li>
+</ul>
+
+<DocsDemo Title="最小对话框" SourceCode="@SampleCode">
+    <XBubbleList Items="@Messages" RoleConfigs="@Roles" />
+    <div style="height: 12px"></div>
+    <XSender Placeholder="Ask Ant Design X Blazor" Rows="2" />
+</DocsDemo>
+
+@code {
+    private readonly IReadOnlyList<XBubbleItem> Messages =
+    [
+        new() { Role = "user", Content = "Hello, Ant Design X Blazor!" },
+        new() { Role = "assistant", Content = "你好，我是 Ant Design X Blazor 示例。" },
+    ];
+
+    private readonly IReadOnlyDictionary<string, XBubbleRoleConfig> Roles = new Dictionary<string, XBubbleRoleConfig>
+    {
+        ["user"] = new() { Placement = XBubblePlacement.End, Variant = XBubbleVariant.Filled },
+        ["assistant"] = new() { Placement = XBubblePlacement.Start, Variant = XBubbleVariant.Outlined, AvatarIcon = "robot" },
+    };
+
+    private const string InstallCode = """
+dotnet add package AntDesign
+dotnet add package AntDesign.X.Blazor
+""";
+
+    private const string ProgramCode = """
+builder.Services.AddAntDesign();
+builder.Services.AddAntDesignX();
+""";
+
+    private const string SampleCode = """
+<XBubbleList Items="@messages" />
+<XSender Placeholder="Ask Ant Design X Blazor" />
+""";
+}

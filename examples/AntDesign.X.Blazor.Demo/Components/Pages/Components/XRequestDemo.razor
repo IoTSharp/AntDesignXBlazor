@@ -1,0 +1,48 @@
+@page "/component/x-request"
+@layout ComponentLayout
+
+<PageTitle>XRequest 请求 · AntDesign.X.Blazor</PageTitle>
+
+<h1>XRequest 请求</h1>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当你需要从 Blazor 服务端统一发起 OpenAI 兼容请求、处理流式响应、错误和中断时使用。</p>
+
+<h2 id="examples">代码演示</h2>
+
+<DocsDemo Title="基础" SourceCode="@BasicSource">
+    <XCodeHighlighter Language="csharp" Code="@BasicSource" />
+</DocsDemo>
+
+<DocsDemo Title="模型接入" SourceCode="@ModelSource">
+    <XCodeHighlighter Language="csharp" Code="@ModelSource" />
+</DocsDemo>
+
+<h2 id="api">API</h2>
+<p><code>IXRequestClient.RequestAsync</code> 接受 <code>XRequestOptions</code>，并返回可中断的 <code>XRequestHandle</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
+
+@code {
+    private const string BasicSource = """
+var handle = await requestClient.RequestAsync(new XRequestOptions
+{
+    Prompt = "Hello",
+    Stream = true,
+    OnChunk = chunk =>
+    {
+        Console.WriteLine(chunk.Data);
+        return ValueTask.CompletedTask;
+    },
+});
+""";
+
+    private const string ModelSource = """
+builder.Services.AddAntDesignX(options =>
+{
+    options.BaseAddress = new Uri("https://api.example.com");
+    options.ChatPath = "/v1/chat/completions";
+});
+""";
+}

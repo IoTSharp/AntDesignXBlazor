@@ -11,8 +11,9 @@ public static class DemoShellLinks
     public static readonly IReadOnlyList<NavLinkItem> PrimaryLinks =
     [
         new("", "首页", "home", true),
-        new("components", "组件介绍", "appstore"),
-        new("about", "关于", "info-circle"),
+        new("development/introduce", "研发", "code"),
+        new("component/overview", "组件", "appstore"),
+        new("playground/independent", "演示", "experiment"),
     ];
 
     public static readonly IReadOnlyList<NavLinkItem> HomeSections =
@@ -31,8 +32,7 @@ public static class DemoShellLinks
 
     public static readonly IReadOnlyList<NavLinkItem> PlaygroundLinks =
     [
-        new("components/playground-ultramodern", "Ultramodern", "experiment"),
-        new("components/playground-independent", "Independent", "experiment"),
-        new("components/playground-copilot", "Copilot", "experiment"),
+        new("playground/independent", "Independent", "experiment"),
+        new("playground/copilot", "Copilot", "experiment"),
     ];
 }

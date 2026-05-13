@@ -1,12 +1,16 @@
 @page "/components/actions"
+@page "/component/actions"
 @layout ComponentLayout
 
-<PageTitle>Actions 动作集 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Actions 操作列表 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Actions 动作集</h1>
-    <p>用于消息底部 / Sender footer 等区域的动作按钮组。</p>
-</header>
+<h1>Actions 操作列表</h1>
+<p>用于快速配置一些 AI 场景下所需要的操作按钮/功能。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>Actions 组件用于快速配置一些 AI 场景下所需要的操作按钮/功能。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基本"
           Description="纯图标 + tooltip。"
@@ -26,6 +30,12 @@
           SourceCode="@DisabledSource">
     <XActions Items="@DisabledItems" />
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XActions</code> 通过 <code>Items</code> 描述操作项，并通过 <code>OnAction</code> 返回被点击项的 key。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string? _last;

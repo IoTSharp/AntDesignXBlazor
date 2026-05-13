@@ -1,12 +1,16 @@
 @page "/components/conversations"
+@page "/component/conversations"
 @layout ComponentLayout
 
 <PageTitle>Conversations 管理对话 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Conversations 管理对话</h1>
-    <p>会话列表组件，支持分组、菜单、重命名、删除、自定义图标与计数。</p>
-</header>
+<h1>Conversations 管理对话</h1>
+<p>会话列表组件，支持分组、菜单、重命名、删除、自定义图标与计数。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当 AI 应用需要展示多轮会话、历史记录、分组和会话操作时使用。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基本 + 分组"
           Description="按 Group 字段自动分组并显示更新时间。"
@@ -67,6 +71,12 @@
           SourceCode="@DisabledSource">
     <XConversations Items="@DisabledItems" Title="存档" />
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XConversations</code> 通过 <code>Items</code>、<code>ActiveKey</code>、<code>AllowRename</code>、<code>AllowDelete</code> 和菜单事件管理会话列表。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string ActiveKey { get; set; } = "today-1";

@@ -1,23 +1,30 @@
 @page "/components/bubble"
+@page "/component/bubble"
 @layout ComponentLayout
 @implements IDisposable
 
 <PageTitle>Bubble 对话气泡 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Bubble 对话气泡</h1>
-    <p>用于在 AI 对话场景下显示一条消息。支持 placement / variant / shape / loading / Markdown / 附件 / 流式打字 / 自定义 message render。</p>
-</header>
+<h1>Bubble 对话气泡</h1>
+<p>用于聊天的气泡组件。</p>
+
+<section id="when-to-use">
+    <h2>何时使用</h2>
+    <p>常用于聊天的时候。</p>
+</section>
+
+<section id="examples">
+    <h2>代码演示</h2>
 
 <DemoCard Title="基本"
-          Description="左右两种 placement。"
+          Description="基础用法。"
           SourceCode="@BasicSource">
     <XBubble Content="Hello, Ant Design X for Blazor!" />
     <XBubble Content="你好，这是一段中文消息。" Placement="XBubblePlacement.End" />
 </DemoCard>
 
-<DemoCard Title="头像与角色"
-          Description="通过 Header / AvatarIcon 区分角色。"
+<DemoCard Title="支持位置和头像"
+          Description="通过 avatar 设置自定义头像，通过 placement 设置位置，提供了 start、end 两个选项。"
           SourceCode="@AvatarSource">
     <XBubble Content="我是助手" Header="Assistant" AvatarIcon="robot"
              Placement="XBubblePlacement.Start" Variant="XBubbleVariant.Filled" Shape="XBubbleShape.Round" />
@@ -25,23 +32,26 @@
              Placement="XBubblePlacement.End" Variant="XBubbleVariant.Outlined" Shape="XBubbleShape.Round" />
 </DemoCard>
 
-<DemoCard Title="变体 Variant"
-          Description="Filled / Outlined / Borderless / Shadow。"
-          SourceCode="@VariantSource">
-    <XBubble Content="Filled" Variant="XBubbleVariant.Filled" />
-    <XBubble Content="Outlined" Variant="XBubbleVariant.Outlined" />
-    <XBubble Content="Borderless" Variant="XBubbleVariant.Borderless" />
-    <XBubble Content="Shadow" Variant="XBubbleVariant.Shadow" />
+<DemoCard Title="头和尾"
+          Description="通过 header 和 footer 属性设置气泡的头部和底部。"
+          SourceCode="@HeaderFooterSource">
+    <XBubble Header="Ant Design X"
+             Content="With header and footer."
+             AvatarIcon="robot">
+        <FooterTemplate>
+            <span>Footer content</span>
+        </FooterTemplate>
+    </XBubble>
 </DemoCard>
 
-<DemoCard Title="加载中 Loading"
-          Description="设置 Loading=true 显示打字动画。"
+<DemoCard Title="加载中"
+          Description="通过 loading 属性控制加载状态。"
           SourceCode="@LoadingSource">
     <XBubble Loading="true" Header="Assistant" AvatarIcon="robot" />
 </DemoCard>
 
-<DemoCard Title="流式打字 Typewriter"
-          Description="演示流式响应：每 50ms 追加一个字符。"
+<DemoCard Title="打字效果"
+          Description="通过设置 typing 属性，开启打字效果。更新 content 如果是之前的子集，则会继续输出，否则会重新输出。"
           SourceCode="@TypingSource">
     <XBubble Header="Assistant" AvatarIcon="robot" Streaming="true"
              Status="XMessageStatus.Loading" Markdown="true" Content="@_typing" />
@@ -50,24 +60,8 @@
     </div>
 </DemoCard>
 
-<DemoCard Title="状态 Status"
-          Description="Loading / Success / Error / Abort 四态。"
-          SourceCode="@StatusSource">
-    <XBubble Header="Loading" AvatarIcon="robot" Loading="true" Status="XMessageStatus.Loading" />
-    <XBubble Header="Success" AvatarIcon="robot" Content="生成完成。" Status="XMessageStatus.Success" />
-    <XBubble Header="Error" AvatarIcon="robot" Content="生成失败。" Status="XMessageStatus.Error" />
-    <XBubble Header="Abort" AvatarIcon="robot" Content="已中断。" Status="XMessageStatus.Abort" />
-</DemoCard>
-
-<DemoCard Title="附件气泡"
-          Description="Attachments + Actions 同时存在。"
-          SourceCode="@AttachSource">
-    <XBubble Header="User" AvatarIcon="user" Placement="XBubblePlacement.End"
-             Content="请帮我分析这两个文件。" Attachments="@_atts" Actions="@_actions" />
-</DemoCard>
-
-<DemoCard Title="自定义 messageRender"
-          Description="使用 ContentTemplate 自定义渲染（含 ThoughtChain）。"
+<DemoCard Title="自定义渲染内容"
+          Description="自定义渲染内容。"
           SourceCode="@CustomRenderSource">
     <XBubble Header="Assistant" AvatarIcon="robot">
         <ContentTemplate>
@@ -80,17 +74,71 @@
     </XBubble>
 </DemoCard>
 
-<DemoCard Title="Bubble.List + roles"
-          Description="使用 XBubbleList 与角色配置批量渲染消息流。"
+<DemoCard Title="渲染markdown内容"
+          Description="配合 markdown-it 实现自定义渲染内容。"
+          SourceCode="@MarkdownSource">
+    <XBubble Markdown="true" Header="Assistant" AvatarIcon="robot" Content="@MarkdownContent" />
+</DemoCard>
+
+<DemoCard Title="变体"
+          Description="通过 variant 属性设置气泡的样式变体。"
+          SourceCode="@VariantSource">
+    <XBubble Content="Filled" Variant="XBubbleVariant.Filled" />
+    <XBubble Content="Outlined" Variant="XBubbleVariant.Outlined" />
+    <XBubble Content="Borderless" Variant="XBubbleVariant.Borderless" />
+    <XBubble Content="Shadow" Variant="XBubbleVariant.Shadow" />
+</DemoCard>
+
+<DemoCard Title="形状"
+          Description="通过 shape 属性设置气泡的形状。"
+          SourceCode="@ShapeSource">
+    <XBubble Content="Round bubble" Shape="XBubbleShape.Round" />
+    <XBubble Content="Corner bubble" Shape="XBubbleShape.Corner" />
+</DemoCard>
+
+<DemoCard Title="气泡列表"
+          Description="预设样式的气泡列表，支持自动滚动。使用 roles 设置气泡默认属性。"
           SourceCode="@ListSource">
     <XBubbleList Items="@ListItems" RoleConfigs="@RoleConfigs" />
 </DemoCard>
 
-<DemoCard Title="Markdown 内容"
-          Description="设置 Markdown=true 让消息走 Markdown 渲染。"
-          SourceCode="@MarkdownSource">
-    <XBubble Markdown="true" Header="Assistant" AvatarIcon="robot" Content="@MarkdownContent" />
+<DemoCard Title="语义化自定义"
+          Description="示例通过语义化以及加载定制，来调整气泡效果。"
+          SourceCode="@StatusSource">
+    <XBubble Header="Loading" AvatarIcon="robot" Loading="true" Status="XMessageStatus.Loading" />
+    <XBubble Header="Success" AvatarIcon="robot" Content="生成完成。" Status="XMessageStatus.Success" />
+    <XBubble Header="Error" AvatarIcon="robot" Content="生成失败。" Status="XMessageStatus.Error" />
 </DemoCard>
+
+<DemoCard Title="自定义列表内容"
+          Description="自定义气泡列表内容，这对于个性化定制场景非常有用。"
+          SourceCode="@AttachSource">
+    <XBubble Header="User" AvatarIcon="user" Placement="XBubblePlacement.End"
+             Content="请帮我分析这两个文件。" Attachments="@_atts" Actions="@_actions" />
+</DemoCard>
+
+<DemoCard Title="深度思考"
+          Description="带深度思考。"
+          SourceCode="@ThinkSource">
+    <XBubble Header="Assistant" AvatarIcon="robot">
+        <ContentTemplate>
+            <XThoughtChain Items="@_steps" Compact="true" />
+        </ContentTemplate>
+    </XBubble>
+</DemoCard>
+
+</section>
+
+<section id="api">
+    <h2>API</h2>
+    <h3>Bubble</h3>
+    <XCodeHighlighter Language="csharp" Code="@ApiSource" ShowHeader="false" />
+</section>
+
+<section id="contributors">
+    <h2>贡献者</h2>
+    <p>本演示站使用 AntDesign.Blazor 与 AntDesign.X.Blazor 组件复刻 Ant Design X 文档视觉。</p>
+</section>
 
 @code {
     private System.Threading.Timer? _timer;
@@ -158,11 +206,26 @@
 <XBubble Content="我是用户" Header="User" AvatarIcon="user" Placement="XBubblePlacement.End" />
 """;
 
+    private const string HeaderFooterSource = """
+<XBubble Header="Ant Design X"
+         Content="With header and footer."
+         AvatarIcon="robot">
+    <FooterTemplate>
+        <span>Footer content</span>
+    </FooterTemplate>
+</XBubble>
+""";
+
     private const string VariantSource = """
 <XBubble Variant="XBubbleVariant.Filled"     Content="Filled" />
 <XBubble Variant="XBubbleVariant.Outlined"   Content="Outlined" />
 <XBubble Variant="XBubbleVariant.Borderless" Content="Borderless" />
 <XBubble Variant="XBubbleVariant.Shadow"     Content="Shadow" />
+""";
+
+    private const string ShapeSource = """
+<XBubble Shape="XBubbleShape.Round" Content="Round bubble" />
+<XBubble Shape="XBubbleShape.Corner" Content="Corner bubble" />
 """;
 
     private const string LoadingSource = """
@@ -200,5 +263,25 @@
 
     private const string MarkdownSource = """
 <XBubble Markdown="true" Content="@MarkdownContent" />
+""";
+
+    private const string ThinkSource = """
+<XBubble Header="Assistant" AvatarIcon="robot">
+    <ContentTemplate>
+        <XThoughtChain Items="@_steps" />
+    </ContentTemplate>
+</XBubble>
+""";
+
+    private const string ApiSource = """
+Content       string
+Header        string
+Footer        string
+AvatarIcon    string
+Placement     XBubblePlacement.Start | XBubblePlacement.End
+Variant       Filled | Borderless | Outlined | Shadow
+Shape         Round | Corner
+Loading       bool
+Markdown      bool
 """;
 }

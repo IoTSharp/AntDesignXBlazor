@@ -1,114 +1,48 @@
 @page "/components"
 @page "/components/introduce-cn"
+@page "/component/overview"
 @layout ComponentLayout
 
-<PageTitle>组件介绍 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>总览 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-doc-hero">
-    <div>
-        <div class="demo-kicker">Components</div>
-        <h1>组件介绍</h1>
-        <p>参考官方 Ant Design X 的组件介绍页，把组件先放进 AI 产品范式里解释，再进入具体示例。左侧是组件目录，右侧是介绍、分类、快速开始和 demo 入口。</p>
+<h1>总览</h1>
+
+<p><code>AntDesign.X.Blazor</code> 是 <code>Ant Design X</code> 面向 Blazor 生态的实现，专注于帮助开发者快速构建 AI 对话、Copilot 和混合界面体验。组件库使用 AntDesign.Blazor 作为基础设计系统，并提供面向 AI 交互的语义组件与数据模型。</p>
+
+<DocsDemo Title="组件总览" SourceCode="@OverviewSource">
+    <div class="overview-cards">
+        @foreach (var group in ComponentNav.Groups)
+        {
+            <section class="overview-group">
+                <h2>@group.Title</h2>
+                <div class="overview-grid">
+                    @foreach (var item in group.Items)
+                    {
+                        <a class="overview-card" href="@($"component/{item.Slug}")">
+                            <span>@item.EnglishTitle</span>
+                            <small>@item.Title</small>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
     </div>
-    <div class="demo-doc-hero-actions">
-        <a class="demo-primary-button" href="components/sender">
-            <Icon Type="thunderbolt" Theme="IconThemeType.Outline" />
-            <span>体验 Sender</span>
-        </a>
-        <a class="demo-ghost-button"
-           href="https://x.ant.design/components/introduce-cn"
-           target="_blank"
-           rel="noopener noreferrer">
-            <Icon Type="link" Theme="IconThemeType.Outline" />
-            <span>官方参考</span>
-        </a>
-    </div>
-</header>
+</DocsDemo>
 
-<section class="demo-doc-section">
-    <h2>面向 AI 界面的组件体系</h2>
-    <p>Ant Design X 的核心不是单个输入框或消息气泡，而是一套围绕 AI 交互旅程的界面语言。Blazor 版本延续这条路径：用强类型模型、事件回调和 RenderFragment，把官方 React 组件语义转换为 Blazor 开发体验。</p>
-    <div class="demo-doc-feature-grid">
-        <article>
-            <Icon Type="message" Theme="IconThemeType.Outline" />
-            <strong>对话优先</strong>
-            <span>Bubble、Conversations、Sender 组成最小 AI 工作台。</span>
-        </article>
-        <article>
-            <Icon Type="branches" Theme="IconThemeType.Outline" />
-            <strong>过程可见</strong>
-            <span>Think、ThoughtChain、Sources 让生成过程更可解释。</span>
-        </article>
-        <article>
-            <Icon Type="tool" Theme="IconThemeType.Outline" />
-            <strong>易于组合</strong>
-            <span>组件保持低耦合，可以嵌入 Copilot、独立聊天或业务工作流。</span>
-        </article>
-    </div>
-</section>
-
-<section class="demo-doc-section">
-    <h2>RICH 范式映射</h2>
-    <div class="demo-doc-rich-list">
-        <article>
-            <span>1</span>
-            <div>
-                <h3>Awaken 唤醒</h3>
-                <p>用 Welcome 与 Prompts 提供初始引导，让用户知道可以如何开始。</p>
-            </div>
-        </article>
-        <article>
-            <span>2</span>
-            <div>
-                <h3>Express 表达</h3>
-                <p>用 Sender、Attachments、Suggestion 承接自然语言、文件和快捷指令。</p>
-            </div>
-        </article>
-        <article>
-            <span>3</span>
-            <div>
-                <h3>Confirm 确认</h3>
-                <p>用 Think 与 ThoughtChain 展示推理和工具调用，帮助用户判断结果质量。</p>
-            </div>
-        </article>
-        <article>
-            <span>4</span>
-            <div>
-                <h3>Feedback 反馈</h3>
-                <p>用 Actions、Sources、Notification 和 FileCard 处理采纳、追溯和状态反馈。</p>
-            </div>
-        </article>
-    </div>
-</section>
-
-<section class="demo-doc-section">
-    <h2>组件总览</h2>
-    <p>组件分组对齐官方 Ant Design X 的组织方式，同时加入 Blazor 项目的 Markdown、Mermaid、XProvider 和 Playground 示例。</p>
-    @foreach (var group in ComponentNav.Groups)
-    {
-        <section class="demo-overview-group">
-            <h3>@group.Title</h3>
-            <div class="demo-overview-grid">
-                @foreach (var item in group.Items)
-                {
-                    <a class="demo-overview-card" href="@($"components/{item.Slug}")">
-                        <span>@item.Title</span>
-                        <code>@item.EnglishTitle</code>
-                    </a>
-                }
-            </div>
-        </section>
-    }
-</section>
-
-<section class="demo-doc-section">
+<section id="api">
     <h2>快速开始</h2>
-    <p>安装包、注册服务、引入样式后，用 XProvider 包裹页面，就可以像下面这样组合一个最小输入闭环。</p>
+    <p>注册服务、引入样式后，用 XProvider 包裹页面，就可以像下面这样组合一个最小输入闭环。</p>
     <XCodeHighlighter Language="razor"
                       Code="@QuickStartCode" />
 </section>
 
 @code {
+    private const string OverviewSource = """
+<XWelcome Title="Ant Design X Blazor" Description="AI components for Blazor" />
+<XBubbleList Items="@messages" />
+<XSender @bind-Value="@draft" OnSubmit="@Submit" />
+""";
+
     private const string QuickStartCode = """
 <XProvider Theme="light">
     <XBubbleList Items="@messages" />

@@ -1,12 +1,16 @@
 @page "/components/suggestion"
+@page "/component/suggestion"
 @layout ComponentLayout
 
-<PageTitle>Suggestion 建议 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>Suggestion 快捷指令 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Suggestion 建议</h1>
-    <p>输入框上方的建议下拉，常配合 XSender 使用。</p>
-</header>
+<h1>Suggestion 快捷指令</h1>
+<p>输入框上方的建议下拉，常配合 XSender 使用。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当输入过程中需要根据用户文本动态推荐指令、联系人或任务模板时使用。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基础"
           Description="基于 Query 过滤。"
@@ -42,6 +46,12 @@
                  OnSelect="@OnMentionSelect" />
     <p class="demo-tip">当前内容：<code>@_senderText</code></p>
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XSuggestion</code> 通过 <code>Items</code>、<code>Query</code>、<code>Open</code> 与 <code>OnSelect</code> 完成建议项展示和选择。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string _query = string.Empty;

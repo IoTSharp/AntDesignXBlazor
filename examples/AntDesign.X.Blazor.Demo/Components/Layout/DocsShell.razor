@@ -1,0 +1,178 @@
+@inject NavigationManager Navigation
+@inject DemoThemeState ThemeState
+
+<XProvider Theme="@ThemeState.Theme" Class="@RootClass">
+    <div class="vp-app">
+        <header class="VPNav">
+            <div class="VPNavBar">
+                <a class="VPNavBarTitle" href="">
+                    <img class="VPNavBarTitleLogo"
+                         src="antdesign-x-blazor-logo.svg"
+                         alt=""
+                         aria-hidden="true" />
+                    <span>Ant Design X Blazor</span>
+                </a>
+
+                @if (HasSidebar)
+                {
+                    <button type="button"
+                            class="VPNavBarHamburger"
+                            aria-label="@(_sidebarOpen ? "关闭菜单" : "打开菜单")"
+                            aria-expanded="@_sidebarOpen"
+                            @onclick="ToggleSidebar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                }
+
+                <nav class="VPNavBarMenu" aria-label="主导航">
+                    @foreach (var item in DocsNav.TopLinks)
+                    {
+                        <NavLink class="VPNavBarMenuLink"
+                                 href="@item.Href"
+                                 Match="NavLinkMatch.Prefix">
+                            @item.Text
+                        </NavLink>
+                    }
+
+                    <div class="VPNavBarMenuGroup">
+                        <button type="button" class="VPNavBarMenuButton">
+                            <span>更多</span>
+                            <Icon Type="down" Theme="IconThemeType.Outline" />
+                        </button>
+                        <div class="VPNavBarMenuPopup">
+                            @foreach (var item in DocsNav.MoreLinks)
+                            {
+                                <a href="@item.Href" target="_blank" rel="noopener noreferrer">@item.Text</a>
+                            }
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="VPNavBarActions">
+                    <a class="VPNavBarIcon"
+                       href="@DemoShellLinks.RepositoryUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="GitHub">
+                        <Icon Type="github" Theme="IconThemeType.Outline" />
+                    </a>
+                    <button type="button"
+                            class="VPNavBarIcon"
+                            title="切换主题"
+                            @onclick="ToggleTheme">
+                        <Icon Type="@(ThemeState.IsDark ? "sun" : "moon")" Theme="IconThemeType.Outline" />
+                    </button>
+                </div>
+            </div>
+            <div class="divider"></div>
+        </header>
+
+        @if (HasSidebar)
+        {
+            <aside class="@SidebarClass">
+                <div class="VPSidebarContent">
+                    <div class="vp-preference">
+                        <span>风格偏好</span>
+                        <span class="vp-preference-switch">razor</span>
+                    </div>
+
+                    <nav class="VPSidebarNav" aria-label="文档导航">
+                        @foreach (var group in Sidebar)
+                        {
+                            if (!string.IsNullOrWhiteSpace(group.Href))
+                            {
+                                <a class="VPSidebarItem VPSidebarItemRoot @ActiveClass(group.Href)" href="@group.Href" @onclick="CloseSidebar">
+                                    @group.Text
+                                </a>
+                            }
+                            else
+                            {
+                                <section class="VPSidebarGroup">
+                                    <h2>@group.Text</h2>
+                                    @foreach (var item in group.Items)
+                                    {
+                                        <a class="VPSidebarItem @ActiveClass(item.Href)" href="@item.Href" @onclick="CloseSidebar">@item.Text</a>
+                                    }
+                                </section>
+                            }
+                        }
+                        </nav>
+                </div>
+            </aside>
+            <button type="button"
+                    class="@BackdropClass"
+                    aria-label="关闭菜单"
+                    @onclick="CloseSidebar"></button>
+        }
+
+        <main class="@ContentClass">
+            <div class="VPDoc">
+                <div class="VPDocContainer">
+                    <article class="vp-doc">
+                        @Body
+                    </article>
+
+                    @if (HasAside)
+                    {
+                        <aside class="VPDocAside">
+                            <nav class="VPDocAsideOutline" aria-label="本页目录">
+                                <div class="VPDocAsideTitle">本页目录</div>
+                                @foreach (var item in Outline)
+                                {
+                                    <a class="VPDocAsideLink level-@item.Level" href="@item.Href">@item.Text</a>
+                                }
+                            </nav>
+                        </aside>
+                    }
+                </div>
+            </div>
+        </main>
+    </div>
+</XProvider>
+
+@code {
+    [Parameter] public RenderFragment? Body { get; set; }
+
+    private bool _sidebarOpen;
+
+    private string CurrentPath => DocsNav.Normalize(Navigation.ToBaseRelativePath(Navigation.Uri));
+
+    private bool IsHome => string.IsNullOrWhiteSpace(CurrentPath);
+
+    private bool HasSidebar => DocsNav.HasSidebar(CurrentPath);
+
+    private bool HasAside => HasSidebar && !DocsNav.HideAside(CurrentPath) && Outline.Count > 0;
+
+    private IReadOnlyList<DocsNav.SidebarGroup> Sidebar => DocsNav.GetSidebar(CurrentPath);
+
+    private IReadOnlyList<DocsNav.OutlineItem> Outline => DocsNav.GetOutline(CurrentPath);
+
+    private string RootClass => $"vp-docs-root{(IsHome ? " vp-docs-home" : string.Empty)}";
+
+    private string ContentClass => HasSidebar
+        ? HasAside ? "VPContent has-sidebar has-aside" : "VPContent has-sidebar"
+        : "VPContent";
+
+    private string SidebarClass => _sidebarOpen ? "VPSidebar open" : "VPSidebar";
+
+    private string BackdropClass => _sidebarOpen ? "VPSidebarBackdrop open" : "VPSidebarBackdrop";
+
+    private string ActiveClass(string href) => DocsNav.IsActive(CurrentPath, href) ? "active" : string.Empty;
+
+    private void ToggleSidebar()
+    {
+        _sidebarOpen = !_sidebarOpen;
+    }
+
+    private void CloseSidebar()
+    {
+        _sidebarOpen = false;
+    }
+
+    private void ToggleTheme()
+    {
+        ThemeState.Toggle();
+    }
+}

@@ -1,14 +1,18 @@
 @page "/components/x-provider"
+@page "/component/x-provider"
 @layout ComponentLayout
 
-<PageTitle>XProvider 全局配置 · AntDesign.X.Blazor</PageTitle>
+<PageTitle>XProvider 全局化配置 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>XProvider 全局配置</h1>
-    <p>全局主题 token / locale / 默认行为；建议在应用根注入一次。</p>
-</header>
+<h1>XProvider 全局化配置</h1>
+<p>全局主题 token / locale / 默认行为；建议在应用根注入一次。</p>
 
-<DemoCard Title="主题 token" SourceCode="@TokensSource">
+<h2 id="when-to-use">使用说明</h2>
+<p>在应用根部使用 XProvider，为 AntDesign.X.Blazor 组件统一下发主题、暗色模式和局部 token。</p>
+
+<h2 id="examples">代码演示</h2>
+
+<DemoCard Title="使用" SourceCode="@TokensSource">
     <XProvider Tokens="@Tokens">
         <XBubble Header="Assistant" AvatarIcon="robot"
                  Placement="XBubblePlacement.Start"
@@ -51,6 +55,12 @@
         </div>
     </XProvider>
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XProvider</code> 支持 <code>Theme</code>、<code>Tokens</code> 和局部嵌套覆盖。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private bool _dark;

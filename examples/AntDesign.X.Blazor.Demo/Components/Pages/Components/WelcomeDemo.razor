@@ -1,22 +1,26 @@
 @page "/components/welcome"
+@page "/component/welcome"
 @layout ComponentLayout
 
 <PageTitle>Welcome 欢迎 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Welcome 欢迎</h1>
-    <p>对话引导页头部，常与 Prompts / Sender 组合使用。</p>
-</header>
+<h1>Welcome 欢迎</h1>
+<p>清晰传达给用户可实现的意图范围和预期功能。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>使用合适的欢迎推荐组件，可以有效降低用户学习成本，让用户快速了解并顺利开始。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基础用法"
-          Description="Title + Description + Icon。"
+          Description="基础用法。"
           SourceCode="@BasicSource">
     <XWelcome Title="你好，我是 AntDesign.X for Blazor"
               Description="请描述你想完成的任务，我会帮你拆解步骤并给出回答。" />
 </DemoCard>
 
-<DemoCard Title="搭配 Prompts"
-          Description="ExtraTemplate 嵌入快捷入口。"
+<DemoCard Title="变体"
+          Description="通过紧凑模式适配不同布局。"
           SourceCode="@PromptSource">
     <XWelcome Title="开始一段对话" Description="选择一个常用提示快速开始：">
         <ExtraTemplate>
@@ -25,8 +29,8 @@
     </XWelcome>
 </DemoCard>
 
-<DemoCard Title="自定义图标 + 紧凑"
-          Description="IconTemplate 与 Compact 组合。"
+<DemoCard Title="背景定制"
+          Description="自定义部分样式。"
           SourceCode="@CustomSource">
     <XWelcome Compact="true"
               Title="Hi, Camel"
@@ -36,6 +40,12 @@
         </IconTemplate>
     </XWelcome>
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XWelcome</code> 支持 <code>Title</code>、<code>Description</code>、<code>Icon</code>、<code>IconTemplate</code> 与 <code>ExtraTemplate</code>。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private readonly IReadOnlyList<XPromptItem> _prompts =

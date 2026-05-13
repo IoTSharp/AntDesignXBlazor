@@ -1,12 +1,16 @@
 @page "/components/attachments"
+@page "/component/attachments"
 @layout ComponentLayout
 
 <PageTitle>Attachments 输入附件 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>Attachments 输入附件</h1>
-    <p>独立的附件区域，支持拖拽 / 粘贴 / 文件夹 / 状态展示 / beforeUpload 校验。</p>
-</header>
+<h1>Attachments 输入附件</h1>
+<p>独立的附件区域，支持拖拽 / 粘贴 / 文件夹 / 状态展示 / beforeUpload 校验。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当输入区需要携带文件、图片或上下文材料时使用，常与 Sender 组合。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <DemoCard Title="基本"
           Description="点击或拖拽上传，可粘贴。"
@@ -54,6 +58,12 @@
     <XAttachments Items="@Items4" UploadEnabled="true" Multiple="true" MaxCount="3"
                   OnFilesSelected="@AddFiles4" OnRemove="@Remove4" />
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XAttachments</code> 支持 <code>Items</code>、<code>UploadEnabled</code>、<code>Multiple</code>、<code>Directory</code>、<code>BeforeUpload</code> 和文件变更事件。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private string? _msg;

@@ -1,12 +1,16 @@
 @page "/components/thought-chain"
+@page "/component/thought-chain"
 @layout ComponentLayout
 
 <PageTitle>ThoughtChain 思维链 · AntDesign.X.Blazor</PageTitle>
 
-<header class="demo-page-header">
-    <h1>ThoughtChain 思维链</h1>
-    <p>线性展示 Agent 的推理与工具调用步骤，支持嵌套、折叠与三种尺寸。</p>
-</header>
+<h1>ThoughtChain 思维链</h1>
+<p>线性展示 Agent 的推理与工具调用步骤，支持嵌套、折叠与三种尺寸。</p>
+
+<h2 id="when-to-use">何时使用</h2>
+<p>当 AI 应用需要展示推理过程、工具调用进度或多阶段执行状态时使用。</p>
+
+<h2 id="examples">代码演示</h2>
 
 <div class="demo-thoughtchain-grid">
     <DemoCard Title="基本"
@@ -47,6 +51,12 @@
         </ExtraTemplate>
     </XThoughtChain>
 </DemoCard>
+
+<h2 id="api">API</h2>
+<p><code>XThoughtChain</code> 通过 <code>Items</code>、<code>Size</code>、<code>Collapsible</code> 和模板插槽展示思考链。</p>
+
+<h2 id="contributors">贡献者</h2>
+<p>Blazor implementation.</p>
 
 @code {
     private IReadOnlyList<XThoughtItem> Items { get; } =
