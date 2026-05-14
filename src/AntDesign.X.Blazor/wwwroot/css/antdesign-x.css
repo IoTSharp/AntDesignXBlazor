@@ -609,6 +609,12 @@
     box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.10);
 }
 
+.antdx-sender-editor.antdx-attachments-drag-over {
+    border-color: rgba(22, 119, 255, 0.62);
+    background: color-mix(in srgb, var(--antdx-component-bg) 88%, var(--antdx-color-primary));
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.10);
+}
+
 .antdx-sender-header,
 .antdx-sender-custom-footer,
 .antdx-sender-footer {

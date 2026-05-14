@@ -24,7 +24,17 @@
         </div>
     }
 
-    <div class="antdx-sender-editor">
+    <div class="antdx-sender-editor" @ref="Editor">
+        @if (AttachmentsEnabled)
+        {
+            <InputFile class="antdx-sender-file-input"
+                       multiple="@Multiple"
+                       disabled="@(Disabled || ReadOnly)"
+                       accept="@Accept"
+                       @attributes="InputAttributes"
+                       OnChange="@HandleFiles" />
+        }
+
         @if (ShowAttachmentsPanel)
         {
             <div class="antdx-sender-attachments-panel">
@@ -192,6 +202,8 @@
 
 @code {
     private IJSObjectReference? _module;
+    private IJSObjectReference? _senderDropZone;
+    private ElementReference Editor;
     private ElementReference TextArea;
 
     [Parameter] public string? Value { get; set; }
@@ -283,6 +295,15 @@
     private DotNetObjectReference<XSender>? _speechRef;
     private string? _speechBaseValue;
 
+    private IDictionary<string, object>? InputAttributes =>
+        Directory
+            ? new Dictionary<string, object>
+            {
+                ["webkitdirectory"] = true,
+                ["directory"] = true,
+            }
+            : null;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -299,6 +320,25 @@
             {
                 return;
             }
+
+            if (AttachmentsEnabled)
+            {
+                try
+                {
+                    _senderDropZone = await _module.InvokeAsync<IJSObjectReference>(
+                        "wireAttachmentDropZone",
+                        Editor,
+                        AttachmentsDragHover,
+                        AttachmentsPastable,
+                        Disabled || ReadOnly);
+                }
+                catch (JSException)
+                {
+                }
+                catch (InvalidOperationException)
+                {
+                }
+            }
         }
 
         await ResizeAsync();
@@ -309,6 +349,11 @@
         await StopSpeechInternalAsync();
         _speechRef?.Dispose();
         _speechRef = null;
+
+        if (_senderDropZone is not null)
+        {
+            await _senderDropZone.DisposeAsync();
+        }
 
         if (_module is not null)
         {
@@ -454,6 +499,12 @@
         if (MaxAttachments is > 0)
         {
             files = files.Take(MaxAttachments.Value).ToArray();
+        }
+
+        if (files.Count > 0)
+        {
+            _attachmentsPanelTouched = false;
+            _attachmentsPanelOpen = true;
         }
 
         await OnFilesSelected.InvokeAsync(files);
