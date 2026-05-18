@@ -1,0 +1,25 @@
+{
+  "name": "x-blazor-skill",
+  "version": "1.0.0",
+  "description": "AI agent skill package for building AntDesign.X.Blazor chat and agent workspace interfaces.",
+  "homepage": "https://github.com/IoTSharp/AntDesignXBlazor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IoTSharp/AntDesignXBlazor.git"
+  },
+  "keywords": [
+    "ant-design-x",
+    "ant-design-x-blazor",
+    "blazor",
+    "ai",
+    "chat",
+    "agent",
+    "skill"
+  ],
+  "files": [
+    "skills",
+    ".skill.json",
+    ".claude-plugin"
+  ]
+}

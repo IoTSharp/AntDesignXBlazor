@@ -1,0 +1,35 @@
+{
+  "name": "x-blazor-skills",
+  "metadata": {
+    "description": "AntDesign.X.Blazor skill package for building AI chat and agent workspace interfaces in Blazor.",
+    "descriptionZh": "AntDesign.X.Blazor 智能技能包，用于在 Blazor 中构建 AI 对话和 Agent 工作台界面。",
+    "version": "1.0.0",
+    "author": "IoTSharp",
+    "homepage": "https://github.com/IoTSharp/AntDesignXBlazor",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/IoTSharp/AntDesignXBlazor.git"
+    },
+    "keywords": [
+      "ant-design-x",
+      "ant-design-x-blazor",
+      "blazor",
+      "ai",
+      "chat",
+      "agent",
+      "dotnet"
+    ]
+  },
+  "plugins": [
+    {
+      "name": "x-blazor-skill",
+      "description": "AntDesign.X.Blazor component, chat store, request client, streaming, and React-to-Blazor migration guidance.",
+      "descriptionZh": "AntDesign.X.Blazor 组件、聊天状态、请求客户端、流式响应以及 React 到 Blazor 迁移指南。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/x-blazor-skill"
+      ]
+    }
+  ]
+}

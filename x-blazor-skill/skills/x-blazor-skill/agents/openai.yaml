@@ -1,0 +1,4 @@
+interface:
+  display_name: "AntDesign.X Blazor"
+  short_description: "Build Ant Design X chat UIs in Blazor"
+  default_prompt: "Use $x-blazor-skill to build an AntDesign.X.Blazor chat UI."
